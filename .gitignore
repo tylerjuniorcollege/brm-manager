@@ -1,4 +1,4 @@
 vendor/
-public/adminer.php
+public/latest.php
 data/database.db
 public/components/
