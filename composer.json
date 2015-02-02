@@ -1,0 +1,34 @@
+{
+	"name":"tylerjuniorcollege/brm-manager",
+	"description":"Simple Application for BRM Approval Workflow",
+	"license":"MIT",
+	"authors":[
+		{
+			"name":"Duane Jeffers",
+			"role":"developer",
+			"email":"djef@tjc.edu"
+		}
+	],
+	"require":{
+		"slim/slim": "2.*",
+		"j4mie/idiorm": "1.5.1",
+		"tylerjuniorcollege/slim-layout":"dev-master",
+		"duanejeffers/cli.class.php": "dev-master",
+		"filp/whoops": "1.*",
+		"zeuxisoo/slim-whoops": "0.2.0",
+		"mandrill/mandrill": "1.0.*"
+	},
+	"autoload":{
+		"psr-4":{
+			"BRMManager\\":"app/src/"
+		}
+	},
+	"scripts":{
+		"post-update-cmd":[
+			"bower update"
+		],
+		"post-install-cmd":[
+			"bower install"
+		]
+	}
+}
