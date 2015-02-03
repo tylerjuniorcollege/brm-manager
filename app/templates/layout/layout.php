@@ -33,14 +33,17 @@
 			  	<?php if(isset($data['user'])): ?>
 			  		<form class="navbar-form navbar-right" role="search" action="/brm/search">
         				<div class="form-group">
-          					<input type="text" class="form-control" placeholder="Search for BRM">
+          					<input type="text" class="form-control" name="s" placeholder="Search for BRM">
         				</div>
         				<button type="submit" class="btn btn-default">Submit</button>
       				</form>
       				<?php if($data['user']->hasAccess('create')): ?>
-      					<div class="btn-group navbar-right">
-
-      					</div>
+      					<ul class="nav navbar-nav navbar-left">
+      						<li><a href="/brm/create">Create a New BRM</a></li>
+      						<?php if($data['user']->hasAccess('admin')): ?>
+      						<li><a href="/admin">Admin App</a></li>
+      						<?php endif; ?>
+      					</ul>
       				<?php endif; ?>
 			  	<?php endif; ?>
 		  	</div>
