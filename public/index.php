@@ -93,7 +93,7 @@
 				$app->redirect('/');
 			}
 		} else {
-			$app->flash('error', 'You Did Not Submit An User Email.');
+			$app->flash('danger', 'You Did Not Submit An User Email.');
 			$app->redirect('/');
 		}
 	});
@@ -111,7 +111,7 @@
 		$result = \ORM::for_table('login_attempts')->where('hash', $hash)->where_gt('timestamp', $range_time)->where_lt('timestamp', $curr_time)->find_one();
 
 		if(!$result) {
-			$app->flash('error', 'Login Error, Please try again');
+			$app->flash('danger', 'Login Error, Please try again');
 			$app->redirect('/');
 		} else {
 			$user = \ORM::for_table('user')->find_one($result->userid);
