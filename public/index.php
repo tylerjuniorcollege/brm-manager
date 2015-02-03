@@ -126,18 +126,81 @@
 		$app->get('/', function() use($app) {
 			$view = array();
 			if($_SESSION['user']->hasAccess('create')) {
+				if(!empty($app->request->get('create_page'))) {
+					$offset = ((int) $app->request->get('create_page') * 10);
+				} else {
+					$offset = 0;
+				}
 				// gather all of the BRMs that they have created ....
-				$created = \ORM::for_table('view_create_brm_list')->where('createdby', $_SESSION['user']->id)->find_many();
+				$created = \ORM::for_table('view_brm_list_approve')->where('createdby', $_SESSION['user']->id)->limit(10)->offset($offset)->find_many();
 
 				$view['created'] = $created;
+			}
+
+			if($_SESSION['user']->hasAccess('approve')) {
+
 			}
 
 			$app->render('brm/index.php', $view);
 		});
 
-		$app->get('/view/:id', function($id) use($app) {
+		$app->group('/view', function() use($app) {
+			$app->get('/:id', function($id) use($app) {
+				$out = array();
+				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
+				// Grab the current version data as well ...
+				$out['current_version'] = \ORM::for_table('brm_content_version')->find_one($out['brm_data']->current_version);
+				// Grab all the header images associated with this version.
+				$out['header_imgs'] = \ORM::for_table('brm_header_images')->where(array('brmid' => $out['brm_data']->id, 'brmversionid' => $out['current_version']->id));
 
-		})->name('view-brm');
+				$out['previous_versions'] = \ORM::for_table('brm_content_version')->select(array('id', 'created'))
+																				  ->where('brmid', $out['brm_data']->id)
+																				  ->where_not_equal('id', $out['current_version']->id)
+																				  ->order_by_desc('id', 'created')->find_array();
+
+				$out['comments'] = \ORM::for_table('view_brm_comments')->where('brmid', $out['brm_data']->id)
+																  ->order_by_desc('timestamp', 'versionid')
+																  ->find_many();
+
+				// Determine if the current user is the creator/owner of the requested BRM
+				$out['owner'] = FALSE;
+				if($_SESSION['user']->id == $out['brm_data']->createdby) {
+					$out['owner'] = TRUE;
+				}
+
+				// Grab the list of current users who are tied to the BRM.
+				$out['auth_users'] = \ORM::for_table('brm_auth_list')->table_alias('auth')->select(array('auth.userid', 'auth.permission', 'auth.approved', 'auth.firstviewed'))
+																	 ->select(array('u.firstname', 'u.lastname', 'u.email', 'u.permissions'))->join('user', array('auth.userid', '=', 'u.id'), 'u')
+																	 ->where(array('auth.brmid' => $out['brm_data']->id, 'auth.versionid' => $out['current_version']->id))
+																	 ->find_many();
+
+				$app->render('brm/view.php', $out);
+			})->name('view-brm');
+
+			$app->get('/version/:id', function($id) use($app) {
+				$data = \ORM::for_table('brm_content_version')->find_one($id);
+				$json = array(
+					'id' => $data->id,
+					'brmid' => $data->brmid,
+					'content' => $data->content,
+					'created' => $data->created
+				);
+
+				$app->view->renderJson($json);
+			})->name('view-version');
+		});
+
+		$app->map('/create', function() use($app) {
+
+		})->via('GET', 'POST');
+
+		$app->map('/edit/:id', function($id) use($app) {
+
+		})->via('GET', 'POST')->name('edit-brm');
+
+		$app->get('//:brmid/:versionid', function($action, $brmid, $versionid) use($app) {
+
+		})->name('brm-approve');
 	});
 
 	$app->group('/user', function() use($app) {
