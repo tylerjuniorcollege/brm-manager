@@ -108,10 +108,6 @@ CREATE TABLE "user" (
   "permissions" integer NOT NULL DEFAULT '1'
 );
 
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (1, 'Duane',  'Jeffers',  'djef@tjc.edu', 31);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (2, 'Allen',  'Arrick', 'aarr@tjc.edu', 31);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (3, 'Leah', 'Wansley',  'lwan@tjc.edu', 31);
-
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
 
