@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1d704ce9154033ff9c282033ee07d02f",
+    "hash": "1b39c7323cd5747b99a10da1b3d6470b",
     "packages": [
         {
             "name": "duanejeffers/cli.class.php",
