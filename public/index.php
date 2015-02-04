@@ -41,14 +41,22 @@
 		return new Mandrill($api_key);
 	});
 
+	$app->container->singleton('user', function() {
+		if(isset($_SESSION['user'])) {
+			return $_SESSION['user'];
+		} else {
+			return FALSE;
+		}
+	});
+
 	$checkLogin = function() use($app) {
 		// Check the current Session and if the user is logged in.
-		if(!isset($_SESSION['user']) || !$_SESSION['user']->keepLoginAlive()) {
+		if(!$app->user || !$app->user->keepLoginAlive()) {
 			$app->flash('info', 'Session Timed Out. Please re-login.');
 			$app->redirect("/");
 		} else {
 			// Pass the User information on in to the system.
-			$app->view->setLayoutData('user', $_SESSION['user']);
+			$app->view->setLayoutData('user', $app->user);
 		}
 	};
 
@@ -145,7 +153,32 @@
 		});
 
 		$app->group('/view', function() use($app) {
-			$app->get('/:id', function($id) use($app) {
+			$app->map('/:id', function($id) use($app) {
+				// Check to see if this user is allowed to view this BRM.
+				if(!$app->user->hasAccess('admin')) {
+
+				}
+
+				if($app->request->isPost()) {
+					// This is adding a comment or approving the current BRM.
+					switch($app->request->post('action')) {
+						case 'addcomment':
+							$comment = \ORM::for_table('comments')->create();
+							$comment->userid = $_SESSION['user']->id;
+							$comment->brmid = $app->request->post('brmid');
+							$comment->versionid = $app->request->post('versionid');
+							$comment->comment = $app->request->post('comment');
+							$comment->timestamp = time();
+							$comment->save();
+							break;
+
+						case 'approve':
+							$approval = 1;
+
+							break;
+					}
+				}
+				$app->view->appendJavascriptFile('/js/viewbrm.js');
 				$out = array();
 				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
 				// Grab the current version data as well ...
@@ -159,8 +192,8 @@
 																				  ->order_by_desc('id', 'created')->find_array();
 
 				$out['comments'] = \ORM::for_table('view_brm_comments')->where('brmid', $out['brm_data']->id)
-																  ->order_by_desc('timestamp', 'versionid')
-																  ->find_many();
+																  	   ->order_by_desc('timestamp', 'versionid')
+																  	   ->find_many();
 
 				// Determine if the current user is the creator/owner of the requested BRM
 				$out['owner'] = FALSE;
@@ -175,7 +208,7 @@
 																	 ->find_many();
 
 				$app->render('brm/view.php', $out);
-			})->name('view-brm');
+			})->via('GET', 'POST')->name('view-brm');
 
 			$app->get('/version/:id', function($id) use($app) {
 				$data = \ORM::for_table('brm_content_version')->find_one($id);
@@ -183,7 +216,7 @@
 					'id' => $data->id,
 					'brmid' => $data->brmid,
 					'content' => $data->content,
-					'created' => $data->created
+					'created' => date('l, F j, Y g:i:s', $data->created)
 				);
 
 				$app->view->renderJson($json);
@@ -191,7 +224,12 @@
 		});
 
 		$app->map('/create', function() use($app) {
-
+			if($app->request->isPost()) {
+				var_dump($app->request->post());
+				var_dump($_FILES);
+				die();
+			}
+			$app->render('brm/create.php', array());
 		})->via('GET', 'POST');
 
 		$app->map('/edit/:id', function($id) use($app) {
@@ -204,7 +242,9 @@
 	});
 
 	$app->group('/user', function() use($app) {
-
+		$app->get('/search', function() use($app) {
+			
+		});
 	});
 
 	$app->run();
