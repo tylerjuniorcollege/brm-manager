@@ -18,8 +18,9 @@ CREATE TABLE "brm_auth_list" (
 
 INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (1, 2,  1,  1,  3,  '0',  NULL, NULL, '');
 INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (2, 3,  1,  1,  3,  '0',  NULL, NULL, '');
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (3, 2,  1,  2,  3,  '0',  NULL, 1423002500, 1423002341);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (4, 3,  1,  2,  3,  '0',  NULL, NULL, 1423002341);
+INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (3, 2,  1,  2,  3,  -1, NULL, 1423002500, 1423002341);
+INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (4, 3,  1,  2,  3,  1,  NULL, 1423002341, 1423002341);
+INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comments", "firstviewed", "timestamp") VALUES (5, 2,  1,  3,  3,  '0',  NULL, 1423002341, 1423002341);
 
 DROP TABLE IF EXISTS "brm_campaigns";
 CREATE TABLE "brm_campaigns" (
@@ -34,7 +35,7 @@ CREATE TABLE "brm_campaigns" (
   FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "createdby", "created") VALUES (1,  'TEST BRM', 'Testing BRM',  2,  '', 1,  1422916676);
+INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "createdby", "created") VALUES (1,  'TEST BRM', 'Testing BRM',  3,  '', 1,  1422916676);
 
 DROP TABLE IF EXISTS "brm_content_version";
 CREATE TABLE "brm_content_version" (
@@ -47,6 +48,7 @@ CREATE TABLE "brm_content_version" (
 
 INSERT INTO "brm_content_version" ("id", "brmid", "content", "created") VALUES (1,  1,  'THIS IS TEST CONTENT!!!',  1422916676);
 INSERT INTO "brm_content_version" ("id", "brmid", "content", "created") VALUES (2,  1,  'MOAR CONTENT HERE!!!!',  1423002341);
+INSERT INTO "brm_content_version" ("id", "brmid", "content", "created") VALUES (3,  1,  'Another Version Here', 1422995305);
 
 DROP TABLE IF EXISTS "brm_header_images";
 CREATE TABLE "brm_header_images" (
@@ -76,6 +78,8 @@ CREATE TABLE "comments" (
 );
 
 INSERT INTO "comments" ("id", "userid", "brmid", "versionid", "comment", "timestamp") VALUES (1,  1,  1,  1,  'This is a Comment',  1422995305);
+INSERT INTO "comments" ("id", "userid", "brmid", "versionid", "comment", "timestamp") VALUES (2,  1,  1,  3,  'Testing Comments ...', 1423072717);
+INSERT INTO "comments" ("id", "userid", "brmid", "versionid", "comment", "timestamp") VALUES (3,  1,  1,  3,  'More Comments!', 1423086096);
 
 DROP TABLE IF EXISTS "login_attempts";
 CREATE TABLE "login_attempts" (
@@ -94,10 +98,10 @@ CREATE TABLE sqlite_sequence(name,seq);
 
 INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_campaigns',  '1');
 INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('user', '3');
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('login_attempts', '19');
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_content_version',  '2');
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('comments', '1');
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_auth_list',  '4');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('login_attempts', '34');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_content_version',  '3');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('comments', '3');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_auth_list',  '5');
 
 DROP TABLE IF EXISTS "user";
 CREATE TABLE "user" (
@@ -108,6 +112,10 @@ CREATE TABLE "user" (
   "permissions" integer NOT NULL DEFAULT '1'
 );
 
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (1, 'Duane',  'Jeffers',  'djef@tjc.edu', 31);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (2, 'Allen',  'Arrick', 'aarr@tjc.edu', 31);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (3, 'Leah', 'Wansley',  'lwan@tjc.edu', 31);
+
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
 
@@ -117,7 +125,7 @@ CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "
 
 
 DROP VIEW IF EXISTS "view_brm_comments";
-CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid" integer, "comment" text, "timestamp" integer);
+CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid" integer, "comment" text, "timestamp" integer, "useremail" text, "userfirstname" text, "userlastname" text);
 
 
 DROP VIEW IF EXISTS "view_brm_list";
@@ -126,6 +134,10 @@ CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "c
 
 DROP VIEW IF EXISTS "view_brm_list_approve";
 CREATE TABLE "view_brm_list_approve" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "approval_needed" , "approved" , "denied" );
+
+
+DROP VIEW IF EXISTS "view_common_users";
+CREATE TABLE "view_common_users" ("userid" integer, "firstname" text, "lastname" text, "email" text, "counter" );
 
 
 DROP VIEW IF EXISTS "view_deny_approval";
@@ -153,16 +165,24 @@ SELECT "brm_auth"."userid" AS "userid",
      "brm_auth"."brmid" AS "brmid", 
      "brm_auth"."versionid" AS "versionid", 
      "brm_auth"."comments" AS "comment", 
-     "brm_auth"."timestamp" AS "timestamp" 
+     "brm_auth"."timestamp" AS "timestamp",
+     "user"."email" AS "useremail",
+     "user"."firstname" AS "userfirstname",
+     "user"."lastname" AS "userlastname"
 FROM "brm_auth_list" AS "brm_auth" 
+LEFT JOIN "user" AS "user" ON "brm_auth"."userid" = "user"."id"
 WHERE "brm_auth"."comments" IS NOT NULL
 UNION
 SELECT "c"."userid" AS "userid", 
      "c"."brmid" AS "brmid", 
      "c"."versionid" AS "versionid", 
      "c"."comment" AS "comment", 
-     "c"."timestamp" AS "timestamp" 
+     "c"."timestamp" AS "timestamp",
+    "user"."email" AS "useremail",
+     "user"."firstname" AS "userfirstname",
+     "user"."lastname" AS "userlastname"
 FROM "comments" AS "c"
+LEFT JOIN "user" AS "user" ON "c"."userid" = "user"."id"
 WHERE "c"."comment" IS NOT NULL;
 
 DROP TABLE IF EXISTS "view_brm_list";
@@ -176,6 +196,17 @@ SELECT "brm_list". *, "approval_needed"."count" AS "approval_needed", "approved"
 LEFT JOIN "view_need_approval" AS "approval_needed" ON "brm_list"."id" = "approval_needed"."brmid"
 LEFT JOIN "view_approved" AS "approved" ON "brm_list"."id" = "approved"."brmid"
 LEFT JOIN "view_deny_approval" AS "denied" ON "brm_list"."id" = "denied"."brmid";
+
+DROP TABLE IF EXISTS "view_common_users";
+CREATE VIEW "view_common_users" AS
+SELECT "user"."id" AS "userid", "user"."firstname" AS "firstname", "user"."lastname" AS "lastname", "user"."email" AS "email",
+COUNT("brm_auth_list"."id") AS "counter"
+FROM "user"
+LEFT JOIN "brm_auth_list" ON "user"."id" = "brm_auth_list"."userid"
+GROUP BY "brm_auth_list"."userid"
+HAVING "counter" > 0
+ORDER BY "counter" DESC
+LIMIT 10;
 
 DROP TABLE IF EXISTS "view_deny_approval";
 CREATE VIEW "view_deny_approval" AS
