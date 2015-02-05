@@ -10,6 +10,9 @@
 	session_cache_limiter(false);
 	session_start();
 
+	use \League\Fractal\Manager AS FractalManager;
+	use \League\Fractal\Resource\Collection as FractalCollection;
+
 	$app = new \Slim\Slim(array(
 		'debug' => true,
 		'view' => new \TJC\View\Layout(),
@@ -229,21 +232,46 @@
 				var_dump($_FILES);
 				die();
 			}
-			$app->render('brm/create.php', array());
+			// Grab a list of users who have been used before.
+			$users = \ORM::for_table('view_common_users')->find_many();
+
+			$app->view->appendJavascriptFile('/js/createbrm.js');
+			$app->render('brm/create.php', array('users' => $users));
 		})->via('GET', 'POST');
 
 		$app->map('/edit/:id', function($id) use($app) {
 
 		})->via('GET', 'POST')->name('edit-brm');
 
-		$app->get('//:brmid/:versionid', function($action, $brmid, $versionid) use($app) {
+		/* $app->get('//:brmid/:versionid', function($action, $brmid, $versionid) use($app) {
 
-		})->name('brm-approve');
+		})->name('brm-approve'); */
 	});
 
 	$app->group('/user', function() use($app) {
 		$app->get('/search', function() use($app) {
-			
+			$query = '%' . trim($app->request->get('q')) . '%';
+
+			$results = \ORM::for_table('user')->select(array('id', 'firstname', 'lastname', 'email'))
+											  ->where_any_is(array(
+											  	array('firstname' => $query),
+											  	array('lastname' => $query),
+											  	array('email' => $query)), 'LIKE')
+											  ->limit(10)
+											  ->find_many();
+
+			$manager = new FractalManager();
+
+			$resource = new FractalCollection($results, function($result) {
+				return array(
+					'id' => (int) $result->id,
+					'firstname' => $result->firstname,
+					'lastname' => $result->lastname,
+					'email' => $result->email
+				);
+			});
+
+			$app->view->renderJson($manager->createData($resource)->toArray());
 		});
 	});
 
