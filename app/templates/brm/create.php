@@ -1,3 +1,4 @@
+<div id="currUser" style="display: none;"></div>
 <div class="row page-header">
 	<h3>Creating a new BRM Email</h3>
 </div>
@@ -27,37 +28,84 @@
 				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control"></textarea>
 			</div>
 		</div>
-		<div class="form-group">
+		<!--<div class="form-group">
 			<label for="header_imgs" class="col-sm-2 control-label">Header Images</label>
 			<div class="col-sm-10">
-				<div class="fileinput fileinput-new" data-provides="fileinput">
-					<div class="fileinput-btns">
-						<span class="btn btn-default btn-file">
-							<span class="fileinput-new">Select Image</span>
-							<span class="fileinput-exists">Change</span>
-							<input type="file" name="header_image">
-						</span>
-						<a href="#" class="btn btn-danger fileinput-exists" data-dismiss="fileinput">Remove Image</a>
-					</div>
-					<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width:300px; height: 150px; margin-top:5px;"></div>
-				</div>
+				
 			</div>
-		</div>
+		</div>-->
 		<div class="form-group">
 			<label for="approval_list" class="col-sm-2 control-label">Approval/View List</label>
-			<div class="col-sm-4">
-				<ul class="list-group">
+			<div class="col-sm-5">
+				<div class="panel panel-success">
+					<div class="panel-heading"><h3 class="panel-title">Current Users Tied To The BRM</h3></div>
+					<ul class="list-group" id="currentUsers">
 
-				</ul>
+					</ul>
+				</div>
 			</div>
-			<div class="col-sm-6">
-				
+			<div class="col-sm-5">
+				<input type="text" id="searchUsers" placeholder="Search Or Input Email Address ..." class="form-control">
+				<br />
+				<div class="panel panel-default" id="commonUsers">
+					<div class="panel-heading"><h3 class="panel-title" id="searchResHeading">Common users specified before</h3></div>
+					<div id="searchResults" class="list-group">
+						<?php foreach($data['users'] as $user) {
+							printf('<a href="#" class="user_action list-group-item" id="user-%s">%s &lt;%s&gt;</a>', $user->userid, $user->firstname . " " . $user->lastname, $user->email);
+						} ?>
+					</div>
+				</div>
+				<div class="panel panel-default" id="selectUserPermissions" style="display:none;">
+					<div class="panel-heading"><h3 class="panel-title">Permissions for User: <span id="permUserSelect"></span></h3></div>
+					<div class="panel-body">
+						<label class="checkbox-inline">
+							<input type="checkbox" id="permView" class="selectUserPermCheck" value="1">
+							<span class="label label-info">View</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="permApprove" class="selectUserPermCheck" value="2">
+							<span class="label label-primary">Approve</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="permEdit" class="selectUserPermCheck" value="4">
+							<span class="label label-danger">Edit</span>
+						</label>
+					</div>
+					<div class="panel-footer">
+						<button type="button" id="cancelUserPerm" class="btn btn-danger pull-left">Cancel</button>
+						<button type="button" id="userPermissions" class="btn btn-default pull-right">Add User to List</button>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+				<div class="panel panel-default" style="display:none;">
+					<div class="panel-heading"><h3 class="panel-title">Add A New User</h3></div>
+					<div class="panel-body">
+						<label class="checkbox-inline">
+							<input type="checkbox" id="permView" class="selectUserPermCheck" value="1">
+							<span class="label label-info">View</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="permApprove" class="selectUserPermCheck" value="2">
+							<span class="label label-primary">Approve</span>
+						</label>
+						<label class="checkbox-inline">
+							<input type="checkbox" id="permEdit" class="selectUserPermCheck" value="4">
+							<span class="label label-danger">Edit</span>
+						</label>
+					</div>
+					<div class="panel-footer">
+						<button type="button" id="cancelAddUser" class="btn btn-danger pull-left">Cancel</button>
+						<button type="button" id="addUserSubmit" class="btn btn-default pull-right">Add User</button>
+						<div class="clearfix"></div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<hr />
 		<div class="form-group">
-			<div class="col-sm-2 col-sm-offset-10">
-				<button type="submit" class="btn btn-primary">Submit New BRM</button>
+			<div class="col-sm-3 col-sm-offset-9">
+				<button type="submit" name="submit" value="save" class="btn btn-default">Save BRM</button>
+				<button type="submit" name="submit" value="send" class="btn btn-primary">Submit BRM to List</button>
 			</div>
 		</div>
 		<hr />

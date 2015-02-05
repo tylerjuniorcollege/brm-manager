@@ -5,3 +5,7 @@ body {
 #comments .media-heading {
 	font-size: 12px;
 }
+
+#selectUserPermissions label.checkbox-inline {
+	padding-top: 0;
+}
