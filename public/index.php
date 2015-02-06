@@ -63,6 +63,15 @@
 		}
 	};
 
+	$checkPermissions = function($perm = 'view') use($app) {
+		return function() use($perm, $app) {
+			if(!$app->user->hasAccess($perm)) {
+				$app->flash('danger', 'You do not have the appropriate permissions to use this resource.');
+				$app->redirect('/');
+			}
+		};
+	};
+
 	$app->get('/', function() use($app) {
 		$app->render('index.php', array());
 	});
@@ -248,7 +257,7 @@
 		})->name('brm-approve'); */
 	});
 
-	$app->group('/user', function() use($app, $checkLogin) {
+	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
 		$app->get('/search', function() use($app) {
 			$query = '%' . trim($app->request->get('q')) . '%';
 
@@ -273,12 +282,16 @@
 
 			$app->view->renderJson($manager->createData($resource)->toArray());
 		});
-		$app->map('/add', $checkLogin, function() {
+		$app->map('/add', $checkPermissions('create'), function() { // Only Creators can add users to the system.
 
 		})->via('GET', 'POST')->name('add-user');
 	});
 
 	$app->group('/image', function() use($app) {
+
+	});
+
+	$app->group('/admin', $checkLogin, $checkPermissions('admin'), function() {
 
 	});
 
