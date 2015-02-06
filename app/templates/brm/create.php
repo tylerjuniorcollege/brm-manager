@@ -84,18 +84,31 @@
 				<div class="panel panel-default" id="addNewUser" style="display:none;">
 					<div class="panel-heading"><h3 class="panel-title">Add A New User</h3></div>
 					<div class="panel-body">
-						<label class="checkbox-inline">
-							<input type="checkbox" id="permView" class="selectUserPermCheck" value="1">
-							<span class="label label-info">View</span>
-						</label>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="permApprove" class="selectUserPermCheck" value="2">
-							<span class="label label-primary">Approve</span>
-						</label>
-						<label class="checkbox-inline">
-							<input type="checkbox" id="permEdit" class="selectUserPermCheck" value="4">
-							<span class="label label-danger">Edit</span>
-						</label>
+						<div class="form-group">
+							<label for="firstName">First Name</label>
+							<input type="text" id="newFirst" class="form-control" placeholder="First Name ...">
+						</div>
+						<div class="form-group">
+							<label for="lastName">Last Name</label>
+							<input type="text" id="newLast" class="form-control" placeholder="Last Name ...">
+						</div>
+						<div class="form-group">
+							<label for="newPerm">Permissions</label>
+							<div>
+								<label class="checkbox-inline">
+									<input type="checkbox" id="newPermView" class="selectUserPermCheck" value="1">
+									<span class="label label-info">View</span>
+								</label>
+								<label class="checkbox-inline">
+									<input type="checkbox" id="newPermApprove" class="selectUserPermCheck" value="2">
+									<span class="label label-primary">Approve</span>
+								</label>
+								<label class="checkbox-inline">
+									<input type="checkbox" id="newPermEdit" class="selectUserPermCheck" value="4">
+									<span class="label label-danger">Edit</span>
+								</label>
+							</div>
+						</div>
 					</div>
 					<div class="panel-footer">
 						<button type="button" id="cancelAddUser" class="btn btn-danger pull-left">Cancel</button>

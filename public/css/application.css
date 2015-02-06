@@ -13,3 +13,7 @@ body {
 #currentUsers li.list-group-item span.label {
 	margin-right: 2px;
 }
+
+#addNewUser div.panel-body {
+	padding: 15px 25px;
+}
