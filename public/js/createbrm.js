@@ -93,6 +93,18 @@ $('#cancelUserPerm').on('click', function() {
 	$('#commonUsers').show();
 });
 
+$('#cancelAddUser').on('click', function() {
+	$('.selectUserPermCheck').attr('checked', false);
+
+	$('#searchUsers').val('');
+	$('#newFirst').val('');
+	$('#newLast').val('');
+
+	$("#addNewUser").hide();
+	$("#searchUsersResults").hide();
+	$("#commonUsers").show();
+});
+
 function removeUser(id) {
 	$('user-' + id).remove();
 	$('input-user-' + id).remove();
