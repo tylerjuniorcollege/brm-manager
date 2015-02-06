@@ -248,7 +248,7 @@
 		})->name('brm-approve'); */
 	});
 
-	$app->group('/user', function() use($app) {
+	$app->group('/user', function() use($app, $checkLogin) {
 		$app->get('/search', function() use($app) {
 			$query = '%' . trim($app->request->get('q')) . '%';
 
@@ -273,6 +273,13 @@
 
 			$app->view->renderJson($manager->createData($resource)->toArray());
 		});
+		$app->map('/add', $checkLogin, function() {
+
+		})->via('GET', 'POST')->name('add-user');
+	});
+
+	$app->group('/image', function() use($app) {
+
 	});
 
 	$app->run();

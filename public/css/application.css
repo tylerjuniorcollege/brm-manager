@@ -9,3 +9,7 @@ body {
 #selectUserPermissions label.checkbox-inline {
 	padding-top: 0;
 }
+
+#currentUsers li.list-group-item span.label {
+	margin-right: 2px;
+}

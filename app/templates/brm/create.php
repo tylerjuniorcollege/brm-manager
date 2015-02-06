@@ -49,26 +49,30 @@
 				<br />
 				<div class="panel panel-default" id="commonUsers">
 					<div class="panel-heading"><h3 class="panel-title" id="searchResHeading">Common users specified before</h3></div>
-					<div id="searchResults" class="list-group">
+					<div id="commonUserResults" class="list-group">
 						<?php foreach($data['users'] as $user) {
 							printf('<a href="#" class="user_action list-group-item" id="user-%s">%s &lt;%s&gt;</a>', $user->userid, $user->firstname . " " . $user->lastname, $user->email);
 						} ?>
 					</div>
+				</div>
+				<div class="panel panel-default" id="searchUsersResults" style="display:none;">
+					<div class="panel-heading"><h3 class="panel-title">Search Results</h3></div>
+					<div id="searchResults" class="list-group"></div>
 				</div>
 				<div class="panel panel-default" id="selectUserPermissions" style="display:none;">
 					<div class="panel-heading"><h3 class="panel-title">Permissions for User: <span id="permUserSelect"></span></h3></div>
 					<div class="panel-body">
 						<label class="checkbox-inline">
 							<input type="checkbox" id="permView" class="selectUserPermCheck" value="1">
-							<span class="label label-info">View</span>
+							<span id="permLabelView" class="label label-info">View</span>
 						</label>
 						<label class="checkbox-inline">
 							<input type="checkbox" id="permApprove" class="selectUserPermCheck" value="2">
-							<span class="label label-primary">Approve</span>
+							<span id="permLabelApprove" class="label label-primary">Approve</span>
 						</label>
 						<label class="checkbox-inline">
 							<input type="checkbox" id="permEdit" class="selectUserPermCheck" value="4">
-							<span class="label label-danger">Edit</span>
+							<span id="permLabelEdit" class="label label-danger">Edit</span>
 						</label>
 					</div>
 					<div class="panel-footer">
@@ -77,7 +81,7 @@
 						<div class="clearfix"></div>
 					</div>
 				</div>
-				<div class="panel panel-default" style="display:none;">
+				<div class="panel panel-default" id="addNewUser" style="display:none;">
 					<div class="panel-heading"><h3 class="panel-title">Add A New User</h3></div>
 					<div class="panel-body">
 						<label class="checkbox-inline">
