@@ -282,8 +282,22 @@
 
 			$app->view->renderJson($manager->createData($resource)->toArray());
 		});
-		$app->map('/add', $checkPermissions('create'), function() { // Only Creators can add users to the system.
+		$app->map('/add', $checkPermissions('create'), function() use($app) { // Only Creators can add users to the system.
+			if($app->request->isPost()) {
+				// This is an add user function.
+				$newUser = \ORM::for_table('user')->create();
+				$newUser->firstname = $app->request->post('firstname');
+				$newUser->lastname = $app->request->post('lastname');
+				$newUser->email = $app->request->post('email');
+				$newUser->permissions = $app->request->post('permissions');
+				$newUser->save();
 
+				if($app->request->isAjax()) {
+					$app->view->renderJson(array('userid' => $newUser->id, 'permissions' => $newUser->permissions));
+				} else {
+					$app->flashNow('success', 'New User Added.');
+				}
+			}
 		})->via('GET', 'POST')->name('add-user');
 	});
 

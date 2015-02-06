@@ -105,6 +105,74 @@ $('#cancelAddUser').on('click', function() {
 	$("#commonUsers").show();
 });
 
+$('#addUserSubmit').on('click', function() {
+	var postData = {
+		firstname: '',
+		lastname: '',
+		email: '',
+		permissions: 0
+	};
+	postData.firstname = $('#newFirst').val();
+	postData.lastname = $('#newLast').val();
+	postData.email = $('#searchUsers').val();
+
+	if(postData.email.length === 0) {
+		// Stop processing and throw an error.
+	}
+
+	if(postData.firstname.length === 0) {
+		postData.firstname = null;
+	}
+
+	if(postData.lastname.length === 0) {
+		postData.lastname = null;
+	}
+
+	var username = postData.firstname + " " + postData.lastname + " &lt;" + postData.email + "&gt;";
+
+	var permDisplay = [];
+	$('.selectUserPermCheck:checked').each(function() {
+		postData.permissions = postData.permissions + parseInt($(this).val());
+		permDisplay.push($(this.id.replace(/newPerm/g, '#permLabel')).clone().removeAttr('id'));
+	});
+
+	// Now we submit the data and wait for an ID# to return.
+	$.post('/user/add', postData, function(retData) {
+		var userid = retData.userid;
+
+			// add the user to list, but hide them.
+		$('<li>').attr({
+			id: 'userList-' + userid,
+			class: 'list-group-item'
+		}).html(username + '<span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers'));
+
+		$.each(permDisplay, function() {
+			$(this).appendTo('#userPerm-' + userid);
+		});
+	
+		// add hidden user to the form.
+		$('<input type="hidden">').attr({
+			name: 'users[]',
+			id: 'input-user-' + userid,
+			value: userid
+		}).appendTo('form');
+
+		var permname = 'permissions[' + userid + ']';
+		$('<input type="hidden">').attr({
+			id: 'input-perm-user-' + userid,
+			name: permname,
+			value: retData.permissions
+		}).appendTo('form');
+
+		// Clear the data from the form.
+		$('#searchUsers, #newFirst, #newLast').val('');
+		$('.selectUserPermCheck').attr('checked', false);
+
+		$("#addNewUser").hide();
+		$("#commonUsers").show();
+	});
+});
+
 function removeUser(id) {
 	$('user-' + id).remove();
 	$('input-user-' + id).remove();
