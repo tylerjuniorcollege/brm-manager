@@ -3,6 +3,6 @@ $("#prev_version").change(function() {
 	$.getJSON("/brm/view/version/" + versionid, function(data) {
 		$("#curr_ver_date").html(data.created);
 
-		$("#contentframe").attr('src', 'data:text/html;charset=uft-8,' + encodeURIComponent(data.content));
+		$("#contentframe").attr('src', 'data:text/html;charset=utf-8,' + encodeURIComponent(data.content));
 	});
 });
