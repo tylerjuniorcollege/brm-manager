@@ -29,13 +29,14 @@ CREATE TABLE "brm_campaigns" (
   "description" text NOT NULL,
   "current_version" integer NOT NULL,
   "templateid" text NOT NULL,
+  "state" integer NOT NULL DEFAULT '0',
   "createdby" integer NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+  FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "createdby", "created") VALUES (1,  'TEST BRM', 'Testing BRM',  3,  '', 1,  1422916676);
+INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "state", "createdby", "created") VALUES (1, 'TEST BRM', 'Testing BRM',  3,  '', '0',  1,  1422916676);
 
 DROP TABLE IF EXISTS "brm_content_version";
 CREATE TABLE "brm_content_version" (
@@ -92,16 +93,15 @@ CREATE TABLE "login_attempts" (
   FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-
 DROP TABLE IF EXISTS "sqlite_sequence";
 CREATE TABLE sqlite_sequence(name,seq);
 
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_campaigns',  '1');
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('user', '3');
-INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('login_attempts', '34');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('user', '5');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('login_attempts', '50');
 INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_content_version',  '3');
 INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('comments', '3');
 INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_auth_list',  '5');
+INSERT INTO "sqlite_sequence" ("name", "seq") VALUES ('brm_campaigns',  '1');
 
 DROP TABLE IF EXISTS "user";
 CREATE TABLE "user" (
@@ -112,12 +112,13 @@ CREATE TABLE "user" (
   "permissions" integer NOT NULL DEFAULT '1'
 );
 
+
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
 
 
 DROP VIEW IF EXISTS "view_auth_list";
-CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
+CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "state" integer, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
 
 
 DROP VIEW IF EXISTS "view_brm_comments";
@@ -125,11 +126,11 @@ CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid"
 
 
 DROP VIEW IF EXISTS "view_brm_list";
-CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "createdby" integer, "created" integer, "version_count" , "version_created" );
+CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "state" integer, "createdby" integer, "created" integer, "version_count" , "version_created" );
 
 
 DROP VIEW IF EXISTS "view_brm_list_approve";
-CREATE TABLE "view_brm_list_approve" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "approval_needed" , "approved" , "denied" );
+CREATE TABLE "view_brm_list_approve" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "state" integer, "createdby" integer, "created" integer, "version_count" , "version_created" , "approval_needed" , "approved" , "denied" );
 
 
 DROP VIEW IF EXISTS "view_common_users";
