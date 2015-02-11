@@ -305,8 +305,14 @@
 
 	});
 
-	$app->group('/admin', $checkLogin, $checkPermissions('admin'), function() {
+	$app->group('/admin', $checkLogin, $checkPermissions('admin'), function() use($app) {
+		$app->get('/', function() use($app) {
 
+		});
+
+		$app->get('/audit', function() use($app) {
+
+		});
 	});
 
 	$app->run();
