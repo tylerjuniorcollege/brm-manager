@@ -25,7 +25,9 @@
 		<div class="form-group">
 			<label for="content" class="col-sm-2 control-label">Content</label>
 			<div class="col-sm-10">
-				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control"></textarea>
+				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control" id="contentInput"></textarea>
+				<iframe id="previewContent" style="display:none; height: 300px;" class="col-sm-12"></iframe>
+				<span class="help-block"><button class="btn btn-primary" id="previewBtn" type="button">Render Preview</button><button class="btn btn-primary" id="editBtn" type="button" style="display:none; margin-top: 5px;">Show Edit</button></span>
 			</div>
 		</div>
 		<!--<div class="form-group">
@@ -39,9 +41,7 @@
 			<div class="col-sm-5">
 				<div class="panel panel-success">
 					<div class="panel-heading"><h3 class="panel-title">Current Users Tied To The BRM</h3></div>
-					<ul class="list-group" id="currentUsers">
-
-					</ul>
+					<ul class="list-group" id="currentUsers"></ul>
 				</div>
 			</div>
 			<div class="col-sm-5">

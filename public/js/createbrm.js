@@ -178,6 +178,24 @@ $(document).on('click', '.remove-user', function() {
 	removeUser(userid);
 });
 
+$('#previewBtn').on('click', function() {
+	var content = $('#contentInput').val();
+	if(content.length > 0) {
+		$('#previewContent').attr('src', 'data:text/html;charset=utf-8,' + encodeURIComponent(content));
+		$('#previewContent').show();
+		$('#editBtn').show();
+		$(this).hide();
+		$('#contentInput').hide();
+	}
+});
+
+$('#editBtn').on('click', function() {
+	$('#contentInput').show();
+	$('#previewBtn').show();
+	$(this).hide();
+	$('#previewContent').hide();
+});
+
 function removeUser(id) {
 	//$('#user-' + id).remove();
 	$('#userList-' + id).remove();
