@@ -45,7 +45,7 @@ $(document).on('click', '#commonUserResults .user_action, #searchResults .user_a
 	$('<li>').attr({
 		id: 'userList-' + userid,
 		class: 'list-group-item'
-	}).html(username + '<span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers')).hide();
+	}).html(username + '<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-' + userid + '"><i class="fa fa-times"></i></button><span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers')).hide();
 
 	// add hidden user to the form.
 	$('<input type="hidden">').attr({
@@ -173,8 +173,14 @@ $('#addUserSubmit').on('click', function() {
 	});
 });
 
+$(document).on('click', '.remove-user', function() {
+	var userid = this.id.replace(/removeUser-/g, '');
+	removeUser(userid);
+});
+
 function removeUser(id) {
-	$('user-' + id).remove();
-	$('input-user-' + id).remove();
-	$('input-perm-user-' + id).remove();
+	//$('#user-' + id).remove();
+	$('#userList-' + id).remove();
+	$('form #input-user-' + id).remove();
+	$('form #input-perm-user-' + id).remove();
 }

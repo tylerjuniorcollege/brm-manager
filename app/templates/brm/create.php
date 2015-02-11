@@ -72,7 +72,7 @@
 						</label>
 						<label class="checkbox-inline">
 							<input type="checkbox" id="permEdit" class="selectUserPermCheck" value="4">
-							<span id="permLabelEdit" class="label label-danger">Edit</span>
+							<span id="permLabelEdit" class="label label-warning">Edit</span>
 						</label>
 					</div>
 					<div class="panel-footer">
@@ -105,7 +105,7 @@
 								</label>
 								<label class="checkbox-inline">
 									<input type="checkbox" id="newPermEdit" class="selectUserPermCheck" value="4">
-									<span class="label label-danger">Edit</span>
+									<span class="label label-warning">Edit</span>
 								</label>
 							</div>
 						</div>
