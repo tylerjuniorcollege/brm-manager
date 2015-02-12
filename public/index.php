@@ -177,47 +177,64 @@
 
 				$isAuthorized = FALSE;
 				foreach($out['auth_users'] as $user) {
-					if($app->user->id === $user->userid &&
-						Permissions::hasAccess($user->permission, 'view')) {
-						$isAuthorized = $user;
+					if($app->user->id === $user->userid) {
+						if(Permissions::hasAccess((int)$user->permission, 'view')) {
+							$isAuthorized = $user;
+						}
 					}
 				}
+
 				// Check to see if this user is allowed to view this BRM.
-				if(!$app->user->hasAccess('admin') && !$isAuthorized) {
+				/* if(!$app->user->hasAccess('admin') && !$isAuthorized) {
 					$app->flash('danger', 'You are not authorized to see this BRM Email.');
 					$app->redirect('/brm');
-				}
+				} */
 
 				$current_time = new DateTime();
 				// Add to the view stats of the user.
-				if($isAuthorized) {
-					$last_time = new DateTime($isAuthorized->lastviewed);
+				if(is_object($isAuthorized)) {
+					$last_time = new DateTime();
+					$last_time->setTimestamp($isAuthorized->lastviewed);
 					$interval = $last_time->diff($current_time);
-					if(is_null($isAuthorized) || $interval->i > 30) {
-					// This tracks when an admin is an authorized user for the BRM Email.
+					if($interval->i > 30 || !is_int($isAuthorized->lastviewed)) {
 						$track_view = \ORM::for_table('brm_auth_view_list')->create();
 						$track_view->timestamp = $current_time->getTimestamp();
 						$track_view->authid = $isAuthorized->id;
+						$track_view->save();
 					}
 				}
 
-				if($app->request->isPost()) {
+				if($app->request->isPost() && is_object($isAuthorized)) {
 					// This is adding a comment or approving the current BRM.
 					switch($app->request->post('action')) {
 						case 'addcomment':
 							$comment = \ORM::for_table('comments')->create();
-							$comment->userid = $_SESSION['user']->id;
+							$comment->userid = $app->user->id;
 							$comment->brmid = $app->request->post('brmid');
 							$comment->versionid = $app->request->post('versionid');
-							$comment->comment = $app->request->post('comment');
-							$comment->timestamp = time();
-							$comment->save();
+							$refresh = FALSE;
 							break;
 
 						case 'approve':
-							$approval = 1;
-
+							$comment = \ORM::for_table('brm_auth_list')->find_one($isAuthorized->id);
+							$comment->approved = 1;
+							$refresh = TRUE;
 							break;
+
+						case 'deny':
+							$comment = \ORM::for_table('brm_auth_list')->find_one($isAuthorized->id);
+							$comment->approved = -1;
+							$refresh = TRUE;
+							break;
+					}
+					$comment->comment = $app->request->post('comment');
+					$comment->timestamp = $current_time->getTimestamp();
+					$comment->save();
+
+					if($refresh) {
+						// Grab the list of current users who are tied to the BRM.
+						$out['auth_users'] = \ORM::for_table('view_brm_auth_list')->where(array('brmid' => $out['brm_data']->id, 'versionid' => $out['current_version']->id))
+																	 	 		  ->find_many();
 					}
 				}
 
@@ -253,9 +270,7 @@
 
 		$app->map('/create', function() use($app) {
 			if($app->request->isPost()) {
-				var_dump($app->request->post());
-				var_dump($_FILES);
-				die();
+				
 			}
 			// Grab a list of users who have been used before.
 			$users = \ORM::for_table('view_common_users')->find_many();

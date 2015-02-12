@@ -249,7 +249,8 @@ SELECT "brm_a"."id",
        "u"."lastname" AS "lastname",
        "u"."email" AS "email",
        "u"."permissions" as "user_permissions",
-       COUNT("brm_avl"."timestamp") AS "view_count"
+       COUNT("brm_avl"."timestamp") AS "view_count",
+       MAX("brm_avl"."timestamp") AS "lastviewed"
 FROM "brm_auth_list" AS "brm_a"
 LEFT JOIN "user" AS "u" ON "brm_a"."userid" = "u"."id"
 LEFT JOIN "brm_auth_view_list" AS "brm_avl" ON "brm_avl"."authid" = "brm_a"."id"

@@ -60,7 +60,7 @@
 								default:
 									$li_css = null;
 									$icon = 'fa-circle-o';
-									if(!is_null($user->firstviewed)) {
+									if($user->view_count > 0) {
 										$icon = 'fa-dot-circle-o';
 									}
 									break;
