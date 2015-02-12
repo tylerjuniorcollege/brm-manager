@@ -26,7 +26,7 @@
 						<select class="form-control" id="prev_version">
 							<option value="<?=$data['brm_data']->current_version; ?>">Current Version</option>
 						<?php foreach($data['previous_versions'] as $row) {
-							printf('<option value="%s">%s</option>', $row['id'], $row['id'] . " - " . date('l, F j, Y g:i:s', $row['created']));
+							printf('<option value="%s">%s</option>', $row['id'], $row['brmversionid'] . " - " . date('l, F j, Y g:i:s', $row['created']));
 							} ?>
 						</select>
 					</div>

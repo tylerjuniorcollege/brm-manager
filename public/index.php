@@ -228,7 +228,8 @@
 				$data = \ORM::for_table('brm_content_version')->find_one($id);
 				$json = array(
 					'id' => $data->id,
-					'brmid' => $data->brmid,
+//					'brmid' => $data->brmid,
+//					'brmversionid' => $data->brmversionid,
 					'content' => $data->content,
 					'created' => date('l, F j, Y g:i:s', $data->created)
 				);
