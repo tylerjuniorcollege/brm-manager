@@ -159,9 +159,33 @@
 
 		$app->group('/view', function() use($app) {
 			$app->map('/:id', function($id) use($app) {
-				// Check to see if this user is allowed to view this BRM.
-				if(!$app->user->hasAccess('admin')) {
+				$out = array();
+				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
+				// Grab the current version data as well ...
+				$out['current_version'] = \ORM::for_table('brm_content_version')->find_one($out['brm_data']->current_version);
 
+				// Determine if the current user is the creator/owner of the requested BRM
+				$out['owner'] = FALSE;
+				if($app->user->id == $out['brm_data']->createdby) {
+					$out['owner'] = TRUE;
+				}
+
+				// Grab the list of current users who are tied to the BRM.
+				$out['auth_users'] = \ORM::for_table('brm_auth_list')->table_alias('auth')->select(array('auth.userid', 'auth.permission', 'auth.approved', 'auth.firstviewed'))
+																	 ->select(array('u.firstname', 'u.lastname', 'u.email', 'u.permissions'))->join('user', array('auth.userid', '=', 'u.id'), 'u')
+																	 ->where(array('auth.brmid' => $out['brm_data']->id, 'auth.versionid' => $out['current_version']->id))
+																	 ->find_many();
+
+				$isAuthorized = FALSE;
+				foreach($out['auth_users'] as $user) {
+					if($app->user->id === $user->id) {
+						$isAuthorized = TRUE;
+					}
+				}
+				// Check to see if this user is allowed to view this BRM.
+				if(!$app->user->hasAccess('admin') && !$isAuthorized) {
+					$app->flash('danger', 'You are not authorized to see this BRM Email.');
+					$app->redirect('/brm');
 				}
 
 				if($app->request->isPost()) {
@@ -183,11 +207,7 @@
 							break;
 					}
 				}
-				$app->view->appendJavascriptFile('/js/viewbrm.js');
-				$out = array();
-				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
-				// Grab the current version data as well ...
-				$out['current_version'] = \ORM::for_table('brm_content_version')->find_one($out['brm_data']->current_version);
+
 				// Grab all the header images associated with this version.
 				$out['header_imgs'] = \ORM::for_table('brm_header_images')->where(array('brmid' => $out['brm_data']->id, 'brmversionid' => $out['current_version']->id));
 
@@ -200,18 +220,7 @@
 																  	   ->order_by_desc('timestamp', 'versionid')
 																  	   ->find_many();
 
-				// Determine if the current user is the creator/owner of the requested BRM
-				$out['owner'] = FALSE;
-				if($_SESSION['user']->id == $out['brm_data']->createdby) {
-					$out['owner'] = TRUE;
-				}
-
-				// Grab the list of current users who are tied to the BRM.
-				$out['auth_users'] = \ORM::for_table('brm_auth_list')->table_alias('auth')->select(array('auth.userid', 'auth.permission', 'auth.approved', 'auth.firstviewed'))
-																	 ->select(array('u.firstname', 'u.lastname', 'u.email', 'u.permissions'))->join('user', array('auth.userid', '=', 'u.id'), 'u')
-																	 ->where(array('auth.brmid' => $out['brm_data']->id, 'auth.versionid' => $out['current_version']->id))
-																	 ->find_many();
-
+				$app->view->appendJavascriptFile('/js/viewbrm.js');
 				$app->render('brm/view.php', $out);
 			})->via('GET', 'POST')->name('view-brm');
 

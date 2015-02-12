@@ -28,6 +28,10 @@ class Session {
 		// If the user has about 5 mins left before the system logs them off, we need to up it by another 5 minutes.
 		$time = time();
 
+		if($this->permissions >= 16) { // Admins can bypass the session timeout.
+			return TRUE; // for dev
+		}
+
 		if($this->session_timeout < ($time + (60 * 5)) && $this->session_timeout > $time) {
 			// Add five minutes to the current session.
 			$this->session_timeout += (60 * 5);
