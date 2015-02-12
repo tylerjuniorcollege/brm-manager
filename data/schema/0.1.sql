@@ -122,6 +122,14 @@ CREATE TABLE "user" (
   "permissions" integer NOT NULL DEFAULT '1'
 );
 
+DROP TABLE IF EXISTS "brm_auth_view_list";
+CREATE TABLE "brm_auth_view_list" (
+  "timestamp" integer NOT NULL,
+  "authid" integer NOT NULL,
+  FOREIGN KEY ("authid") REFERENCES "brm_auth_list" ("id") ON DELETE CASCADE
+);
+
+
 
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
@@ -227,4 +235,23 @@ DROP TABLE IF EXISTS "view_need_approval";
 CREATE VIEW "view_need_approval" AS
 SELECT "auth_list"."id" AS "brmid", COUNT("auth_list"."auth_approved") AS "count" FROM "view_auth_list" AS "auth_list" WHERE "auth_list"."auth_approved" = 0;
 
+DROP VIEW IF EXISTS "view_brm_auth_list";
+CREATE TABLE "view_brm_auth_list" ("id" integer, "userid" integer, "permission" integer, "approved" integer, "firstname" text, "lastname" text, "email" text, "user_permissions" integer, "view_count" );
+
+
+DROP TABLE IF EXISTS "view_brm_auth_list";
+CREATE VIEW "view_brm_auth_list" AS
+SELECT "brm_a"."id",
+       "brm_a"."userid" AS "userid",
+       "brm_a"."permission" AS "permission",
+       "brm_a"."approved" AS "approved",
+       "u"."firstname" AS "firstname",
+       "u"."lastname" AS "lastname",
+       "u"."email" AS "email",
+       "u"."permissions" as "user_permissions",
+       COUNT("brm_avl"."timestamp") AS "view_count"
+FROM "brm_auth_list" AS "brm_a"
+LEFT JOIN "user" AS "u" ON "brm_a"."userid" = "u"."id"
+LEFT JOIN "brm_auth_view_list" AS "brm_avl" ON "brm_avl"."authid" = "brm_a"."id"
+GROUP BY "brm_a"."id";
 -- 

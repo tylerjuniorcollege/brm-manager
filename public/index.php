@@ -12,6 +12,7 @@
 
 	use \League\Fractal\Manager AS FractalManager;
 	use \League\Fractal\Resource\Collection as FractalCollection;
+	use \BRMManager\Permissions as Permissions;
 
 	$app = new \Slim\Slim(array(
 		'debug' => true,
@@ -171,21 +172,33 @@
 				}
 
 				// Grab the list of current users who are tied to the BRM.
-				$out['auth_users'] = \ORM::for_table('brm_auth_list')->table_alias('auth')->select(array('auth.userid', 'auth.permission', 'auth.approved', 'auth.firstviewed'))
-																	 ->select(array('u.firstname', 'u.lastname', 'u.email', 'u.permissions'))->join('user', array('auth.userid', '=', 'u.id'), 'u')
-																	 ->where(array('auth.brmid' => $out['brm_data']->id, 'auth.versionid' => $out['current_version']->id))
-																	 ->find_many();
+				$out['auth_users'] = \ORM::for_table('view_brm_auth_list')->where(array('brmid' => $out['brm_data']->id, 'versionid' => $out['current_version']->id))
+																	 	  ->find_many();
 
 				$isAuthorized = FALSE;
 				foreach($out['auth_users'] as $user) {
-					if($app->user->id === $user->id) {
-						$isAuthorized = TRUE;
+					if($app->user->id === $user->userid &&
+						Permissions::hasAccess($user->permission, 'view')) {
+						$isAuthorized = $user;
 					}
 				}
 				// Check to see if this user is allowed to view this BRM.
 				if(!$app->user->hasAccess('admin') && !$isAuthorized) {
 					$app->flash('danger', 'You are not authorized to see this BRM Email.');
 					$app->redirect('/brm');
+				}
+
+				$current_time = new DateTime();
+				// Add to the view stats of the user.
+				if($isAuthorized) {
+					$last_time = new DateTime($isAuthorized->lastviewed);
+					$interval = $last_time->diff($current_time);
+					if(is_null($isAuthorized) || $interval->i > 30) {
+					// This tracks when an admin is an authorized user for the BRM Email.
+						$track_view = \ORM::for_table('brm_auth_view_list')->create();
+						$track_view->timestamp = $current_time->getTimestamp();
+						$track_view->authid = $isAuthorized->id;
+					}
 				}
 
 				if($app->request->isPost()) {
