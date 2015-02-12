@@ -42,14 +42,24 @@ DROP TABLE IF EXISTS "brm_content_version";
 CREATE TABLE "brm_content_version" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "brmid" integer NULL,
+  "brmversionid" integer NULL,
   "content" text NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE
+  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 INSERT INTO "brm_content_version" ("id", "brmid", "content", "created") VALUES (1,  1,  'THIS IS TEST CONTENT!!!',  1422916676);
 INSERT INTO "brm_content_version" ("id", "brmid", "content", "created") VALUES (2,  1,  'MOAR CONTENT HERE!!!!',  1423002341);
 INSERT INTO "brm_content_version" ("id", "brmid", "content", "created") VALUES (3,  1,  'Another Version Here', 1422995305);
+
+DELIMITER ;;
+CREATE TRIGGER "brm_content_version_ai" AFTER INSERT ON "brm_content_version" FOR EACH ROW
+BEGIN
+UPDATE "brm_content_version" SET "brmversionid" = (SELECT COUNT(id) FROM "brm_content_version" WHERE "brmid" = NEW.brmid) WHERE "id" = NEW.id;
+END;;
+
+DELIMITER ;
+
 
 DROP TABLE IF EXISTS "brm_header_images";
 CREATE TABLE "brm_header_images" (
