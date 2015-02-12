@@ -55,14 +55,12 @@
 				<col class="col-md-1">
 				<col class="col-md-1">
 				<col class="col-md-1">
-				<col class="col-md-1">
 			</colgroup>
 			<thead>
 				<tr>
 					<th rowspan="2">BRM ID</th>
 					<th rowspan="2">Title</th>
 					<th rowspan="2">Description</th>
-					<th rowspan="2"># of Versions</th>
 					<th rowspan="2">Current Version</th>
 					<th colspan="3">Approval Stats</th>
 					<th rowspan="2">View</th>
@@ -75,11 +73,10 @@
 			</thead>
 			<tbody>
 				<?php foreach($data['created'] as $row) {
-					printf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/brm/view/%s">View</a></td></tr>', 
+					printf('<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td><a href="/brm/view/%s">View</a></td></tr>', 
 						$row->id,
 						$row->title,
 						$row->description,
-						$row->version_count,
 						$row->current_version,
 						$row->approval_needed,
 						$row->approved,
