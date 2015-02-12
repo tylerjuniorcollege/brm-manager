@@ -26,7 +26,7 @@
 						<select class="form-control" id="prev_version">
 							<option value="<?=$data['brm_data']->current_version; ?>">Current Version</option>
 						<?php foreach($data['previous_versions'] as $row) {
-							printf('<option value="%s">%s</option>', $row['id'], $row['brmversionid'] . " - " . date('l, F j, Y g:i:s', $row['created']));
+							printf('<option value="%s">%s</option>', $row['id'], $row['brmversionid'] . " - " . date('l, F j, Y g:i:s', (int)$row['created']));
 							} ?>
 						</select>
 					</div>
@@ -103,7 +103,7 @@
 						</div>
 						<div class="media-body">
 							<?= $c_row->comment; ?> 
-							<h4 class="media-heading"><?= $c_row->userfirstname; ?> <?=$c_row->userlastname; ?> - Posted on <?=date('l, F j, Y g:i:s', $c_row->timestamp); ?> For Version #<?=$c_row->versionid; ?></h4>
+							<h4 class="media-heading"><?= $c_row->userfirstname; ?> <?=$c_row->userlastname; ?> - Posted on <?=date('l, F j, Y g:i:s', $c_row->timestamp); ?> For Version #<?=$c_row->brmversionid; ?></h4>
 						</div>
 					</div>
 				<?php endforeach; ?>

@@ -132,7 +132,7 @@ CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "
 
 
 DROP VIEW IF EXISTS "view_brm_comments";
-CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid" integer, "comment" text, "timestamp" integer, "useremail" text, "userfirstname" text, "userlastname" text);
+CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid" integer, "brmversionid" integer, "comment" text, "timestamp" integer, "useremail" text, "userfirstname" text, "userlastname" text);
 
 
 DROP VIEW IF EXISTS "view_brm_list";
@@ -170,7 +170,8 @@ DROP TABLE IF EXISTS "view_brm_comments";
 CREATE VIEW "view_brm_comments" AS
 SELECT "brm_auth"."userid" AS "userid", 
      "brm_auth"."brmid" AS "brmid", 
-     "brm_auth"."versionid" AS "versionid", 
+     "brm_auth"."versionid" AS "versionid",
+     "brm_cv"."brmversionid" AS "brmversionid", 
      "brm_auth"."comments" AS "comment", 
      "brm_auth"."timestamp" AS "timestamp",
      "user"."email" AS "useremail",
@@ -178,11 +179,13 @@ SELECT "brm_auth"."userid" AS "userid",
      "user"."lastname" AS "userlastname"
 FROM "brm_auth_list" AS "brm_auth" 
 LEFT JOIN "user" AS "user" ON "brm_auth"."userid" = "user"."id"
+LEFT JOIN "brm_content_version" AS "brm_cv" ON "brm_auth"."versionid" = "brm_cv"."id"
 WHERE "brm_auth"."comments" IS NOT NULL
 UNION
 SELECT "c"."userid" AS "userid", 
      "c"."brmid" AS "brmid", 
-     "c"."versionid" AS "versionid", 
+     "c"."versionid" AS "versionid",
+     "brm_cv"."brmversionid" AS "brmversionid",
      "c"."comment" AS "comment", 
      "c"."timestamp" AS "timestamp",
     "user"."email" AS "useremail",
@@ -190,6 +193,7 @@ SELECT "c"."userid" AS "userid",
      "user"."lastname" AS "userlastname"
 FROM "comments" AS "c"
 LEFT JOIN "user" AS "user" ON "c"."userid" = "user"."id"
+LEFT JOIN "brm_content_version" AS "brm_cv" ON "c"."versionid" = "brm_cv"."id"
 WHERE "c"."comment" IS NOT NULL;
 
 DROP TABLE IF EXISTS "view_brm_list";

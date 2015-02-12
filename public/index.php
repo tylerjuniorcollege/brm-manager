@@ -211,7 +211,7 @@
 				// Grab all the header images associated with this version.
 				$out['header_imgs'] = \ORM::for_table('brm_header_images')->where(array('brmid' => $out['brm_data']->id, 'brmversionid' => $out['current_version']->id));
 
-				$out['previous_versions'] = \ORM::for_table('brm_content_version')->select(array('id', 'created'))
+				$out['previous_versions'] = \ORM::for_table('brm_content_version')->select(array('id', 'brmversionid', 'created'))
 																				  ->where('brmid', $out['brm_data']->id)
 																				  ->where_not_equal('id', $out['current_version']->id)
 																				  ->order_by_desc('id', 'created')->find_array();
