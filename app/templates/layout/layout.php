@@ -37,15 +37,15 @@
         				</div>
         				<button type="submit" class="btn btn-default">Submit</button>
       				</form>
-      				<?php if($data['user']->hasAccess('create')): ?>
-      					<ul class="nav navbar-nav navbar-left">
+      				<ul class="nav navbar-nav navbar-left">
+      					<?php if($data['user']->hasAccess('create')): ?>
       						<li><a href="/brm/create">Create a New BRM</a></li>
-      						<?php if($data['user']->hasAccess('admin')): ?>
+      					<?php endif; ?>
+      					<?php if($data['user']->hasAccess('admin')): ?>
       						<li><a href="/admin">Admin App</a></li>
-      						<?php endif; ?>
-      					</ul>
-      				<?php endif; ?>
-			  	<?php endif; ?>
+      					<?php endif; ?>
+      				</ul>
+      			<?php endif; ?>
 		  	</div>
 		</div>
 		<div class="container">

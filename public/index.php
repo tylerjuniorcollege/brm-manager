@@ -22,6 +22,7 @@
 
 	\ORM::configure('sqlite:../data/database.db');
 
+	$app->add(new \BRMManager\Middleware\User);
 	$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
 
 	$app->view->setLayout('layout/layout.php');
@@ -42,14 +43,6 @@
 	$app->container->singleton('mandrill', function() {
 		$api_key = include_once('../app/config/mandrill.settings.php');
 		return new Mandrill($api_key);
-	});
-
-	$app->container->singleton('user', function() {
-		if(isset($_SESSION['user'])) {
-			return $_SESSION['user'];
-		} else {
-			return FALSE;
-		}
 	});
 
 	$checkLogin = function() use($app) {
@@ -310,8 +303,12 @@
 
 		});
 
-		$app->get('/audit', function() use($app) {
+		$app->get('/cron', function() use($app) { // This is the function that will process the audit log for the application.
 
+		});
+
+		$app->get('/audit', function() use($app) {
+			$app->render('admin/audit.php', array());
 		});
 	});
 

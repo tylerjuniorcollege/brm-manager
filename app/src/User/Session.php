@@ -13,14 +13,14 @@ class Session {
 	public $session_timeout;
 
 	// This is created at user login time.
-	public function __construct($user_obj) {
+	public function __construct($user_obj, $timeout = "+30 minutes") {
 		$this->id = $user_obj->id;
 		$this->email = $user_obj->email;
 		$this->firstname = $user_obj->firstname;
 		$this->lastname = $user_obj->lastname;
 		$this->permissions = $user_obj->permissions;
 
-		$this->session_timeout = strtotime("+30 minutes"); // Only allow a 30 minute login.
+		$this->session_timeout = strtotime($timeout); // Only allow a 30 minute login.
 	}
 
 	// This function will keep the current user loggedin on each page view.
