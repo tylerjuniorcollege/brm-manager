@@ -270,7 +270,37 @@
 
 		$app->map('/create', function() use($app) {
 			if($app->request->isPost()) {
-				
+				$created = time();
+				// Creating the initial BRM Item.
+				$brm = \ORM::for_table('brm_campaigns')->create();
+				$brm->title = $app->request->post('name');
+				$brm->description = $app->request->post('description');
+				$brm->templateid = $app->request->post('templateid');
+				$brm->createdby = $app->user->id;
+				$brm->created = $created;
+				$brm->save();
+
+				// Since the BRM has been saved, NOW, we need to create the new version in the database.
+				$brm_version = \ORM::for_table('brm_content_version')->create();
+				$brm_version->brmid = $brm->id;
+				$brm_version->content = $app->request->post('content');
+				$brm_version->created = $created;
+				$brm_version->save();
+
+				// Link the new version id with the brm.
+				$brm->current_version = $brm_version->id;
+				$brm->save();
+
+				// Now we need to link the users with the current version.
+				foreach($app->request->post('users') as $user) {
+					// We need to create a new auth row.
+					$user_auth = \ORM::for_table('brm_auth_list')->create();
+					$user_auth->userid = $user; // This is the submitted userid.
+					$user_auth->brmid = $brm->id;
+					$user_auth->versionid = $brm_version->id;
+					$user_auth->permission = '';
+					$user_auth->save();
+				}
 			}
 			// Grab a list of users who have been used before.
 			$users = \ORM::for_table('view_common_users')->find_many();
@@ -282,10 +312,6 @@
 		$app->map('/edit/:id', function($id) use($app) {
 
 		})->via('GET', 'POST')->name('edit-brm');
-
-		/* $app->get('//:brmid/:versionid', function($action, $brmid, $versionid) use($app) {
-
-		})->name('brm-approve'); */
 	});
 
 	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
