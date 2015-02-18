@@ -119,8 +119,12 @@
 	});
 
 	$app->get('/verify/:hash', function($hash = null) use($app) {
+		// Implement DateTime for all time() function calls.
 		$curr_time = time();
 		$range_time = $curr_time - (20 * 60);
+		
+		// Create a new class to handle login attempts creation/selection.
+		// Class should also handle login requests from users following an update link.
 
 		$result = \ORM::for_table('login_attempts')->where('hash', $hash)->where_gt('timestamp', $range_time)->where_lt('timestamp', $curr_time)->find_one();
 
