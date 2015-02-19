@@ -295,6 +295,8 @@
 				$brm->current_version = $brm_version->id;
 				$brm->save();
 
+				$permissions = $app->request->post('permissions');
+
 				// Now we need to link the users with the current version.
 				foreach($app->request->post('users') as $user) {
 					// We need to create a new auth row.
@@ -302,9 +304,13 @@
 					$user_auth->userid = $user; // This is the submitted userid.
 					$user_auth->brmid = $brm->id;
 					$user_auth->versionid = $brm_version->id;
-					$user_auth->permission = '';
+					$user_auth->permission = $permissions[$user];
 					$user_auth->save();
 				}
+
+				// Redirect user to the newly created BRM Email.
+				// Ignore the notify actions first.
+				$app->redirect($app->urlFor('view-brm', array('id' => $brm->id)));
 			}
 			// Grab a list of users who have been used before.
 			$users = \ORM::for_table('view_common_users')->find_many();

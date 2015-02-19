@@ -32,7 +32,7 @@
 						$row->title,
 						$row->description,
 						$row->version_count,
-						$row->current_version,
+						$row->brm_current_version,
 						$row->id);
 				} ?>
 			</tbody>
@@ -77,7 +77,7 @@
 						$row->id,
 						$row->title,
 						$row->description,
-						$row->current_version,
+						$row->brm_current_version,
 						$row->approval_needed,
 						$row->approved,
 						$row->denied,
