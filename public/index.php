@@ -70,75 +70,77 @@
 		$app->render('index.php', array());
 	});
 
-	$app->post('/login', function() use($app) {
-		if($app->request->isPost()) {
-			$email = strtolower($app->request->post('user_email'));
-			$user = \ORM::for_table('user')->where('email', $email)->find_one();
-
-			if(!$user) {
-				$app->flash('error', 'User Does Not Exist');
-				$app->redirect('/');
-			} else {
-				// Create login attempt
-				$login_attempt = \ORM::for_table('login_attempts')->create();
-				$login_attempt->userid = $user->id;
-				$login_attempt->timestamp = time();
-
-				$login_attempt->hash = uniqid('user-' . $user->id . '-');
-				$login_attempt->save();
-
-				$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('verify-user', array('hash' => $login_attempt->hash));
-				$message = include_once('../app/config/loginemail.settings.php');
-				$message += array(
-					'text' => str_replace(array('%USER%', '%URL%'), array($user->email, $login_url), file_get_contents('../app/templates/email/login.php')),
-					'to' => array(array(
-						'email' => $user->email,
-						'name' => $user->firstname . " " . $user->lastname,
-						'type' => 'to'
-					))
-				);
-
-				$result = $app->mandrill->messages->send($message);
-
-				$login_attempt->emailid = $result[0]['_id'];
-				$login_attempt->save();
-
-				$app->flash('info', 'Please Login with the email sent to your email address.');
-				$app->redirect('/');
-			}
-		} else {
-			$app->flash('danger', 'You Did Not Submit An User Email.');
-			$app->redirect('/');
-		}
-	});
-
 	$app->get('/logout', function() use($app) {
 		unset($_SESSION['user']);
 		$app->flash('info', 'User is now logged out.');
 		$app->redirect("/");
 	});
 
-	$app->get('/verify/:hash', function($hash = null) use($app) {
-		// Implement DateTime for all time() function calls.
-		$curr_time = time();
-		$range_time = $curr_time - (20 * 60);
-		
-		// Create a new class to handle login attempts creation/selection.
-		// Class should also handle login requests from users following an update link.
-
-		$result = \ORM::for_table('login_attempts')->where('hash', $hash)->where_gt('timestamp', $range_time)->where_lt('timestamp', $curr_time)->find_one();
-
-		if(!$result) {
-			$app->flash('danger', 'Login Error, Please try again');
-			$app->redirect('/');
-		} else {
-			$user = \ORM::for_table('user')->find_one($result->userid);
-
-			$_SESSION['user'] = new \BRMManager\User\Session($user);
-
-			$app->redirect('/brm');
-		}
-	})->name('verify-user');
+	$app->group('/login', function() use($app) {
+		$app->post('/', function() use($app) {
+			if($app->request->isPost()) {
+				$email = strtolower($app->request->post('user_email'));
+				$user = \ORM::for_table('user')->where('email', $email)->find_one();
+	
+				if(!$user) {
+					$app->flash('error', 'User Does Not Exist');
+					$app->redirect('/');
+				} else {
+					// Create login attempt
+					$login_attempt = \ORM::for_table('login_attempts')->create();
+					$login_attempt->userid = $user->id;
+					$login_attempt->timestamp = time();
+	
+					$login_attempt->hash = uniqid('user-' . $user->id . '-');
+					$login_attempt->save();
+	
+					$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('verify-user', array('hash' => $login_attempt->hash));
+					$message = include_once('../app/config/loginemail.settings.php');
+					$message += array(
+						'text' => str_replace(array('%USER%', '%URL%'), array($user->email, $login_url), file_get_contents('../app/templates/email/login.php')),
+						'to' => array(array(
+							'email' => $user->email,
+							'name' => $user->firstname . " " . $user->lastname,
+							'type' => 'to'
+						))
+					);
+	
+					$result = $app->mandrill->messages->send($message);
+	
+					$login_attempt->emailid = $result[0]['_id'];
+					$login_attempt->save();
+	
+					$app->flash('info', 'Please Login with the email sent to your email address.');
+					$app->redirect('/');
+				}
+			} else {
+				$app->flash('danger', 'You Did Not Submit An User Email.');
+				$app->redirect('/');
+			}
+		});
+	
+		$app->get('/verify/:hash', function($hash = null) use($app) {
+			// Implement DateTime for all time() function calls.
+			$curr_time = time();
+			$range_time = $curr_time - (20 * 60);
+			
+			// Create a new class to handle login attempts creation/selection.
+			// Class should also handle login requests from users following an update link.
+	
+			$result = \ORM::for_table('login_attempts')->where('hash', $hash)->where_gt('timestamp', $range_time)->where_lt('timestamp', $curr_time)->find_one();
+	
+			if(!$result) {
+				$app->flash('danger', 'Login Error, Please try again');
+				$app->redirect('/');
+			} else {
+				$user = \ORM::for_table('user')->find_one($result->userid);
+	
+				$_SESSION['user'] = new \BRMManager\User\Session($user);
+	
+				$app->redirect('/brm');
+			}
+		})->name('verify-user');
+	});
 
 	$app->group('/brm', $checkLogin, function() use($app) {
 		$app->get('/', function() use($app) {
