@@ -15,16 +15,6 @@ CREATE TABLE "brm_auth_list" (
   FOREIGN KEY ("versionid") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
-DELETE FROM "brm_auth_list";
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (1, 2,  1,  1,  3,  '0',  NULL, '');
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (2, 3,  1,  1,  3,  '0',  NULL, '');
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (3, 2,  1,  2,  3,  -1, NULL, 1423002341);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (4, 3,  1,  2,  3,  1,  NULL, 1423002341);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (5, 2,  1,  3,  3,  '0',  NULL, 1423002341);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (6, 1,  1,  3,  3,  1,  'This is good!',  1423774157);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (7, 2,  3,  5,  7,  '0',  NULL, NULL);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (8, 3,  3,  5,  7,  '0',  NULL, NULL);
-INSERT INTO "brm_auth_list" ("id", "userid", "brmid", "versionid", "permission", "approved", "comment", "timestamp") VALUES (9, 1,  3,  5,  7,  '0',  NULL, NULL);
 
 DROP TABLE IF EXISTS "brm_auth_view_list";
 CREATE TABLE "brm_auth_view_list" (
@@ -51,30 +41,22 @@ CREATE TABLE "brm_campaigns" (
   FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-DELETE FROM "brm_campaigns";
-INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "stateid", "departmentid", "createdby", "created") VALUES (1, 'TEST BRM', 'Testing BRM',  3,  '', '0',  NULL, 1,  1422916676);
-INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "stateid", "departmentid", "createdby", "created") VALUES (2, 'Moar Testing', 'This is to test the save functionality', 4,  '', '0',  NULL, 1,  1424279548);
-INSERT INTO "brm_campaigns" ("id", "title", "description", "current_version", "templateid", "stateid", "departmentid", "createdby", "created") VALUES (3, 'Moar Testing', 'This is to test the save functionality', 5,  '', '0',  NULL, 1,  1424279565);
 
 DROP TABLE IF EXISTS "brm_content_version";
 CREATE TABLE "brm_content_version" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "brmid" integer NULL,
   "brmversionid" integer NULL,
+  "userid" integer NOT NULL,
   "content" text NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-DELETE FROM "brm_content_version";
-INSERT INTO "brm_content_version" ("id", "brmid", "brmversionid", "content", "created") VALUES (1,  1,  1,  'THIS IS TEST CONTENT!!!',  1422916676);
-INSERT INTO "brm_content_version" ("id", "brmid", "brmversionid", "content", "created") VALUES (2,  1,  2,  'MOAR CONTENT HERE!!!!',  1423002341);
-INSERT INTO "brm_content_version" ("id", "brmid", "brmversionid", "content", "created") VALUES (3,  1,  3,  'Another Version Here', 1422995305);
-INSERT INTO "brm_content_version" ("id", "brmid", "brmversionid", "content", "created") VALUES (4,  2,  1,  'SAVING THIS CONTENT',  1424279548);
-INSERT INTO "brm_content_version" ("id", "brmid", "brmversionid", "content", "created") VALUES (5,  3,  1,  'SAVING THIS CONTENT',  1424279565);
 
 DELIMITER ;;
-CREATE TRIGGER "brm_content_version_ai" AFTER INSERT ON "brm_content_version" FOR EACH ROW
+CREATE TRIGGER "brm_content_version_ai" AFTER   INSERT ON "brm_content_version"
 BEGIN
   UPDATE "brm_content_version" SET "brmversionid" = (SELECT COUNT(id) FROM "brm_content_version" WHERE "brmid" = NEW.brmid) WHERE "id" = NEW.id;
 END;;
@@ -181,6 +163,10 @@ DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
 
 
+DROP VIEW IF EXISTS "view_audit_log";
+CREATE TABLE "view_audit_log" ("timestamp" integer, "brmid" integer, "versionid" integer, "userid" integer, "action" , "message" );
+
+
 DROP VIEW IF EXISTS "view_auth_list";
 CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "stateid" integer, "departmentid" integer, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
 
@@ -216,6 +202,65 @@ CREATE TABLE "view_need_approval" ("brmid" integer, "count" );
 DROP TABLE IF EXISTS "view_approved";
 CREATE VIEW "view_approved" AS
 SELECT "auth_list"."id" AS "brmid", COUNT("auth_list"."auth_approved") AS "count" FROM "view_auth_list" AS "auth_list" WHERE "auth_list"."auth_approved" = 1 GROUP BY "brmid";
+
+DROP TABLE IF EXISTS "view_audit_log";
+CREATE VIEW "view_audit_log" AS
+SELECT
+  "brm"."created" AS "timestamp",
+  "brm"."id" AS "brmid",
+  "brm_ver"."id" AS "versionid",
+  "brm"."createdby" AS "userid",
+  'brm_created' AS "action",
+  'BRM Created: ID#' || "brm"."id" || ' - ' || "brm"."title" AS "message"
+FROM
+  "brm_campaigns" AS "brm"
+LEFT JOIN "brm_content_version" AS "brm_ver" ON "brm"."id" = "brm_ver"."brmid" AND "brm_ver"."brmversionid" = 1
+UNION
+SELECT
+  "brm_cv"."created" AS "timestamp",
+  "brm_cv"."brmid" AS "brmid",
+  "brm_cv"."id" AS "versionid",
+  "brm_cv"."userid" AS "userid",
+  'version_created' AS "action",
+  'Version Created: ID#' || "brm_cv"."id" || ' - LID#' || "brm_cv"."brmversionid" AS "message"
+FROM
+  "brm_content_version" AS "brm_cv"
+WHERE
+  "brm_cv"."brmversionid" > 1
+UNION
+SELECT
+  "c"."timestamp" AS "timestamp",
+  "c"."brmid" AS "brmid",
+  "c"."versionid" AS "versionid",
+  "c"."userid" AS "userid",
+  'comment' AS "action",
+  'Comment Added: ID#' || "c"."id" || ' - ' || "c"."comment" AS "message"
+FROM
+  "comments" AS "c"
+UNION
+SELECT
+  "brm_al"."timestamp" AS "timestamp",
+  "brm_al"."brmid" AS "brmid",
+  "brm_al"."versionid" AS "versionid",
+  "brm_al"."userid" AS "userid",
+  'brm_approved' AS "action",
+  'BRM Approved By ' || "u"."firstname" || ' ' || "u"."lastname" || ' - ID#' || "brm_al"."id" || ': ' || ifnull("brm_al"."comment", '') AS "message"
+FROM
+  "brm_auth_list" AS "brm_al"
+LEFT JOIN "user" AS "u" ON "brm_al"."userid" = "u"."id"
+WHERE "approved" = 1
+UNION
+SELECT
+  "brm_al"."timestamp" AS "timestamp",
+  "brm_al"."brmid" AS "brmid",
+  "brm_al"."versionid" AS "versionid",
+  "brm_al"."userid" AS "userid",
+  'brm_denied' AS "action",
+  'BRM Denied By ' || "u"."firstname" || ' ' || "u"."lastname" || ' - ID#' || "brm_al"."id" || ': ' || ifnull("brm_al"."comment", '') AS "message"
+FROM
+  "brm_auth_list" AS "brm_al"
+LEFT JOIN "user" AS "u" ON "brm_al"."userid" = "u"."id"
+WHERE "approved" = -1;
 
 DROP TABLE IF EXISTS "view_auth_list";
 CREATE VIEW "view_auth_list" AS
@@ -257,7 +302,7 @@ SELECT "brm_auth"."userid" AS "userid",
 FROM "brm_auth_list" AS "brm_auth" 
 LEFT JOIN "user" AS "user" ON "brm_auth"."userid" = "user"."id"
 LEFT JOIN "brm_content_version" AS "brm_cv" ON "brm_auth"."versionid" = "brm_cv"."id"
-WHERE "brm_auth"."comment" IS NOT NULL
+WHERE "brm_auth"."comment" IS NOT NULL AND "brm_auth"."comment" != ''
 UNION
 SELECT "c"."userid" AS "userid", 
      "c"."brmid" AS "brmid", 
