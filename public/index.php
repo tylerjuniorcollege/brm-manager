@@ -165,7 +165,7 @@
 		});
 
 		$app->group('/view', function() use($app) {
-			$app->map('/:id', function($id) use($app) {
+			$app->map('/:id(/:versionid)', function($id, $versionid = NULL) use($app) {
 				$out = array();
 				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
 				// Grab the current version data as well ...
@@ -200,17 +200,19 @@
 				// Add to the view stats of the user.
 				if(is_object($isAuthorized)) {
 					$last_time = new DateTime();
-					$last_time->setTimestamp($isAuthorized->lastviewed);
+					$last_time->setTimestamp((int)$isAuthorized->lastviewed);
 					$interval = $last_time->diff($current_time);
-					if($interval->i > 30 || !is_int($isAuthorized->lastviewed)) {
+					var_dump($interval, $isAuthorized->lastviewed);
+					/* if($interval->i > 30 || !empty($isAuthorized->lastviewed)) {
 						$track_view = \ORM::for_table('brm_auth_view_list')->create();
 						$track_view->timestamp = $current_time->getTimestamp();
 						$track_view->authid = $isAuthorized->id;
 						$track_view->save();
-					}
+					} */
 				}
 
 				if($app->request->isPost() && is_object($isAuthorized)) {
+					var_dump($isAuthorized->lastviewed);
 					// This is adding a comment or approving the current BRM.
 					switch($app->request->post('action')) {
 						case 'addcomment':
@@ -289,6 +291,7 @@
 				// Since the BRM has been saved, NOW, we need to create the new version in the database.
 				$brm_version = \ORM::for_table('brm_content_version')->create();
 				$brm_version->brmid = $brm->id;
+				$brm_version->userid = $app->user->id;
 				$brm_version->content = $app->request->post('content');
 				$brm_version->created = $created;
 				$brm_version->save();
