@@ -157,7 +157,6 @@ CREATE TABLE "user" (
 );
 
 DELETE FROM "user";
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions") VALUES (1, '',  '',  '', 31);
 
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
