@@ -1,5 +1,3 @@
--- Adminer 4.2.0 SQLite 3 dump
-
 DROP TABLE IF EXISTS "brm_auth_list";
 CREATE TABLE "brm_auth_list" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -153,7 +151,8 @@ CREATE TABLE "user" (
   "firstname" text NULL,
   "lastname" text NULL,
   "email" text NOT NULL,
-  "permissions" integer NOT NULL DEFAULT '1'
+  "permissions" integer NOT NULL DEFAULT '1',
+  "created" integer NOT NULL
 );
 
 DELETE FROM "user";
@@ -204,6 +203,16 @@ SELECT "auth_list"."id" AS "brmid", COUNT("auth_list"."auth_approved") AS "count
 
 DROP TABLE IF EXISTS "view_audit_log";
 CREATE VIEW "view_audit_log" AS
+SELECT
+  "u"."created" AS "timestamp",
+  NULL AS "brmid",
+  NULL AS "versionid",
+  "u"."id" AS "userid",
+  'user_created' AS "action",
+  'User Created: ID#' || "u"."id" || ": " || "u"."email" AS "message"
+FROM
+  "user" AS "u"
+UNION
 SELECT
   "brm"."created" AS "timestamp",
   "brm"."id" AS "brmid",
@@ -353,5 +362,3 @@ SELECT "auth_list"."id" AS "brmid", COUNT("auth_list"."auth_approved") AS "count
 DROP TABLE IF EXISTS "view_need_approval";
 CREATE VIEW "view_need_approval" AS
 SELECT "auth_list"."id" AS "brmid", COUNT("auth_list"."auth_approved") AS "count" FROM "view_auth_list" AS "auth_list" WHERE "auth_list"."auth_approved" = 0 GROUP BY "brmid";
-
--- 
