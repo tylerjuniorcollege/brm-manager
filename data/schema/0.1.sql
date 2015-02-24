@@ -83,13 +83,27 @@ CREATE TABLE "brm_state" (
   PRIMARY KEY ("id")
 );
 
-DELETE FROM "brm_state";
 INSERT INTO "brm_state" ("id", "name", "description") VALUES ('0',  'Saved',  'BRM Email is Saved');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (1,  'Sent For Approval',  'BRM Email was sent to auth list for approval');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (2,  'Approved', 'BRM Email has met approval standards and is ready to insert in to BRM.');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (3,  'Approved and Template Created',  'BRM Email Template was created and is waiting the sent date.');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (4,  'Sent', 'BRM Email has been sent to the list.');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (5,  'Ended',  'BRM Email Campaign has ended.');
+
+DROP TABLE IF EXISTS "brm_state_change";
+CREATE TABLE "brm_state_change" (
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "brmid" integer NOT NULL,
+  "versionid" integer NOT NULL,
+  "userid" integer NOT NULL,
+  "stateid" integer NOT NULL,
+  "timestamp" integer NOT NULL,
+  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("versionid") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE CASCADE
+);
+
 
 DROP TABLE IF EXISTS "campaign";
 CREATE TABLE "campaign" (
@@ -123,7 +137,6 @@ CREATE TABLE "departments" (
   "name" text NOT NULL
 );
 
-DELETE FROM "departments";
 INSERT INTO "departments" ("id", "name") VALUES (1, 'IT (Information Technology)');
 INSERT INTO "departments" ("id", "name") VALUES (2, 'Student Success');
 INSERT INTO "departments" ("id", "name") VALUES (3, 'Recruitment');
@@ -155,14 +168,13 @@ CREATE TABLE "user" (
   "created" integer NOT NULL
 );
 
-DELETE FROM "user";
 
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
 
 
 DROP VIEW IF EXISTS "view_audit_log";
-CREATE TABLE "view_audit_log" ("timestamp" integer, "brmid" integer, "versionid" integer, "userid" integer, "action" , "message" );
+CREATE TABLE "view_audit_log" ("timestamp" integer, "brmid" , "versionid" , "userid" integer, "action" , "message" );
 
 
 DROP VIEW IF EXISTS "view_auth_list";
