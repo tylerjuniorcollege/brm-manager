@@ -362,6 +362,7 @@
 				$newUser->lastname = $app->request->post('lastname');
 				$newUser->email = $app->request->post('email');
 				$newUser->permissions = $app->request->post('permissions');
+				$newUser->created = time();
 				$newUser->save();
 
 				if($app->request->isAjax()) {
@@ -370,6 +371,13 @@
 					$app->flashNow('success', 'New User Added.');
 				}
 			}
+
+			if(!$app->user->hasAccess('admin')) {
+				$app->flash('danger', 'You do not have the appropriate permissions to access this.');
+				$app->redirect('/brm');
+			}
+
+			$app->render('user/form.php', array());
 		})->via('GET', 'POST')->name('add-user');
 	});
 
@@ -386,8 +394,16 @@
 
 		});
 
-		$app->get('/audit', function() use($app) {
-			$app->render('admin/audit.php', array());
+		$app->group('/audit', function() use($app) {
+			$app->post('/list', function() use($app) {
+
+			})->name('audit-json');
+			$app->get('/', function() use($app) {
+				$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
+				$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js');
+				$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css');
+				$app->render('admin/audit.php', array());
+			});
 		});
 	});
 
