@@ -1,8 +1,18 @@
 <?php
 	// BRMManager - cli application
-	include('../vendor/autoload.php');
+	// Set current working directory.
+	chdir(realpath(__DIR__ . "/../"));
 
-	define('DATABASE_FILE', '../data/database.db');
+	include('vendor/autoload.php');
+
+	define('DATABASE_FILE', 'data/database.db');
+
+	use League\Flysystem\Filesystem;
+	use League\Flysystem\Adapter\Local as Adapter;
+	use League\Flysystem\Plugin\ListWith;
+
+	$filesystem = new Filesystem(new Adapter('./data/schema'));
+	$filesystem->addPlugin(new ListWith());
 
 	$cli = new Cli(array(
 		'install' => "Creates the database for application",
@@ -21,16 +31,29 @@
 			unlink(DATABASE_FILE);
 		}
 
-		\ORM::configure('sqlite:'. DATABASE_FILE);
+		// Get latest version file.
+		$current_schema = NULL;
+		foreach($filesystem->listWith(array('timestamp', 'size')) as $schema) {
+			if(!is_null($current_schema) && $schema['timestamp'] < $current_schema['timestamp']) {
+				continue;
+			}
 
-		
+			$current_schema = $schema;
+		}
+
+		// Ask user if the version is ok.
+		$resp = $cli->print_read('Installing Version ' . $current_schema['filename'] . ' (y/n)? ');
+		if($resp == 'n' || $resp == 'N') {
+			die();
+		}
+
+		$schema = 'data/schema/'. $current_schema['path'];
+		exec('sqlite3 ' . DATABASE_FILE . '< ' . $schema);
 	}
 
 	if($cli->opt('createadmin')) {
 		// Specify the Database and then add User.
-		if(!$cli->opt('install')) {
-			\ORM::configure('sqlite:'. DATABASE_FILE);
-		}
+		\ORM::configure('sqlite:'. DATABASE_FILE);
 
 		$firstname = $cli->print_read('First Name:');
 		$lastname = $cli->print_read('Last Name:');
