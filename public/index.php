@@ -30,6 +30,7 @@
 
 	// This is the default layout files.
  	$app->view->appendJavascriptFile('/components/jquery/dist/jquery.min.js')
+ 			  ->appendJavascriptFile('/components/moment/min/moment.min.js')
 			  ->appendJavascriptFile('/components/bootstrap/dist/js/bootstrap.min.js')
 			  ->appendJavascriptFile('/components/jasny-bootstrap/dist/js/jasny-bootstrap.min.js')
 			  ->appendJavascriptFile('/components/jquery-ajax-progress/js/jquery.ajax-progress.js')
@@ -317,6 +318,9 @@
 				// Ignore the notify actions first.
 				$app->redirect($app->urlFor('view-brm', array('id' => $brm->id)));
 			}
+			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
+			$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
+			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
 			// Grab a list of users who have been used before.
 			$users = \ORM::for_table('view_common_users')->find_many();
 

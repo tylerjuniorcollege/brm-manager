@@ -23,6 +23,19 @@
 			</div>
 		</div>
 		<div class="form-group">
+			<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
+			<div class="col-sm-4">
+				<div class="input-group date" id="requesteddate">
+					<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+				</div>
+			</div>
+			<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
+			<div class="col-sm-4">
+				<input type="text" name="requestuser" class="form-control" id="requestuser" placeholder="Email Address">
+			</div>
+		</div>
+		<div class="form-group">
 			<label for="content" class="col-sm-2 control-label">Content</label>
 			<div class="col-sm-10">
 				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control" id="contentInput"></textarea>

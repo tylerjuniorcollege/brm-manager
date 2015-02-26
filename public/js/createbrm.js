@@ -200,6 +200,8 @@ $('#editBtn').on('click', function() {
 	$('#previewContent').hide();
 });
 
+$('#requesteddate').datetimepicker();
+
 function removeUser(id) {
 	//$('#user-' + id).remove();
 	$('#userList-' + id).remove();
