@@ -1,6 +1,10 @@
 var resultUsersId = '#user-';
 var currentUserId = 0;
 
+var RequestedUsers = new Bloodhound({
+	
+});
+
 $('#searchUsers').keyup(function() {
 	var query = $(this).val();
 	$.getJSON('/user/search?q=' + $(this).val(), function(data) {
