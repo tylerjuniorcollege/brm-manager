@@ -4,5 +4,4 @@
 		'subject' => '',
 		'from_email' => '',
 		'from_name' => '',
-		'text' => ''
 	);
