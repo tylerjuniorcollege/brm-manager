@@ -29,14 +29,22 @@ CREATE TABLE "brm_campaigns" (
   "description" text NOT NULL,
   "current_version" integer NULL,
   "templateid" text NOT NULL,
+  "campaignid" integer NULL,
   "stateid" integer NOT NULL DEFAULT '0',
   "departmentid" integer NULL,
+  "userrequested" integer NULL,
+  "requestdate" integer NULL,
+  "launchdate" integer NULL,
+  "population" integer NULL,
+  "listname" text NULL,
   "createdby" integer NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("userrequested") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("campaignid") REFERENCES "campaign" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
