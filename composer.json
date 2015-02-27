@@ -12,6 +12,7 @@
 	"require":{
 		"slim/slim": "2.*",
 		"j4mie/idiorm": "1.5.1",
+		"j4mie/paris": "1.5.4",
 		"tylerjuniorcollege/slim-layout":"dev-master",
 		"duanejeffers/cli.class.php": "dev-master",
 		"filp/whoops": "1.*",
