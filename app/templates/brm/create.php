@@ -32,7 +32,7 @@
 			</div>
 			<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
 			<div class="col-sm-4">
-				<input type="text" name="requestuser" class="form-control" id="requestuser" placeholder="Email Address">
+				<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address">
 			</div>
 		</div>
 		<div class="form-group">
@@ -58,7 +58,7 @@
 				</div>
 			</div>
 			<div class="col-sm-5">
-				<input type="text" id="searchUsers" placeholder="Search Or Input Email Address ..." class="form-control">
+				<input type="text" id="searchUsers" placeholder="Search Or Input Email Address ..." class="form-control" autocomplete="off">
 				<br />
 				<div class="panel panel-default" id="commonUsers">
 					<div class="panel-heading"><h3 class="panel-title" id="searchResHeading">Common users specified before</h3></div>

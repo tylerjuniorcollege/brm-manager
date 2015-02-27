@@ -1,18 +1,29 @@
 var resultUsersId = '#user-';
 var currentUserId = 0;
+var userSearch = '/user/search?q=';
 
-var RequestedUsers = new Bloodhound({
-	
+var userSearchSource = new Bloodhound({
+	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('email'),
+ 	queryTokenizer: Bloodhound.tokenizers.whitespace,
+ 	remote: {
+ 		url: userSearch + '%QUERY'
+ 	}
+});
+
+userSearchSource.initialize();
+$('#requestuser').typeahead({
+	items: 4,
+	source: userSearchSource.ttAdapter()
 });
 
 $('#searchUsers').keyup(function() {
 	var query = $(this).val();
-	$.getJSON('/user/search?q=' + $(this).val(), function(data) {
-		if(data.data.length > 0 && query.length > 0) {
+	$.getJSON(userSearch + $(this).val(), function(data) {
+		if(data.length > 0 && query.length > 0) {
 			$("#commonUsers").hide();
 			$("#addNewUser").hide();
 			$("#searchUsersResults").show();
-			$.each(data.data, function() {
+			$.each(data, function() {
 				if($(resultUsersId + this.id).length === 0) { // This doesn't exist
 					$('<a>').attr({
 						id: 'user-'+ this.id,

@@ -23,6 +23,7 @@
     "chartjs": "~0.2.0",
     "datatables-bootstrap3": "*",
     "eonasdan-bootstrap-datetimepicker": "~4.0.0",
-    "typeahead.js": "~0.10.5"
+    "typeahead.js": "~0.10.5",
+    "bootstrap3-typeahead": "~3.1.0"
   }
 }
