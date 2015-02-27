@@ -12,7 +12,12 @@ var userSearchSource = new Bloodhound({
 
 userSearchSource.initialize();
 $('#requestuser').typeahead({
-	items: 4,
+  hint: true,
+  highlight: true,
+  minLength: 1
+},
+{
+	displayKey: 'email',
 	source: userSearchSource.ttAdapter()
 });
 
