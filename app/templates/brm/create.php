@@ -16,23 +16,65 @@
 				<input type="text" name="description" placeholder="Description ..." class="form-control">
 			</div>
 		</div>
-		<div class="form-group">
-			<label for="description" class="col-sm-2 control-label">Template Id</label>
-			<div class="col-sm-10">
-				<input type="text" name="templateid" placeholder="Template ID ..." class="form-control">
+		<div class="row">
+			<div class="form-group col-sm-6">
+				<label for="description" class="col-sm-4 control-label">Template Id</label>
+				<div class="col-sm-8">
+					<input type="text" name="templateid" placeholder="Template ID ..." class="form-control">
+				</div>
+			</div>
+			<div class="form-group col-sm-6">
+				<label for="campaigns" class="col-sm-4 control-label">Campaign</label>
+				<div class="col-sm-8" id="campaign-select">
+					<select name="campaigns" class="form-control" id="campaign-list" placeholder="Campaign">
+						<option></option>
+						<option value="new">New Campaign</option>
+						<optgroup label="Existing Campaigns">
+						<?php foreach($data['campaigns'] as $campaign): ?>
+							<option value="<?=$campaign->id;?>"><?=$campaign->name; ?></option>
+						<?php endforeach; ?>
+						</optgroup>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-primary collapse col-sm-10 col-sm-offset-2" style="padding: 0;" data-toggle="collapse" id="campaignCreateForm">
+			<div class="panel-heading"><h3 class="panel-title">New Campaign</h3></div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label for="newCampaignName" class="col-sm-2 control-label">Campaign Name</label>
+					<div class="col-sm-10">
+						<input type="text" name="campaign-name" placeholder="Name" class="form-control">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="newCampaignName" class="col-sm-2 control-label">Campaign Description</label>
+					<div class="col-sm-10">
+						<input type="text" name="campaign-description" placeholder="Description" class="form-control">
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
-			<div class="col-sm-4">
+			<div class="col-sm-3">
 				<div class="input-group date" id="requesteddate">
 					<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
 					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 				</div>
 			</div>
-			<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
-			<div class="col-sm-4">
+			<label for="requestuser" class="col-sm-1 control-label">Requesting User</label>
+			<div class="col-sm-2">
 				<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address">
+			</div>
+			<label for="requestdepartment" class="col-sm-1 control-label">Requesting Department</label>
+			<div class="col-sm-3">
+				<select name="department" class="form-control" id="departmentSelect" placeholder="Department">
+					<option></option>
+					<?php foreach($data['departments'] as $dept): ?>
+					<option value="<?=$dept->id; ?>"><?=$dept->name; ?></option>
+					<?php endforeach; ?>
+				</select>
 			</div>
 		</div>
 		<div class="form-group">

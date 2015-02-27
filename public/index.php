@@ -279,6 +279,8 @@
 
 		$app->map('/create', function() use($app) {
 			if($app->request->isPost()) {
+				var_dump($app->request->post());
+				die();
 				$created = time();
 				// Creating the initial BRM Item.
 				$brm = \ORM::for_table('brm_campaigns')->create();
@@ -321,11 +323,17 @@
 			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
 			$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
 			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
+			$app->view->appendJavascriptFile('/components/select2/select2.min.js');
+			$app->view->appendStylesheet('/components/select2/select2.css');
+			$app->view->appendStylesheet('/components/select2-bootstrap-css/select2-bootstrap.min.css');
+			$app->view->appendStylesheet('/css/brm-form.css');
 			// Grab a list of users who have been used before.
 			$users = \ORM::for_table('view_common_users')->find_many();
+			$campaigns = \ORM::for_table('campaign')->find_many();
+			$departments = \ORM::for_table('departments')->find_many();
 
 			$app->view->appendJavascriptFile('/js/createbrm.js');
-			$app->render('brm/create.php', array('users' => $users));
+			$app->render('brm/create.php', array('users' => $users, 'campaigns' => $campaigns, 'departments' => $departments));
 		})->via('GET', 'POST');
 
 		$app->map('/edit/:id', function($id) use($app) {

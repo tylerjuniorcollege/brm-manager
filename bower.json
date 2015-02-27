@@ -24,6 +24,9 @@
     "datatables-bootstrap3": "*",
     "eonasdan-bootstrap-datetimepicker": "~4.0.0",
     "typeahead.js": "~0.10.5",
-    "bootstrap3-typeahead": "~3.1.0"
+    "bootstrap3-typeahead": "~3.1.0",
+    "select2": "select2/select2#~3.5.2",
+    "select2-bootstrap-css": "~1.4.6",
+    "handlebars": "~3.0.0"
   }
 }

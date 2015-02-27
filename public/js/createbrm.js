@@ -21,6 +21,17 @@ $('#requestuser').typeahead({
 	source: userSearchSource.ttAdapter()
 });
 
+$('#campaign-list').select2();
+$('#departmentSelect').select2();
+
+$('#campaign-list').change(function() {
+	if(this.value == 'new') {
+		$('#campaignCreateForm').collapse('show');
+	} else {
+		$('#campaignCreateForm').collapse('hide');
+	}
+});
+
 $('#searchUsers').keyup(function() {
 	var query = $(this).val();
 	$.getJSON(userSearch + $(this).val(), function(data) {
