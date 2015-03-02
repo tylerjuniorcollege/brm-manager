@@ -8,7 +8,7 @@ class User
 	public static $_table = 'user';
 
 	public static function addUser($post_arr) {
-		$newUser = \Model::factory('\BRMManager\Model\User')->create();
+		$newUser = \Model::factory('User')->create();
 		$newUser->firstname = $post_arr['firstname'];
 		$newUser->lastname = $post_arr['lastname'];
 		$newUser->email = strtolower($post_arr['email']);
@@ -21,10 +21,10 @@ class User
 
 	public function brms() {
 		// This Grabs the BRMs that the user is associated with.
-		return $this->has_many('\BRMManager\Model\BRM\Campaign', 'createdby');
+		return $this->has_many('BRM\Campaign', 'createdby');
 	}
 
 	public function comments() {
-		return $this->has_many('\BRMManager\Model\BRM\Comment', 'userid');
+		return $this->has_many('BRM\Comment', 'userid');
 	}
 }
