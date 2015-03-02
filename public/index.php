@@ -173,6 +173,11 @@
 
 		$app->group('/view', function() use($app) {
 			$app->map('/:id(/:versionid)', function($id, $versionid = NULL) use($app) {
+				$brm = Model::factory('BRM\Campaign')->find_one($id);
+
+				$current_version = $brm->current_version();
+				die();
+
 				$out = array();
 				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
 				// Grab the current version data as well ...
@@ -286,39 +291,33 @@
 		$app->map('/create', function() use($app) {
 			if($app->request->isPost()) {
 				$created = time();
+				// Change to BRM Campaign.
+				$brm = Model::factory('BRM\Campaign')->create();
+
 				// Creating the initial BRM Item.
-				$brm = \ORM::for_table('brm_campaigns')->create();
 				$brm->title = $app->request->post('name');
 				$brm->description = $app->request->post('description');
-				$brm->templateid = $app->request->post('templateid');
+
+				foreach(array('templateid', 
+							  'population',
+							  'listname') as $evar) {
+					if(!empty($app->request->post($evar))) {
+						$brm->$$evar = $app->request->post($evar);
+					}
+				}
+				
+				if(!empty($app->request->post('launchdate'))) {
+					$brm->launchdate = strtotime($app->request->post('launchdate'));	
+				}
+
 				$brm->createdby = $app->user->id;
 				$brm->created = $created;
 				$brm->save();
 
 				// Since the BRM has been saved, NOW, we need to create the new version in the database.
-				$brm_version = \ORM::for_table('brm_content_version')->create();
-				$brm_version->brmid = $brm->id;
-				$brm_version->userid = $app->user->id;
-				$brm_version->content = $app->request->post('content');
-				$brm_version->created = $created;
-				$brm_version->save();
+				$brm->addVersion($app->request->post('content'));
 
-				// Link the new version id with the brm.
-				$brm->current_version = $brm_version->id;
-				$brm->save();
-
-				$permissions = $app->request->post('permissions');
-
-				// Now we need to link the users with the current version.
-				foreach($app->request->post('users') as $user) {
-					// We need to create a new auth row.
-					$user_auth = \ORM::for_table('brm_auth_list')->create();
-					$user_auth->userid = $user; // This is the submitted userid.
-					$user_auth->brmid = $brm->id;
-					$user_auth->versionid = $brm_version->id;
-					$user_auth->permission = $permissions[$user];
-					$user_auth->save();
-				}
+				$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
 
 				// Redirect user to the newly created BRM Email.
 				// Ignore the notify actions first.
@@ -348,8 +347,8 @@
 
 	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
 		$app->get('/view/:id', function($id) use($app) {
-			$user = \Model::factory('\BRMManager\Model\User')->find_one($id);
-			$brms = $user->brm()->find_many();
+			$user = \Model::factory('User')->find_one($id);
+			$brms = $user->brms()->find_many();
 		})->name('view-user');
 
 		$app->get('/search', function() use($app) {
