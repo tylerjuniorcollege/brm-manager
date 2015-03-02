@@ -29,6 +29,7 @@
 					<select name="campaigns" class="form-control" id="campaign-list" placeholder="Campaign">
 						<option></option>
 						<option value="new">New Campaign</option>
+						<option value="none">No Assigned Campaign</option>
 						<optgroup label="Existing Campaigns">
 						<?php foreach($data['campaigns'] as $campaign): ?>
 							<option value="<?=$campaign->id;?>"><?=$campaign->name; ?></option>
@@ -38,43 +39,98 @@
 				</div>
 			</div>
 		</div>
-		<div class="panel panel-primary collapse col-sm-10 col-sm-offset-2" style="padding: 0;" data-toggle="collapse" id="campaignCreateForm">
-			<div class="panel-heading"><h3 class="panel-title">New Campaign</h3></div>
-			<div class="panel-body">
-				<div class="form-group">
-					<label for="newCampaignName" class="col-sm-2 control-label">Campaign Name</label>
-					<div class="col-sm-10">
-						<input type="text" name="campaign-name" placeholder="Name" class="form-control">
+		<div class="col-sm-10 col-sm-offset-2" style="padding: 0">
+			<div class="panel panel-primary collapse" data-toggle="collapse" id="campaignCreateForm">
+				<div class="panel-heading"><h3 class="panel-title">New Campaign</h3></div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="newCampaignName" class="col-sm-2 control-label">Campaign Name</label>
+						<div class="col-sm-10">
+							<input type="text" name="campaign-name" placeholder="Name" class="form-control">
+						</div>
 					</div>
-				</div>
-				<div class="form-group">
-					<label for="newCampaignName" class="col-sm-2 control-label">Campaign Description</label>
-					<div class="col-sm-10">
-						<input type="text" name="campaign-description" placeholder="Description" class="form-control">
+					<div class="form-group">
+						<label for="newCampaignName" class="col-sm-2 control-label">Campaign Description</label>
+						<div class="col-sm-10">
+							<input type="text" name="campaign-description" placeholder="Description" class="form-control">
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="form-group">
-			<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
-			<div class="col-sm-3">
-				<div class="input-group date" id="requesteddate">
-					<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
-					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+		<div class="col-sm-10 col-sm-offset-2 panel-group" id="aOpts" style="padding:0" role="tablist" aria-multiselectable="true">
+			<div class="panel panel-default" id="requestDetails">
+				<div class="panel-heading" role="tab" id="reqHeading">
+					<h3 class="panel-title">
+						<a data-toggle="collapse" data-parent="#aOpts" href="#reqCollapse" aria-expanded="false" aria-controls="reqCollapse">
+							Request Details
+						</a>
+					</h3>
+				</div>
+				<div class="panel-collapse collapse" id="reqCollapse" role="tabpanel" aria-labelledby="reqHeading">
+					<div class="panel-body">
+						<div class="form-group">
+							<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
+							<div class="col-sm-10">
+								<div class="input-group date" id="requesteddate">
+									<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
+							<div class="col-sm-10">
+								<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="requestdepartment" class="col-sm-2 control-label">Requesting Department</label>
+							<div class="col-sm-10">
+								<select name="department" class="form-control" id="departmentSelect" placeholder="Department">
+									<option></option>
+									<?php foreach($data['departments'] as $dept): ?>
+									<option value="<?=$dept->id; ?>"><?=$dept->name; ?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<label for="requestuser" class="col-sm-1 control-label">Requesting User</label>
-			<div class="col-sm-2">
-				<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address">
-			</div>
-			<label for="requestdepartment" class="col-sm-1 control-label">Requesting Department</label>
-			<div class="col-sm-3">
-				<select name="department" class="form-control" id="departmentSelect" placeholder="Department">
-					<option></option>
-					<?php foreach($data['departments'] as $dept): ?>
-					<option value="<?=$dept->id; ?>"><?=$dept->name; ?></option>
-					<?php endforeach; ?>
-				</select>
+			<div class="panel panel-default" id="launchSettings">
+				<div class="panel-heading" role="tab" id="launchHeading">
+					<h3 class="panel-title">
+						<a data-toggle="collapse" data-parent="#aOpts" href="#launchCollapse" aria-expanded="false" aria-controls="launchCollapse">
+							Launch Details
+						</a>
+					</h3>
+				</div>
+				<div class="panel-collapse collapse" id="launchCollapse" role="tabpanel" aria-labelledby="launchHeading">
+					<div class="panel-body">
+						<div class="form-group">
+							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
+							<div class="col-sm-10">
+								<div class="input-group date" id="launchdate">
+									<input type="text" class="form-control" name="launchdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="population" class="col-sm-2 control-label">Population</label>
+							<div class="col-sm-10">
+								<input type="text" name="population" class="form-control" id="population" placeholder="Population">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="requestdepartment" class="col-sm-2 control-label">Email List Name</label>
+							<div class="col-sm-10">
+								<input type="text" name="emaillistname" class="form-control" placeholder="List Name">
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="form-group">
@@ -118,10 +174,6 @@
 					<div class="panel-heading"><h3 class="panel-title">Permissions for User: <span id="permUserSelect"></span></h3></div>
 					<div class="panel-body">
 						<label class="checkbox-inline">
-							<input type="checkbox" id="permView" class="selectUserPermCheck" value="1">
-							<span id="permLabelView" class="label label-info">View</span>
-						</label>
-						<label class="checkbox-inline">
 							<input type="checkbox" id="permApprove" class="selectUserPermCheck" value="2">
 							<span id="permLabelApprove" class="label label-primary">Approve</span>
 						</label>
@@ -150,10 +202,6 @@
 						<div class="form-group">
 							<label for="newPerm">Permissions</label>
 							<div>
-								<label class="checkbox-inline">
-									<input type="checkbox" id="newPermView" class="selectUserPermCheck" value="1">
-									<span class="label label-info">View</span>
-								</label>
 								<label class="checkbox-inline">
 									<input type="checkbox" id="newPermApprove" class="selectUserPermCheck" value="2">
 									<span class="label label-primary">Approve</span>

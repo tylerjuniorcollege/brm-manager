@@ -18,14 +18,17 @@ $('#requestuser').typeahead({
 },
 {
 	displayKey: 'email',
-	source: userSearchSource.ttAdapter()
+	source: userSearchSource.ttAdapter(),
+	templates: {
+		suggestion: Handlebars.compile('<p>{{email}} - {{firstname}} {{lastname}}</p>')
+	}
 });
 
 $('#campaign-list').select2();
 $('#departmentSelect').select2();
 
 $('#campaign-list').change(function() {
-	if(this.value == 'new') {
+	if(this.value === 'new') {
 		$('#campaignCreateForm').collapse('show');
 	} else {
 		$('#campaignCreateForm').collapse('hide');
