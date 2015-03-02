@@ -22,6 +22,12 @@
 	));
 
 	\ORM::configure('sqlite:../data/database.db');
+	\ORM::configure('logging', true);
+	\ORM::configure('logger', function($log_string, $query_time) {
+    	var_dump($log_string);
+	});
+
+	\Model::$auto_prefix_models = '\\BRMManager\\Model\\';
 
 	$app->add(new \BRMManager\Middleware\User);
 	$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
