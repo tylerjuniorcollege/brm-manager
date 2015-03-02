@@ -279,8 +279,6 @@
 
 		$app->map('/create', function() use($app) {
 			if($app->request->isPost()) {
-				var_dump($app->request->post());
-				die();
 				$created = time();
 				// Creating the initial BRM Item.
 				$brm = \ORM::for_table('brm_campaigns')->create();
@@ -320,6 +318,7 @@
 				// Ignore the notify actions first.
 				$app->redirect($app->urlFor('view-brm', array('id' => $brm->id)));
 			}
+			$app->view->appendJavascriptFile('/components/handlebars/handlebars.min.js');
 			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
 			$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
 			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
@@ -342,6 +341,11 @@
 	});
 
 	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
+		$app->get('/view/:id', function($id) use($app) {
+			$user = \Model::factory('\BRMManager\Model\User')->find_one($id);
+			$brms = $user->brm()->find_many();
+		})->name('view-user');
+
 		$app->get('/search', function() use($app) {
 			$query = '%' . trim($app->request->get('q')) . '%';
 
@@ -370,14 +374,8 @@
 		});
 		$app->map('/add', $checkPermissions('create'), function() use($app) { // Only Creators can add users to the system.
 			if($app->request->isPost()) {
-				// This is an add user function.
-				$newUser = \ORM::for_table('user')->create();
-				$newUser->firstname = $app->request->post('firstname');
-				$newUser->lastname = $app->request->post('lastname');
-				$newUser->email = $app->request->post('email');
-				$newUser->permissions = $app->request->post('permissions');
-				$newUser->created = time();
-				$newUser->save();
+
+				$newUser = \BRMManager\Model\User::addUser($app->request->post());
 
 				if($app->request->isAjax()) {
 					$app->view->renderJson(array('userid' => $newUser->id, 'permissions' => $newUser->permissions));

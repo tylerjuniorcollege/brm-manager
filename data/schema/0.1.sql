@@ -31,20 +31,17 @@ CREATE TABLE "brm_campaigns" (
   "templateid" text NOT NULL,
   "campaignid" integer NULL,
   "stateid" integer NOT NULL DEFAULT '0',
-  "departmentid" integer NULL,
-  "userrequested" integer NULL,
-  "requestdate" integer NULL,
+  "requestid" integer NULL,
   "launchdate" integer NULL,
   "population" integer NULL,
   "listname" text NULL,
   "createdby" integer NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("userrequested") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
   FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
-  FOREIGN KEY ("campaignid") REFERENCES "campaign" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+  FOREIGN KEY ("campaignid") REFERENCES "campaign" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("requestid") REFERENCES "brm_requests" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
@@ -83,6 +80,17 @@ CREATE TABLE "brm_header_images" (
 );
 
 
+DROP TABLE IF EXISTS "brm_requests";
+CREATE TABLE "brm_requests" (
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "userid" integer NOT NULL,
+  "timestamp" integer NOT NULL,
+  "departmentid" integer NOT NULL,
+  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE CASCADE
+);
+
+
 DROP TABLE IF EXISTS "brm_state";
 CREATE TABLE "brm_state" (
   "id" integer NOT NULL,
@@ -118,10 +126,12 @@ CREATE TABLE "campaign" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "name" text NOT NULL,
   "description" text NOT NULL,
-  "startdate" integer NOT NULL,
-  "enddate" integer NOT NULL,
-  "freezedate" integer NOT NULL,
-  "created" integer NOT NULL
+  "startdate" integer NULL,
+  "enddate" integer NULL,
+  "freezedate" integer NULL,
+  "created" integer NOT NULL,
+  "createdby" integer NOT NULL,
+  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE
 );
 
 
@@ -186,7 +196,7 @@ CREATE TABLE "view_audit_log" ("timestamp" integer, "brmid" , "versionid" , "use
 
 
 DROP VIEW IF EXISTS "view_auth_list";
-CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "stateid" integer, "departmentid" integer, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
+CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
 
 
 DROP VIEW IF EXISTS "view_brm_auth_list";
@@ -198,11 +208,11 @@ CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid"
 
 
 DROP VIEW IF EXISTS "view_brm_list";
-CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "stateid" integer, "departmentid" integer, "createdby" integer, "created" integer, "version_count" , "version_created" );
+CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" );
 
 
 DROP VIEW IF EXISTS "view_brm_list_approve";
-CREATE TABLE "view_brm_list_approve" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "stateid" integer, "departmentid" integer, "createdby" integer, "created" integer, "version_count" , "version_created" , "brm_current_version" integer, "approval_needed" , "approved" , "denied" );
+CREATE TABLE "view_brm_list_approve" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "brm_current_version" integer, "approval_needed" , "approved" , "denied" );
 
 
 DROP VIEW IF EXISTS "view_common_users";
