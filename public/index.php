@@ -314,8 +314,29 @@
 				$brm->created = $created;
 				$brm->save();
 
+				$campaign = NULL;
+				// Add Campaign to the system if it's new.
+				if($app->request->post('campaigns') === 'new') {
+					$campaign = \Model::factory('Campaign')->create();
+					$campaign->name = $app->request->post('campaign-name');
+					$campaign->description = $app->request->post('campaign-description');
+					$campaign->created = $created;
+					$campaign->createdby = $app->user->id;
+					$campaign->save();
+				} elseif(is_numeric($app->request->post('campaigns'))) {
+					$campaign = \Model::factory('Campaign')->find_one($app->request->post('campaigns'));
+				}
+
+				if(!is_null($campaign)) {
+					$brm->addCampaign($campaign);
+				}
+
 				// Since the BRM has been saved, NOW, we need to create the new version in the database.
-				$brm->addVersion($app->request->post('content'));
+				$version = \Model::factory('BRM\ContentVersion')->create();
+				$version->content = $app->request->post('content');
+				$version->created = $created;
+				$version->userid = $app->user->id;
+				$brm->addVersion($version);
 
 				$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
 

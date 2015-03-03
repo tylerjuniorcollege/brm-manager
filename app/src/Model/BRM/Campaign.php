@@ -1,6 +1,10 @@
 <?php
 
 namespace BRMManager\Model\BRM;
+use BRMManager\Model\Campaign as SysCampaigns;
+use BRMManager\Model\BRM\ContentVersion as ContentVersion;
+use BRMManager\Model\BRM\Request as Request;
+use BRMManager\Model\BRM\StateChange as StateChange;
 
 class Campaign
 	extends \Model {
@@ -15,21 +19,9 @@ class Campaign
 		return $this->has_one('BRM\ContentVersion', 'id', 'current_version')->find_one();
 	}
 
-	public function addVersion($content, $userid = NULL, $timestamp = NULL) {
+	public function addVersion(ContentVersion $version) {
 		// If $timestamp is null, then use the created timestamp.
-		$version = \Model::factory('BRM\ContentVersion')->create();
 		$version->brmid = $this->id;
-		$version->content = $content;
-
-		if(is_null($userid)) { // Use CreatedBy
-			$userid = $this->createdby;
-		}
-		$version->userid = $userid;
-
-		if(is_null($timestamp)) {
-			$timestamp = $this->created;
-		}
-		$version->created = $timestamp;
 		$version->save();
 
 		$this->current_version = $version->id;
@@ -40,16 +32,8 @@ class Campaign
 		return $this->has_one('Campaign', 'id', 'campaignid')->find_one();
 	}
 
-	public function addCampaign($name, $desc) {
-		$campaign = \Model::factory('Campaign')->create();
-		$campaign->name = $name;
-		$campaign->description = $desc;
-		$campaign->created = $this->created;
-		$campaign->createdby = $this->createdby;
-		$campaign->save();
-
+	public function addCampaign(SysCampaigns $campaign) {
 		$this->campaignid = $campaign->id;
-		$this->save();
 	}
 
 	public function authorizeUsers($versionid = NULL) {
@@ -71,7 +55,28 @@ class Campaign
 		}
 	}
 
-	public function addRequest() {
-		
+	public function request() {
+		return $this->has_one('BRM\Request', 'id', 'requestid')->find_one();
+	}
+
+	public function addRequest(Request $request) {
+		$this->requestid = $request->id;
+	}
+
+	public function state() {
+		return $this->has_one('BRM\State', 'id', 'stateid')->find_one();
+	}
+
+	public function state_change() {
+
+	}
+
+	public function changeState(StateChange $statechange) {
+		$statechange->brmid = $this->id;
+		$statechange->versionid = $this->current_version;
+		$statechange->save();
+
+		$this->stateid = $statechange->stateid;
+		$this->save();
 	}
 }
