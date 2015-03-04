@@ -231,6 +231,7 @@ $('#editBtn').on('click', function() {
 });
 
 $('#requesteddate').datetimepicker();
+$('#launchdate').datetimepicker();
 
 function removeUser(id) {
 	//$('#user-' + id).remove();
