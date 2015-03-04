@@ -45,8 +45,8 @@
 				<label for="approval_list" class="col-sm-2 control-label">Approval/View List</label>
 				<div class="col-sm-6">
 					<ul class="list-group">
-						<?php foreach($data['auth_users'] as $user) {
-							switch ($user->approved) {
+						<?php foreach($data['auth_users'] as $authuser) {
+							switch ($authuser->approved) {
 								case 1:
 									$li_css = ' list-group-item-success';
 									$icon = 'fa-check-circle-o';
@@ -60,14 +60,14 @@
 								default:
 									$li_css = null;
 									$icon = 'fa-circle-o';
-									if($user->view_count > 0) {
+									if(!is_null($authuser->viewedtime)) {
 										$icon = 'fa-dot-circle-o';
 									}
 									break;
 							}
 
 							// Building links ...
-							$user_str = sprintf('%s %s &lt;%s&gt;', $user->firstname, $user->lastname, $user->email);
+							$user_str = sprintf('%s %s &lt;%s&gt;', $authuser->user()->firstname, $authuser->user()->lastname, $authuser->user()->email);
 							printf('<li class="list-group-item%s">%s <i class="fa %s pull-right"></i></li>', $li_css, $user_str, $icon);
 						} ?>
 					</ul>

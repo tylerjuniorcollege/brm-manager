@@ -22,7 +22,7 @@
 	));
 
 	\ORM::configure('sqlite:../data/database.db');
-	\ORM::configure('logging', true);
+	\ORM::configure('logging', false);
 	\ORM::configure('logger', function($log_string, $query_time) {
     	var_dump($log_string);
 	});
@@ -147,6 +147,24 @@
 				$app->redirect('/brm');
 			}
 		})->name('verify-user');
+
+		$app->get('/brm/:brmid/:hash', function($brmid = NULL, $hash = NULL) use($app) {
+			$login_attempt = \Model::factory('LoginAttempts')->where(array('hash' => $hash, 'result' => 0))->find_one();
+			// Change the result and then log the user in.
+			if(!$login_attempt) {
+				$app->flash('danger', 'Login Error: Attempt does not exist.');
+				$app->redirect('/');
+			} else {
+				$login_attempt->result = 1;
+				$user = $login_attempt->user();
+				$auth = $login_attempt->auth();
+				$auth->viewedtime = time();
+
+				$_SESSION['user'] = new \BRMManager\User\Session($user);
+
+				$app->redirect($app->urlFor('view-brm'), array('id' => $auth->brmid));
+			}
+		})->name('brm-login');
 	});
 
 	$app->group('/brm', $checkLogin, function() use($app) {
@@ -173,58 +191,40 @@
 
 		$app->group('/view', function() use($app) {
 			$app->map('/:id(/:versionid)', function($id, $versionid = NULL) use($app) {
-				$brm = Model::factory('BRM\Campaign')->find_one($id);
-
-				$current_version = $brm->current_version();
-				die();
-
 				$out = array();
-				$out['brm_data'] = \ORM::for_table('view_brm_list_approve')->find_one($id);
+				$out['brm_data'] = \Model::factory('BRM\Campaign')->find_one($id);
 				// Grab the current version data as well ...
-				$out['current_version'] = \ORM::for_table('brm_content_version')->find_one($out['brm_data']->current_version);
+				$out['current_version'] = $out['brm_data']->currentVersion();
+
+				// Grab the list of current users who are tied to the BRM.
+				$out['auth_users'] = $out['brm_data']->authorizedUsers();
+
+				$isAuthorized = FALSE;
+				foreach($out['auth_users'] as $authuser) {
+					if($app->user->id === $authuser->userid) {
+						if(Permissions::hasAccess((int)$user->permission, 'view')) {
+							$isAuthorized = $authuser->user();
+						}
+					}
+				}
 
 				// Determine if the current user is the creator/owner of the requested BRM
 				$out['owner'] = FALSE;
 				if($app->user->id == $out['brm_data']->createdby) {
 					$out['owner'] = TRUE;
-				}
-
-				// Grab the list of current users who are tied to the BRM.
-				$out['auth_users'] = \ORM::for_table('view_brm_auth_list')->where(array('brmid' => $out['brm_data']->id, 'versionid' => $out['current_version']->id))
-																	 	  ->find_many();
-
-				$isAuthorized = FALSE;
-				foreach($out['auth_users'] as $user) {
-					if($app->user->id === $user->userid) {
-						if(Permissions::hasAccess((int)$user->permission, 'view')) {
-							$isAuthorized = $user;
-						}
+					if(!$isAuthorized) {
+						$isAuthorized = \Model::factory('User')->find_one($app->user->id);
 					}
 				}
 
-				// Check to see if this user is allowed to view this BRM.
-				/* if(!$app->user->hasAccess('admin') && !$isAuthorized) {
-					$app->flash('danger', 'You are not authorized to see this BRM Email.');
-					$app->redirect('/brm');
-				} */
-
-				$current_time = new DateTime();
-				// Add to the view stats of the user.
-				if(is_object($isAuthorized)) {
-					$last_time = new DateTime();
-					$last_time->setTimestamp((int)$isAuthorized->lastviewed);
-					$interval = $last_time->diff($current_time);
-					var_dump($interval, $isAuthorized->lastviewed);
-					/* if($interval->i > 30 || !empty($isAuthorized->lastviewed)) {
-						$track_view = \ORM::for_table('brm_auth_view_list')->create();
-						$track_view->timestamp = $current_time->getTimestamp();
-						$track_view->authid = $isAuthorized->id;
-						$track_view->save();
-					} */
+				// If the user hasn't passed the authorized check, then see if they are an admin ...
+				$out['admin'] = FALSE;
+				if($app->user->hasAccess('admin') && !$isAuthorized) {
+					$isAuthorized = \Model::factory('User')->find_one($app->user->id);
+					$out['admin'] = TRUE;
 				}
 
 				if($app->request->isPost() && is_object($isAuthorized)) {
-					var_dump($isAuthorized->lastviewed);
 					// This is adding a comment or approving the current BRM.
 					switch($app->request->post('action')) {
 						case 'addcomment':
@@ -232,39 +232,29 @@
 							$comment->userid = $app->user->id;
 							$comment->brmid = $app->request->post('brmid');
 							$comment->versionid = $app->request->post('versionid');
-							$refresh = FALSE;
 							break;
 
 						case 'approve':
 							$comment = \ORM::for_table('brm_auth_list')->find_one($isAuthorized->id);
 							$comment->approved = 1;
-							$refresh = TRUE;
 							break;
 
 						case 'deny':
 							$comment = \ORM::for_table('brm_auth_list')->find_one($isAuthorized->id);
 							$comment->approved = -1;
-							$refresh = TRUE;
 							break;
 					}
 					$comment->comment = $app->request->post('comment');
-					$comment->timestamp = $current_time->getTimestamp();
+					$comment->timestamp = time();
 					$comment->save();
-
-					if($refresh) {
-						// Grab the list of current users who are tied to the BRM.
-						$out['auth_users'] = \ORM::for_table('view_brm_auth_list')->where(array('brmid' => $out['brm_data']->id, 'versionid' => $out['current_version']->id))
-																	 	 		  ->find_many();
-					}
 				}
+
+				$out['auth_users'] = $out['brm_data']->authorizedUsers();
 
 				// Grab all the header images associated with this version.
 				$out['header_imgs'] = \ORM::for_table('brm_header_images')->where(array('brmid' => $out['brm_data']->id, 'brmversionid' => $out['current_version']->id));
 
-				$out['previous_versions'] = \ORM::for_table('brm_content_version')->select(array('id', 'brmversionid', 'created'))
-																				  ->where('brmid', $out['brm_data']->id)
-																				  ->where_not_equal('id', $out['current_version']->id)
-																				  ->order_by_desc('id', 'created')->find_array();
+				$out['previous_versions'] = $out['brm_data']->versions()->where_not_equal('id', $out['current_version']->id)->find_array();
 
 				$out['comments'] = \ORM::for_table('view_brm_comments')->where('brmid', $out['brm_data']->id)
 																  	   ->order_by_desc('timestamp', 'versionid')
@@ -278,8 +268,6 @@
 				$data = \ORM::for_table('brm_content_version')->find_one($id);
 				$json = array(
 					'id' => $data->id,
-//					'brmid' => $data->brmid,
-//					'brmversionid' => $data->brmversionid,
 					'content' => $data->content,
 					'created' => date('l, F j, Y g:i:s', $data->created)
 				);
@@ -297,14 +285,10 @@
 				// Creating the initial BRM Item.
 				$brm->title = $app->request->post('name');
 				$brm->description = $app->request->post('description');
+				$brm->templateid = (!empty($app->request->post('templateid')) ? $app->request->post('templateid') : NULL);
+				$brm->population = (!empty($app->request->post('population')) ? $app->request->post('population') : NULL);
+				$brm->listname = (!empty($app->request->post('listname')) ? $app->request->post('listname') : NULL);
 
-				foreach(array('templateid', 
-							  'population',
-							  'listname') as $evar) {
-					if(!empty($app->request->post($evar))) {
-						$brm->$$evar = $app->request->post($evar);
-					}
-				}
 				
 				if(!empty($app->request->post('launchdate'))) {
 					$brm->launchdate = strtotime($app->request->post('launchdate'));	
@@ -331,6 +315,32 @@
 					$brm->addCampaign($campaign);
 				}
 
+				// Request information.
+				if(!empty($app->request->post('requestdate')) ||
+				   !empty($app->request->post('requestuser')) ||
+				   !empty($app->request->post('department'))) {
+				   	// Create a new Request Object.
+					$request = \Model::factory('BRM\Request')->create();
+
+					if(!empty($app->request->post('requestdate'))) {
+						$request->timestamp = strtotime($app->request->post('requestdate'));
+					}
+
+					if(!empty($app->request->post('requestuser'))) {
+						$req_user = \Model::factory('User')->where('email', $app->request->post('requestuser'))->find_one();
+						$request->addUser($req_user);
+					}
+
+					if(!empty($app->request->post('department'))) {
+						$dept = \Model::factory('Department')->find_one($app->request->post('department'));
+						$request->addDepartment($dept);
+					}
+
+					$request->save();
+					$brm->addRequest($request);
+
+				}
+
 				// Since the BRM has been saved, NOW, we need to create the new version in the database.
 				$version = \Model::factory('BRM\ContentVersion')->create();
 				$version->content = $app->request->post('content');
@@ -339,6 +349,47 @@
 				$brm->addVersion($version);
 
 				$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
+
+				// Now, we need to see if this is a save or notify action.
+				if($app->request->post('submit') === 'send') {
+					// Initiate a State Change and generate logins.
+					$statechange = \Model::factory('BRM\StateChange')->create();
+					$statechange->userid = $app->user->id;
+					$statechange->timestamp = $created;
+					$statechange->stateid = 1;
+					$brm->changeState($statechange);
+
+					$message_settings = include_once('../app/config/loginemail.settings.php');
+
+					// Send E-mails to all the authorized users.
+					foreach($brm->authorizedUsers() as $authuser) {
+						// Login the Users in and assign them to the email.
+						$login = \ORM::for_table('login_attempts')->create();
+						$user = $authuser->user();
+						$login->userid = $user->id;
+						$login->timestamp = $created;
+						$login->hash = uniqid('user-' . $login->userid . '-');
+						$login->authid = $authuser->id;
+
+						$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('brm-login', array('brmid' => $brm->id, 'hash' => $login->hash));
+						$message = array_merge($message_settings, array(
+							'text' => str_replace(array('%USER%', '%URL%', '%AUTHOR%', '%VERB%', '%TITLE%'), 
+												  array($user->email, $login_url, $app->user->firstname . ' ' . $app->user->lastname, 'created', $brm->name), 
+												  file_get_contents('../app/templates/email/approve.php')),
+							'to' => array(array(
+								'email' => $user->email,
+								'name' => $user->firstname . " " . $user->lastname,
+								'type' => 'to'
+							))
+						));
+
+						$result = $app->mandrill->messages->send($message);
+	
+						$login->emailid = $result[0]['_id'];
+						$login->save();
+					}
+
+				}
 
 				// Redirect user to the newly created BRM Email.
 				// Ignore the notify actions first.
