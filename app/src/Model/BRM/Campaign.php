@@ -12,7 +12,7 @@ class Campaign
 	public static $_table = 'brm_campaigns';
 
 	public function versions() {
-		return $this->has_many('BRM\ContentVersion', 'brmid');
+		return $this->has_many('BRM\ContentVersion', 'brmid')->order_by_desc('id', 'created');
 	}
 
 	public function currentVersion() {
@@ -36,11 +36,11 @@ class Campaign
 		$this->campaignid = $campaign->id;
 	}
 
-	public function authorizeUsers($versionid = NULL) {
+	public function authorizedUsers($versionid = NULL) {
 		if(is_null($versionid)) {
 			$versionid = $this->current_version;
 		}
-		return $this->has_many('BRM\AuthList', 'brmid')->where('versionid', $versionid);
+		return $this->has_many('BRM\AuthList', 'brmid')->where('versionid', $versionid)->find_many();
 	}
 
 	public function addUsers($users, $permissions) {
@@ -53,6 +53,10 @@ class Campaign
 			$authuser->permission = $permissions[$user];
 			$authuser->save();
 		}
+	}
+
+	public function owner() {
+		return $this->has_one('User', 'id', 'createdby')->find_one();
 	}
 
 	public function request() {

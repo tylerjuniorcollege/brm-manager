@@ -3,7 +3,7 @@
 namespace BRMManager\Model\BRM;
 
 class State
-	extends Model
+	extends \Model
 {
 	public static $_table = 'brm_state';
 }

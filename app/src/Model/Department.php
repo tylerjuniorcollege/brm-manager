@@ -3,7 +3,7 @@
 namespace BRMManager\Model;
 
 class Department
-	extends Model
+	extends \Model
 {
-	
+	public static $_table = 'departments';
 }

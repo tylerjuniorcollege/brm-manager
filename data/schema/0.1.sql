@@ -7,18 +7,10 @@ CREATE TABLE "brm_auth_list" (
   "permission" integer NOT NULL,
   "approved" integer NOT NULL DEFAULT '0',
   "comment" text NULL,
-  "timestamp" integer NULL,
+  "timestamp" integer NULL, "viewedtime" integer NULL,
   FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   FOREIGN KEY ("versionid") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-
-DROP TABLE IF EXISTS "brm_auth_view_list";
-CREATE TABLE "brm_auth_view_list" (
-  "timestamp" integer NOT NULL,
-  "authid" integer NOT NULL,
-  FOREIGN KEY ("authid") REFERENCES "brm_auth_list" ("id") ON DELETE CASCADE
 );
 
 
@@ -28,7 +20,7 @@ CREATE TABLE "brm_campaigns" (
   "title" text NOT NULL,
   "description" text NOT NULL,
   "current_version" integer NULL,
-  "templateid" text NOT NULL,
+  "templateid" text NULL,
   "campaignid" integer NULL,
   "stateid" integer NOT NULL DEFAULT '0',
   "requestid" integer NULL,
@@ -37,11 +29,11 @@ CREATE TABLE "brm_campaigns" (
   "listname" text NULL,
   "createdby" integer NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("requestid") REFERENCES "brm_requests" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   FOREIGN KEY ("campaignid") REFERENCES "campaign" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("requestid") REFERENCES "brm_requests" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
@@ -99,6 +91,7 @@ CREATE TABLE "brm_state" (
   PRIMARY KEY ("id")
 );
 
+DELETE FROM "brm_state";
 INSERT INTO "brm_state" ("id", "name", "description") VALUES ('0',  'Saved',  'BRM Email is Saved');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (1,  'Sent For Approval',  'BRM Email was sent to auth list for approval');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (2,  'Approved', 'BRM Email has met approval standards and is ready to insert in to BRM.');
@@ -155,6 +148,7 @@ CREATE TABLE "departments" (
   "name" text NOT NULL
 );
 
+DELETE FROM "departments";
 INSERT INTO "departments" ("id", "name") VALUES (1, 'IT (Information Technology)');
 INSERT INTO "departments" ("id", "name") VALUES (2, 'Student Success');
 INSERT INTO "departments" ("id", "name") VALUES (3, 'Recruitment');
@@ -170,9 +164,11 @@ CREATE TABLE "login_attempts" (
   "userid" integer NOT NULL,
   "timestamp" integer NOT NULL,
   "hash" text NOT NULL,
+  "authid" integer NULL,
   "emailid" text NULL,
   "result" integer NOT NULL DEFAULT '0',
-  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("authid") REFERENCES "brm_auth_list" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
@@ -197,10 +193,6 @@ CREATE TABLE "view_audit_log" ("timestamp" integer, "brmid" , "versionid" , "use
 
 DROP VIEW IF EXISTS "view_auth_list";
 CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
-
-
-DROP VIEW IF EXISTS "view_brm_auth_list";
-CREATE TABLE "view_brm_auth_list" ("id" integer, "userid" integer, "brmid" integer, "versionid" integer, "permission" integer, "approved" integer, "firstname" text, "lastname" text, "email" text, "user_permissions" integer, "view_count" , "lastviewed" );
 
 
 DROP VIEW IF EXISTS "view_brm_comments";
@@ -306,25 +298,6 @@ SELECT "cbrm_list".*, "auth"."userid" AS "auth_user",
 "auth"."permission" AS "auth_permission", "auth"."approved" AS "auth_approved" 
 FROM "view_brm_list" AS "cbrm_list"
 LEFT JOIN "brm_auth_list" AS "auth" ON "cbrm_list"."id" = "auth"."brmid" AND "cbrm_list"."current_version" = "auth"."versionid";
-
-DROP TABLE IF EXISTS "view_brm_auth_list";
-CREATE VIEW "view_brm_auth_list" AS
-SELECT "brm_a"."id",
-       "brm_a"."userid" AS "userid",
-       "brm_a"."brmid" AS "brmid",
-       "brm_a"."versionid" AS "versionid",
-       "brm_a"."permission" AS "permission",
-       "brm_a"."approved" AS "approved",
-       "u"."firstname" AS "firstname",
-       "u"."lastname" AS "lastname",
-       "u"."email" AS "email",
-       "u"."permissions" as "user_permissions",
-       COUNT("brm_avl"."timestamp") AS "view_count",
-       MAX("brm_avl"."timestamp") AS "lastviewed"
-FROM "brm_auth_list" AS "brm_a"
-LEFT JOIN "user" AS "u" ON "brm_a"."userid" = "u"."id"
-LEFT JOIN "brm_auth_view_list" AS "brm_avl" ON "brm_avl"."authid" = "brm_a"."id"
-GROUP BY "brm_a"."id";
 
 DROP TABLE IF EXISTS "view_brm_comments";
 CREATE VIEW "view_brm_comments" AS

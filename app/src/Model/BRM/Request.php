@@ -1,17 +1,19 @@
 <?php
 
 namespace BRMManager\Model\BRM;
+use BRMManager\Model\Department;
+use BRMManager\Model\User;
 
 class Request
-	extends Model
+	extends \Model
 {
 	public static $_table = 'brm_requests';
 
-	public function addUserByEmail() {
-
+	public function addUser(User $user) {
+		$this->userid = $user->id;
 	}
 
-	public function addDepartment() {
-
+	public function addDepartment(Department $department) {
+		$this->departmentid = $department->id;
 	}
 }
