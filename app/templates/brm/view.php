@@ -12,7 +12,7 @@
 		<div class="form-group">
 			<label for="description" class="col-sm-2 control-label">Template Id</label>
 			<div class="col-sm-10">
-				<p class="form-control-static"><?=(!is_null($data['brm_data']->template_id) ? $data['brm_data']->template_id : '<i>&lt;Not Set&gt;</i>'); ?></p>
+				<p class="form-control-static"><?=(!is_null($data['brm_data']->templateid) ? $data['brm_data']->templateid : '<i>&lt;Not Set&gt;</i>'); ?></p>
 			</div>
 		</div>
 		<div class="form-group">
@@ -74,9 +74,9 @@
 				</div>
 				<div class="col-sm-4">
 					<ul class="list-group">
-						<li class="list-group-item list-group-item-success">Approvals for this version <span class="badge"><?=$data['brm_data']->approved; ?></span></li>
-						<li class="list-group-item list-group-item-danger">Denials for this version <span class="badge"><?=$data['brm_data']->denied; ?></span></li>
-						<li class="list-group-item">Approvals needed for this version <span class="badge"><?=$data['brm_data']->approval_needed; ?></span></li>
+						<li class="list-group-item list-group-item-success">Approvals for this version <span class="badge"><?=$data['current_version']->countApproved(); ?></span></li>
+						<li class="list-group-item list-group-item-danger">Denials for this version <span class="badge"><?=$data['current_version']->countDenied(); ?></span></li>
+						<li class="list-group-item">Approvals needed for this version <span class="badge"><?=$data['current_version']->countAwaiting(); ?></span></li>
 					</ul>
 				</div>
 			</div>

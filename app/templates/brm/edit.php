@@ -1,9 +1,9 @@
 <div id="currUser" style="display: none;"></div>
 <div class="row page-header">
-	<h3>Creating a new BRM Email</h3>
+	<h3>Editing BRM Email</h3>
 </div>
 <div class="row">
-	<form class="form-horizontal" id="create-brm" method="POST" action="/brm/save" enctype="multipart/form-data">
+	<form class="form-horizontal" id="create-brm" method="POST" enctype="multipart/form-data">
 		<div class="form-group">
 			<label for="name" class="col-sm-2 control-label">Name for BRM</label>
 			<div class="col-sm-10">
