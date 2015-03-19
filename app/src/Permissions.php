@@ -14,7 +14,7 @@ class Permissions
 
 	public static function hasAccess($user_perm, $permission) {
 		if(is_int($user_perm) && array_key_exists($permission, self::$permissions)) {
-			if($user_perm & self::$permissions[$permission] != 0) {
+			if(($user_perm & self::$permissions[$permission]) !== 0) {
 				return TRUE;
 			}
 		}
@@ -22,14 +22,14 @@ class Permissions
 	}
 
 	public static function userCan($user_perm) {
-		$permissions = array();
+		$permission = array();
 		if(is_int($user_perm)) {
 			foreach (self::$permissions as $key => $value) {
-				if(self::hasAccess($user_perm, $key)) {
-					$permissions[] = $key;
+				if(self::hasAccess($user_perm, $key) == TRUE) {
+					$permission[] = $key;
 				}
 			}
-			return $permissions;
+			return $permission;
 		}
 
 		return FALSE;
