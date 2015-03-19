@@ -267,9 +267,8 @@
 				$version->created = $created;
 				$version->userid = $app->user->id;
 				$brm->addVersion($version);
+				$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
 			}
-
-			$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
 
 			// Now we need to create a state change if the BRM is Approved and the TemplateID has been set.
 			if($brm->stateid === 2 && !is_null($brm->templateid)) {
