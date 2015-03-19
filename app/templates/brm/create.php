@@ -58,16 +58,16 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-10 col-sm-offset-2 panel-group" id="aOpts" style="padding:0" role="tablist" aria-multiselectable="true">
+		<div class="col-sm-10 col-sm-offset-2 panel-group" id="aOpts" style="padding:0">
 			<div class="panel panel-default" id="requestDetails">
 				<div class="panel-heading" role="tab" id="reqHeading">
 					<h3 class="panel-title">
-						<a data-toggle="collapse" data-parent="#aOpts" href="#reqCollapse" aria-expanded="false" aria-controls="reqCollapse">
+						<a data-toggle="collapse" href="#reqCollapse" aria-expanded="false" aria-controls="reqCollapse">
 							Request Details
 						</a>
 					</h3>
 				</div>
-				<div class="panel-collapse collapse" id="reqCollapse" role="tabpanel" aria-labelledby="reqHeading">
+				<div class="panel-collapse collapse" id="reqCollapse" aria-labelledby="reqHeading">
 					<div class="panel-body">
 						<div class="form-group">
 							<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
@@ -99,14 +99,14 @@
 				</div>
 			</div>
 			<div class="panel panel-default" id="launchSettings">
-				<div class="panel-heading" role="tab" id="launchHeading">
+				<div class="panel-heading" id="launchHeading">
 					<h3 class="panel-title">
-						<a data-toggle="collapse" data-parent="#aOpts" href="#launchCollapse" aria-expanded="false" aria-controls="launchCollapse">
+						<a data-toggle="collapse" href="#launchCollapse" aria-expanded="false" aria-controls="launchCollapse">
 							Launch Details
 						</a>
 					</h3>
 				</div>
-				<div class="panel-collapse collapse" id="launchCollapse" role="tabpanel" aria-labelledby="launchHeading">
+				<div class="panel-collapse collapse" id="launchCollapse" aria-labelledby="launchHeading">
 					<div class="panel-body">
 						<div class="form-group">
 							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
