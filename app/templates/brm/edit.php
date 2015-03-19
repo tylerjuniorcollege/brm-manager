@@ -1,26 +1,27 @@
+<?php $brm = $data['brm']; ?>
 <div id="currUser" style="display: none;"></div>
 <div class="row page-header">
 	<h3>Editing BRM Email</h3>
 </div>
 <div class="row">
-	<form class="form-horizontal" id="create-brm" method="POST" enctype="multipart/form-data">
+	<form class="form-horizontal" id="create-brm" method="POST" action="<?=$data['save']; ?>" enctype="multipart/form-data">
 		<div class="form-group">
 			<label for="name" class="col-sm-2 control-label">Name for BRM</label>
 			<div class="col-sm-10">
-				<input type="text" name="name" placeholder="Name ..." class="form-control">
+				<input type="text" name="name" placeholder="Name ..." class="form-control" value="<?=$brm->title;?>">
 			</div>
 		</div>
 		<div class="form-group">
 			<label for="description" class="col-sm-2 control-label">Description</label>
 			<div class="col-sm-10">
-				<input type="text" name="description" placeholder="Description ..." class="form-control">
+				<input type="text" name="description" placeholder="Description ..." class="form-control" value="<?=$brm->description;?>">
 			</div>
 		</div>
 		<div class="row">
 			<div class="form-group col-sm-6">
 				<label for="description" class="col-sm-4 control-label">Template Id</label>
 				<div class="col-sm-8">
-					<input type="text" name="templateid" placeholder="Template ID ..." class="form-control">
+					<input type="text" name="templateid" placeholder="Template ID ..." class="form-control" value="<?=$brm->templateid;?>">
 				</div>
 			</div>
 			<div class="form-group col-sm-6">
@@ -32,7 +33,7 @@
 						<option value="none">No Assigned Campaign</option>
 						<optgroup label="Existing Campaigns">
 						<?php foreach($data['campaigns'] as $campaign): ?>
-							<option value="<?=$campaign->id;?>"><?=$campaign->name; ?></option>
+							<option value="<?=$campaign->id;?>"<?=($campaign->id == $brm->campaignid ? ' selected' : '');?>><?=$campaign->name; ?></option>
 						<?php endforeach; ?>
 						</optgroup>
 					</select>
@@ -58,22 +59,37 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-10 col-sm-offset-2 panel-group" id="aOpts" style="padding:0" role="tablist" aria-multiselectable="true">
+		<?php
+			// Expand if data is present.
+			$request_expand = FALSE;
+			$request = new stdClass();
+			$launch_expand = FALSE;
+
+			if(!is_null($brm->requestid)) {
+				$request_expand = TRUE;
+				$request = $brm->request();
+			}
+
+			if(!is_null($brm->launchdate) || !is_null($brm->population) || !is_null($brm->listname)) {
+				$launch_expand = TRUE;
+			}
+		?>
+		<div class="col-sm-10 col-sm-offset-2 panel-group" id="aOpts" style="padding:0">
 			<div class="panel panel-default" id="requestDetails">
-				<div class="panel-heading" role="tab" id="reqHeading">
+				<div class="panel-heading" id="reqHeading">
 					<h3 class="panel-title">
-						<a data-toggle="collapse" data-parent="#aOpts" href="#reqCollapse" aria-expanded="false" aria-controls="reqCollapse">
+						<a data-toggle="collapse" href="#reqCollapse" aria-expanded="<?=($request_expand ? 'true' : 'false'); ?>" aria-controls="reqCollapse">
 							Request Details
 						</a>
 					</h3>
 				</div>
-				<div class="panel-collapse collapse" id="reqCollapse" role="tabpanel" aria-labelledby="reqHeading">
+				<div class="panel-collapse collapse<?=($request_expand ? ' in' : ''); ?>" id="reqCollapse" aria-labelledby="reqHeading">
 					<div class="panel-body">
 						<div class="form-group">
 							<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
 							<div class="col-sm-10">
 								<div class="input-group date" id="requesteddate">
-									<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+									<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>" value="<?=(!is_null($request->timestamp) ? date('m/d/Y g:i A', $request->timestamp) : ''); ?>">
 									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 								</div>
 							</div>
@@ -81,7 +97,7 @@
 						<div class="form-group">
 							<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
 							<div class="col-sm-10">
-								<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address">
+								<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address" value="<?=$request->user()->email;?>">
 							</div>
 						</div>
 						<div class="form-group">
@@ -90,7 +106,7 @@
 								<select name="department" class="form-control" id="departmentSelect" placeholder="Department">
 									<option></option>
 									<?php foreach($data['departments'] as $dept): ?>
-									<option value="<?=$dept->id; ?>"><?=$dept->name; ?></option>
+									<option value="<?=$dept->id; ?>"<?=($dept->id == $request->department()->id ? ' selected' : '');?>><?=$dept->name; ?></option>
 									<?php endforeach; ?>
 								</select>
 							</div>
@@ -99,20 +115,20 @@
 				</div>
 			</div>
 			<div class="panel panel-default" id="launchSettings">
-				<div class="panel-heading" role="tab" id="launchHeading">
+				<div class="panel-heading" id="launchHeading">
 					<h3 class="panel-title">
-						<a data-toggle="collapse" data-parent="#aOpts" href="#launchCollapse" aria-expanded="false" aria-controls="launchCollapse">
+						<a data-toggle="collapse" href="#launchCollapse" aria-expanded="<?=($launch_expand ? 'true' : 'false'); ?>" aria-controls="launchCollapse">
 							Launch Details
 						</a>
 					</h3>
 				</div>
-				<div class="panel-collapse collapse" id="launchCollapse" role="tabpanel" aria-labelledby="launchHeading">
+				<div class="panel-collapse collapse<?=($launch_expand ? ' in' : ''); ?>" id="launchCollapse" aria-labelledby="launchHeading">
 					<div class="panel-body">
 						<div class="form-group">
 							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
 							<div class="col-sm-10">
 								<div class="input-group date" id="launchdate">
-									<input type="text" class="form-control" name="launchdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+									<input type="text" class="form-control" name="launchdate" placeholder="<?=date('m/d/Y g:i A'); ?>" value="<?=(!is_null($brm->launchdate) ? date('m/d/Y g:i A', $brm->launchdate) : ''); ?>">
 									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 								</div>
 							</div>
@@ -120,13 +136,13 @@
 						<div class="form-group">
 							<label for="population" class="col-sm-2 control-label">Population</label>
 							<div class="col-sm-10">
-								<input type="text" name="population" class="form-control" id="population" placeholder="Population">
+								<input type="text" name="population" class="form-control" id="population" placeholder="Population" value="<?=$brm->population;?>">
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="requestdepartment" class="col-sm-2 control-label">Email List Name</label>
 							<div class="col-sm-10">
-								<input type="text" name="emaillistname" class="form-control" placeholder="List Name">
+								<input type="text" name="emaillistname" class="form-control" placeholder="List Name" value="<?=$brm->listname;?>">
 							</div>
 						</div>
 					</div>
@@ -136,23 +152,42 @@
 		<div class="form-group">
 			<label for="content" class="col-sm-2 control-label">Content</label>
 			<div class="col-sm-10">
-				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control" id="contentInput"></textarea>
+				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control" id="contentInput"><?=$brm->currentVersion()->content; ?></textarea>
 				<iframe id="previewContent" style="display:none; height: 300px;" class="col-sm-12"></iframe>
 				<span class="help-block"><button class="btn btn-primary" id="previewBtn" type="button">Render Preview</button><button class="btn btn-primary" id="editBtn" type="button" style="display:none; margin-top: 5px;">Show Edit</button></span>
 			</div>
 		</div>
-		<!--<div class="form-group">
-			<label for="header_imgs" class="col-sm-2 control-label">Header Images</label>
-			<div class="col-sm-10">
-				
-			</div>
-		</div>-->
 		<div class="form-group">
 			<label for="approval_list" class="col-sm-2 control-label">Approval/View List</label>
 			<div class="col-sm-5">
 				<div class="panel panel-success">
 					<div class="panel-heading"><h3 class="panel-title">Current Users Tied To The BRM</h3></div>
-					<ul class="list-group" id="currentUsers"></ul>
+					<ul class="list-group" id="currentUsers">
+						<?php foreach($brm->authorizedUsers() as $user_a): 
+							$user = $user_a->user();
+							$userPerms = \BRMManager\Permissions::userCan((int) $user_a->permission);
+							printf('<input type="hidden" name="users[]" value="%s" id="input-user-%s">', $user->id, $user->id);
+							printf('<input type="hidden" name="permissions[%s]" value="%s" id="input-user-%s">', $user->id, $user_a->permission, $user->id);
+						?>
+						<li id="userList-<?=$user->id;?>" class="list-group-item" style="display:block;">
+							<?=$user->firstname; ?> <?=$user->lastname; ?> &lt;<?=$user->email; ?>&gt;
+							<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-2"><i class="fa fa-times"></i></button>
+							<span class="pull-right" id="userPerm-<?=$user->id;?>">
+								<?php foreach($userPerms as $k => $perm) {
+									switch($perm) {
+										case 'approve':
+											print '<span class="label label-primary">Approve</span>';
+											break;
+
+										case 'edit':
+											print '<span class="label label-warning">Edit</span>';
+											break;
+									}
+								} ?>
+							</span>
+						</li>
+						<?php endforeach; ?>
+					</ul>
 				</div>
 			</div>
 			<div class="col-sm-5">
