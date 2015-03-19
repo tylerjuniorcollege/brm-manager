@@ -171,7 +171,8 @@
 		$app->get('/', function() use($app) {
 			$view = array();
 			if($_SESSION['user']->hasAccess('create')) {
-				if(!empty($app->request->get('create_page'))) {
+				$create_page = $app->request->get('create_page');
+				if(!empty($create_page)) {
 					$offset = ((int) $app->request->get('create_page') * 10);
 				} else {
 					$offset = 0;
@@ -205,11 +206,11 @@
 			// Creating the initial BRM Item.
 			$brm->title = $app->request->post('name');
 			$brm->description = $app->request->post('description');
-			$brm->templateid = (!empty($app->request->post('templateid')) ? $app->request->post('templateid') : NULL);
-			$brm->population = (!empty($app->request->post('population')) ? $app->request->post('population') : NULL);
-			$brm->listname = (!empty($app->request->post('listname')) ? $app->request->post('listname') : NULL);
+			$brm->templateid = (($app->request->post('templateid') != '') ? $app->request->post('templateid') : NULL);
+			$brm->population = (($app->request->post('population') != '') ? $app->request->post('population') : NULL);
+			$brm->listname = (($app->request->post('listname') != '') ? $app->request->post('listname') : NULL);
 				
-			if(!empty($app->request->post('launchdate'))) {
+			if(($app->request->post('launchdate') != '')) {
 				$brm->launchdate = strtotime($app->request->post('launchdate'));	
 			}
 
@@ -233,22 +234,22 @@
 			}
 
 			// Request information.
-			if(!empty($app->request->post('requestdate')) ||
-			   !empty($app->request->post('requestuser')) ||
-			   !empty($app->request->post('department'))) {
+			if(($app->request->post('requestdate') != '') ||
+			   ($app->request->post('requestuser') != '') ||
+			   ($app->request->post('department') != '')) {
 			   	// Create a new Request Object.
 				$request = \Model::factory('BRM\Request')->create();
 
-				if(!empty($app->request->post('requestdate'))) {
+				if(($app->request->post('requestdate') != '')) {
 					$request->timestamp = strtotime($app->request->post('requestdate'));
 				}
 
-				if(!empty($app->request->post('requestuser'))) {
+				if(($app->request->post('requestuser') != '')) {
 					$req_user = \Model::factory('User')->where('email', $app->request->post('requestuser'))->find_one();
 					$request->addUser($req_user);
 				}
 
-				if(!empty($app->request->post('department'))) {
+				if(($app->request->post('department') != '')) {
 					$dept = \Model::factory('Department')->find_one($app->request->post('department'));
 					$request->addDepartment($dept);
 				}
