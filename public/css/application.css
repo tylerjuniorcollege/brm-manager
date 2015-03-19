@@ -129,3 +129,7 @@ span.twitter-typeahead {
 .input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
   top: 28px !important;
 }
+
+button[name=action].pull-right {
+  margin-left: 2px;
+}
