@@ -210,7 +210,7 @@
 			$brm->description = $app->request->post('description');
 			$brm->templateid = (($app->request->post('templateid') != '') ? $app->request->post('templateid') : NULL);
 			$brm->population = (($app->request->post('population') != '') ? $app->request->post('population') : NULL);
-			$brm->listname = (($app->request->post('listname') != '') ? $app->request->post('listname') : NULL);
+			$brm->listname = (($app->request->post('emaillistname') != '') ? $app->request->post('emaillistname') : NULL);
 				
 			if(($app->request->post('launchdate') != '')) {
 				$brm->launchdate = strtotime($app->request->post('launchdate'));	
