@@ -270,6 +270,19 @@
 				$version->userid = $app->user->id;
 				$brm->addVersion($version);
 				$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
+			} else {
+				// This is for those instances where the version doesn't change BUT the users might.
+				$authusers = $brm->authorizedUsers()->find_array(); // Current users in the system.
+				$authusers = array_column($authusers, 'userid');
+
+				// The users to add.
+				$add_users = array_diff((array) $app->request->post('users'), $authusers);
+				// The users to remove.
+				$rm_users = array_diff($authusers, (array) $app->request->post('users'));
+
+				$brm->addUsers($add_users, $app->request->post('permissions'));
+
+				$brm->removeUsers($rm_users);
 			}
 
 			// Now we need to create a state change if the BRM is Approved and the TemplateID has been set.
