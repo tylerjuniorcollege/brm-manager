@@ -62,7 +62,7 @@
 		<?php
 			// Expand if data is present.
 			$request_expand = FALSE;
-			$request = new stdClass();
+			$request = \Model::factory('BRM\Request')->create();
 			$launch_expand = FALSE;
 
 			if(!is_null($brm->requestid)) {
@@ -97,7 +97,7 @@
 						<div class="form-group">
 							<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
 							<div class="col-sm-10">
-								<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address" value="<?=$request->user()->email;?>">
+								<input type="text" name="requestuser" class="form-control" id="requestuser" data-provide="typeahead" autocomplete="off" placeholder="Email Address" value="<?=(!is_null($request->userid) ? $request->user()->email : '');?>">
 							</div>
 						</div>
 						<div class="form-group">
@@ -106,7 +106,7 @@
 								<select name="department" class="form-control" id="departmentSelect" placeholder="Department">
 									<option></option>
 									<?php foreach($data['departments'] as $dept): ?>
-									<option value="<?=$dept->id; ?>"<?=($dept->id == $request->department()->id ? ' selected' : '');?>><?=$dept->name; ?></option>
+									<option value="<?=$dept->id; ?>"<?=($dept->id == $request->departmentid ? ' selected' : '');?>><?=$dept->name; ?></option>
 									<?php endforeach; ?>
 								</select>
 							</div>
@@ -163,7 +163,7 @@
 				<div class="panel panel-success">
 					<div class="panel-heading"><h3 class="panel-title">Current Users Tied To The BRM</h3></div>
 					<ul class="list-group" id="currentUsers">
-						<?php foreach($brm->authorizedUsers() as $user_a): 
+						<?php foreach($brm->authorizedUsers()->find_many() as $user_a): 
 							$user = $user_a->user();
 							$userPerms = \BRMManager\Permissions::userCan((int) $user_a->permission);
 							printf('<input type="hidden" name="users[]" value="%s" id="input-user-%s">', $user->id, $user->id);
@@ -171,7 +171,7 @@
 						?>
 						<li id="userList-<?=$user->id;?>" class="list-group-item" style="display:block;">
 							<?=$user->firstname; ?> <?=$user->lastname; ?> &lt;<?=$user->email; ?>&gt;
-							<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-2"><i class="fa fa-times"></i></button>
+							<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-<?=$user->id;?>"><i class="fa fa-times"></i></button>
 							<span class="pull-right" id="userPerm-<?=$user->id;?>">
 								<?php foreach($userPerms as $k => $perm) {
 									switch($perm) {
