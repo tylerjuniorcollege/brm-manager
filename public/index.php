@@ -248,12 +248,18 @@
 
 				if(($app->request->post('requestuser') != '')) {
 					$req_user = \Model::factory('User')->where('email', $app->request->post('requestuser'))->find_one();
-					$request->addUser($req_user);
+					if($req_user !== FALSE) {
+						$request->addUser($req_user);
+					} elseif($app->request->post('requestuser') !== '') {
+						$request->email = $app->request->post('requestuser');
+					}
 				}
 
 				if(($app->request->post('department') != '')) {
 					$dept = \Model::factory('Department')->find_one($app->request->post('department'));
-					$request->addDepartment($dept);
+					if($dept !== FALSE) {
+						$request->addDepartment($dept);
+					}
 				}
 
 				$request->save();
@@ -319,7 +325,7 @@
 				);
 
 				// Send E-mails to all the authorized users.
-				foreach($brm->authorizedUsers() as $authuser) {
+				foreach($brm->authorizedUsers()->find_many() as $authuser) {
 					// Login the Users in and assign them to the email.
 					$login = \ORM::for_table('login_attempts')->create();
 					$user = $authuser->user();
@@ -370,7 +376,7 @@
 				$out['current_version'] = $out['brm_data']->currentVersion();
 
 				// Grab the list of current users who are tied to the BRM.
-				$out['auth_users'] = $out['brm_data']->authorizedUsers();
+				$out['auth_users'] = $out['brm_data']->authorizedUsers()->find_many();
 
 				$out['authorized'] = FALSE;
 				$out['editor'] = FALSE;
@@ -461,7 +467,7 @@
 
 				$out['edit_url'] = $app->urlFor('edit-brm', array('id' => $id));
 
-				$out['auth_users'] = $out['brm_data']->authorizedUsers();
+				$out['auth_users'] = $out['brm_data']->authorizedUsers()->find_many();
 
 				// Grab all the header images associated with this version.
 				$out['header_imgs'] = \ORM::for_table('brm_header_images')->where(array('brmid' => $out['brm_data']->id, 'brmversionid' => $out['current_version']->id));
@@ -471,6 +477,8 @@
 				$out['comments'] = \ORM::for_table('view_brm_comments')->where('brmid', $out['brm_data']->id)
 																  	   ->order_by_desc('timestamp', 'versionid')
 																  	   ->find_many();
+
+				$out['states'] = \Model::factory('BRM\State')->find_many();
 
 				$app->view->appendJavascriptFile('/js/viewbrm.js');
 				$app->render('brm/view.php', $out);
