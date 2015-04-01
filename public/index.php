@@ -159,10 +159,12 @@
 				$user = $login_attempt->user();
 				$auth = $login_attempt->auth();
 				$auth->viewedtime = time();
+				$auth->save();
+				$login_attempt->save();
 
 				$_SESSION['user'] = new \BRMManager\User\Session($user);
 
-				$app->redirect($app->urlFor('view-brm'), array('id' => $auth->brmid));
+				$app->redirect($app->urlFor('view-brm', array('id' => $auth->brmid)));
 			}
 		})->name('brm-login');
 	});
