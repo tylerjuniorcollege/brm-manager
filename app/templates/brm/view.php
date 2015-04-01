@@ -33,7 +33,7 @@
 		</div>
 		<?php
 			// Expand if data is present.
-			$request = new stdClass();
+			$request = \Model::factory('BRM\Request')->create();
 
 			if(!is_null($data['brm_data']->requestid)) {
 				$request = $data['brm_data']->request();
@@ -61,7 +61,7 @@
 						<div class="form-group">
 							<label for="requestuser" class="col-sm-2 control-label">Requesting User</label>
 							<div class="col-sm-10">
-								<p class="form-control-static"><?=(!is_null($request->userid) ? $request->user()->email : '');?></p>
+								<p class="form-control-static"><?=(!is_null($request->userid) ? $request->user()->email : '');?><?=(!is_null($request->email) ? $request->email : ''); ?></p>
 							</div>
 						</div>
 						<div class="form-group">
@@ -181,22 +181,16 @@
 				</div>
 				<label for="changestate" class="col-sm-2 control-label">Change State</label>
 				<div class="col-sm-4">
-					<?php 
-					$btn_string = '<button type="submit" name="changestate" value="%s" class="btn btn-%s btn-block">%s</button>';
-					switch($state->id) {
-						case 0:
-						case 1:
-							printf($btn_string, 'approve-brm', 'success', 'Approve BRM');
-							printf($btn_string, 'deny-brm', 'danger', 'Deny BRM');
-							break;
-
-						case 2:
-						case 3:
-							printf($btn_string, 'sent-brm', 'primary', 'BRM Sent');
-						case 4:
-							printf($btn_string, 'end-brm', 'info', 'BRM Ended');
-							break;
-					} ?>
+					<div class="input-group">
+					<select name="changestate" class="form-control">
+						<?php foreach($data['states'] as $state): ?>
+							<option value="<?=$state->id; ?>"<?=($state->id == $data['brm_data']->stateid ? ' selected' : ''); ?>><?=$state->name; ?></option>
+						<?php endforeach; ?>
+					</select>
+					<div class="input-group-btn">
+						<button type="submit" name="statechange" value="submit" class="btn btn-primary">Change State</button>
+					</div>
+					</div>
 				</div>
 			</div>
 		<?php endif; ?>
