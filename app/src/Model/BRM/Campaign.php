@@ -40,7 +40,7 @@ class Campaign
 		if(is_null($versionid)) {
 			$versionid = $this->current_version;
 		}
-		return $this->has_many('BRM\AuthList', 'brmid')->where('versionid', $versionid)->find_many();
+		return $this->has_many('BRM\AuthList', 'brmid')->where('versionid', $versionid);
 	}
 
 	public function addUsers($users, $permissions) {
@@ -55,6 +55,18 @@ class Campaign
 		}
 	}
 
+	public function removeUsers($users) {
+		foreach($users as $user) {
+			$authuser = \Model::factory('BRM\AuthList')->where(array(
+				'brmid' => $this->id,
+				'versionid' => $this->current_version,
+				'userid' => $user
+			))->find_one();
+
+			$authuser->delete();
+		}
+	}
+
 	public function owner() {
 		return $this->has_one('User', 'id', 'createdby')->find_one();
 	}
@@ -65,6 +77,7 @@ class Campaign
 
 	public function addRequest(Request $request) {
 		$this->requestid = $request->id;
+		$this->save();
 	}
 
 	public function state() {
