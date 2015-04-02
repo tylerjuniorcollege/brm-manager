@@ -109,7 +109,7 @@
 		<div class="form-group">
 			<label for="content-subject" class="col-sm-2 control-label">Email Subject</label>
 			<div class="col-sm-10">
-				<p class="form-control-static"><?=($data['current_version']->subject); ?></p>
+				<p class="form-control-static" id="emailsubject"><?=($data['current_version']->subject); ?></p>
 			</div>
 		</div>
 		<div class="form-group">

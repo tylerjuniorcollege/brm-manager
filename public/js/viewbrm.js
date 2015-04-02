@@ -4,5 +4,6 @@ $("#prev_version").change(function() {
 		$("#curr_ver_date").html(data.created);
 
 		$("#contentframe").attr('src', 'data:text/html;charset=utf-8,' + encodeURIComponent(data.content));
+		$("$emailsubject").html(data.subject);
 	});
 });
