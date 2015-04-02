@@ -385,9 +385,9 @@
 				$out['editor'] = FALSE;
 				foreach($out['auth_users'] as $authuser) {
 					if($app->user->id === $authuser->userid) {
-						if(Permissions::hasAccess((int)$user->permission, 'view')) {
+						if(Permissions::hasAccess((int)$authuser->permission, 'view')) {
 							$out['authorized'] = $authuser->user();
-							if(Permissions::hasAccess((int)$user->permission, 'edit')) {
+							if(Permissions::hasAccess((int)$authuser->permission, 'edit')) {
 								$out['editor'] = TRUE;
 							}
 						}
