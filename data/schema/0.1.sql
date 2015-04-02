@@ -18,7 +18,7 @@ DROP TABLE IF EXISTS "brm_campaigns";
 CREATE TABLE "brm_campaigns" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "title" text NOT NULL,
-  "description" text NOT NULL,
+  "description" text NULL,
   "current_version" integer NULL,
   "templateid" text NULL,
   "campaignid" integer NULL,
@@ -29,11 +29,11 @@ CREATE TABLE "brm_campaigns" (
   "listname" text NULL,
   "createdby" integer NOT NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("requestid") REFERENCES "brm_requests" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("campaignid") REFERENCES "campaign" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
   FOREIGN KEY ("createdby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("current_version") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
+  FOREIGN KEY ("stateid") REFERENCES "brm_state" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("campaignid") REFERENCES "campaign" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("requestid") REFERENCES "brm_requests" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
@@ -61,25 +61,26 @@ DELIMITER ;
 DROP TABLE IF EXISTS "brm_header_images";
 CREATE TABLE "brm_header_images" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  "brmid" integer NOT NULL,
-  "brmversionid" integer NOT NULL,
+  "brmid" integer NULL,
+  "brmversionid" integer NULL,
   "filename" text NOT NULL,
   "created" integer NOT NULL,
   "uploadedby" integer NOT NULL,
-  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("brmversionid") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("uploadedby") REFERENCES "user" ("id") ON DELETE CASCADE
+  FOREIGN KEY ("uploadedby") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("brmversionid") REFERENCES "brm_content_version" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
 DROP TABLE IF EXISTS "brm_requests";
 CREATE TABLE "brm_requests" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  "userid" integer NOT NULL,
-  "timestamp" integer NOT NULL,
-  "departmentid" integer NOT NULL,
-  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE CASCADE
+  "userid" integer NULL,
+  "timestamp" integer NULL,
+  "departmentid" integer NULL,
+  "email" text NULL,
+  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
+  FOREIGN KEY ("departmentid") REFERENCES "departments" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
@@ -91,13 +92,13 @@ CREATE TABLE "brm_state" (
   PRIMARY KEY ("id")
 );
 
-DELETE FROM "brm_state";
 INSERT INTO "brm_state" ("id", "name", "description") VALUES ('0',  'Saved',  'BRM Email is Saved');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (1,  'Sent For Approval',  'BRM Email was sent to auth list for approval');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (2,  'Approved', 'BRM Email has met approval standards and is ready to insert in to BRM.');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (3,  'Approved and Template Created',  'BRM Email Template was created and is waiting the sent date.');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (4,  'Sent', 'BRM Email has been sent to the list.');
 INSERT INTO "brm_state" ("id", "name", "description") VALUES (5,  'Ended',  'BRM Email Campaign has ended.');
+INSERT INTO "brm_state" ("id", "name", "description") VALUES (6,  'Denied', 'This BRM has been Denied');
 
 DROP TABLE IF EXISTS "brm_state_change";
 CREATE TABLE "brm_state_change" (
@@ -148,7 +149,6 @@ CREATE TABLE "departments" (
   "name" text NOT NULL
 );
 
-DELETE FROM "departments";
 INSERT INTO "departments" ("id", "name") VALUES (1, 'IT (Information Technology)');
 INSERT INTO "departments" ("id", "name") VALUES (2, 'Student Success');
 INSERT INTO "departments" ("id", "name") VALUES (3, 'Recruitment');
@@ -182,6 +182,12 @@ CREATE TABLE "user" (
   "created" integer NOT NULL
 );
 
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (1,  'Duane',  'Jeffers',  'djef@tjc.edu', 31, 1426797808);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (2,  'Leah', 'Wansley',  'lwan@tjc.edu', 7,  1426797808);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (3,  'Allen',  'Arrick', 'aarr@tjc.edu', 31, 1426797808);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (4,  'Kristy', 'Magnuson', 'kmag@tjc.edu', 7,  1426803034);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (5,  'David',  'Spray',  'dspr2@tjc.edu',  31, 1426803034);
+INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (6,  'Requests', 'DuaneJeffers.com', 'requests@duanejeffers.com',  7,  1427318197);
 
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
