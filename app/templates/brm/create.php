@@ -73,7 +73,7 @@
 							<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
 							<div class="col-sm-10">
 								<div class="input-group date" id="requesteddate">
-									<input type="text" class="form-control" name="requestdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+									<input type="text" class="form-control" name="requestdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)">
 									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 								</div>
 							</div>
@@ -112,7 +112,7 @@
 							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
 							<div class="col-sm-10">
 								<div class="input-group date" id="launchdate">
-									<input type="text" class="form-control" name="launchdate" placeholder="<?=date('m/d/Y g:i A'); ?>">
+									<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)">
 									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 								</div>
 							</div>
