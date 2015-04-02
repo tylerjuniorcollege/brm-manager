@@ -50,7 +50,7 @@ class Campaign
 			$authuser->userid = $user;
 			$authuser->brmid = $this->id;
 			$authuser->versionid = $this->current_version;
-			$authuser->permission = $permissions[$user];
+			$authuser->permission = ($permissions[$user] + 1);
 			$authuser->save();
 		}
 	}
