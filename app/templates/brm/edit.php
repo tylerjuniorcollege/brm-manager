@@ -136,7 +136,7 @@
 						<div class="form-group">
 							<label for="population" class="col-sm-2 control-label">Population</label>
 							<div class="col-sm-10">
-								<input type="text" name="population" class="form-control" id="population" placeholder="Population" value="<?=$brm->population;?>">
+								<input type="number" name="population" class="form-control" id="population" placeholder="Population" value="<?=$brm->population;?>">
 							</div>
 						</div>
 						<div class="form-group">
