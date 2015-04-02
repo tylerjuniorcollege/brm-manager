@@ -193,8 +193,6 @@
 		});
 
 		$app->post('/save(/:id)', function($id = NULL) use($app) {
-			//var_dump($app->request->post());
-			//die();
 			$created = time();
 			if(is_null($id)) {
 				// Create a new Request.
