@@ -305,7 +305,7 @@
 			// Now, we need to see if this is a save or notify action.
 			if($app->request->post('submit') === 'send') {
 				// Initiate a State Change and generate logins.
-				if($brm->stateid === 0) {
+				if($brm->stateid == 0) {
 					$statechange = \Model::factory('BRM\StateChange')->create();
 					$statechange->userid = $app->user->id;
 					$statechange->timestamp = $created;
@@ -439,27 +439,7 @@
 						$statechange = \Model::factory('BRM\StateChange')->create();
 						$statechange->userid = $app->user->id;
 						$statechange->timestamp = time();
-						switch($app->request->post('changestate')) {
-							case 'approve-brm':
-								if(!is_null($out['brm_data']->templateid)) {
-									$statechange->stateid = 3;
-								} else {
-									$statechange->stateid = 2;
-								}
-								break;
-
-							case 'deny-brm':
-								$statechange->stateid = 6;
-								break;
-
-							case 'sent-brm':
-								$statechange->stateid = 4;
-								break;
-
-							case 'end-brm':
-								$statechange->stateid = 5;
-								break;
-						}
+						$statechange->stateid = $app->request->post('changestate');
 						$out['brm_data']->changeState($statechange);
 					}
 				}
