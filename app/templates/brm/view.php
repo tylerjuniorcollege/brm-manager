@@ -107,7 +107,13 @@
 		</div>
 		<?php endif; ?>
 		<div class="form-group">
-			<label for="content" class="col-sm-2 control-label">Content</label>
+			<label for="content-subject" class="col-sm-2 control-label">Email Subject</label>
+			<div class="col-sm-10">
+				<p class="form-control-static"><?=($data['current_version']->subject); ?></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="content" class="col-sm-2 control-label">Email Content</label>
 			<div class="col-sm-10">
 				<iframe id="contentframe" src="data:text/html;charset=utf-8,<?=(rawurlencode($data['current_version']->content)); ?>" class="col-sm-12" height="300"></iframe>
 				<?php if(!empty($data['previous_versions'])): ?>

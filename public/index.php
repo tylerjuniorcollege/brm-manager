@@ -269,9 +269,11 @@
 			// Since the BRM has been saved, NOW, we need to create the new version in the database.
 			// This needs to only happen if there is a change in the content.
 			if(!isset($brm->current_version) ||
-			   $brm->currentVersion()->content !== $app->request->post('content')) {
+			   ($brm->currentVersion()->content !== $app->request->post('content') ||
+			   $brm->currentVersion()->subject !== $app->request->post('contentsubject'))) {
 				$version = \Model::factory('BRM\ContentVersion')->create();
 				$version->content = $app->request->post('content');
+				$version->subject = $app->request->post('contentsubject');
 				$version->created = $created;
 				$version->userid = $app->user->id;
 				$brm->addVersion($version);

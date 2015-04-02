@@ -150,7 +150,13 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<label for="content" class="col-sm-2 control-label">Content</label>
+			<label for="content-subject" class="col-sm-2 control-label">Email Subject</label>
+			<div class="col-sm-10">
+				<input type="text" name="contentsubject" placeholder="Email Subject Line" class="form-control" id="contentSubject" value="<?=$brm->currentVersion()->subject; ?>">
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="content" class="col-sm-2 control-label">Email Content</label>
 			<div class="col-sm-10">
 				<textarea name="content" placeholder="BRM Content Here ..." rows="25" class="form-control" id="contentInput"><?=$brm->currentVersion()->content; ?></textarea>
 				<iframe id="previewContent" style="display:none; height: 300px;" class="col-sm-12"></iframe>
