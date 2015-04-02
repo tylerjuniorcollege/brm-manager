@@ -265,8 +265,12 @@
 		<hr />
 		<div class="form-group">
 			<div class="col-sm-3 col-sm-offset-9">
+				<?php if($brm->stateid == 0): ?>
 				<button type="submit" name="submit" value="save" class="btn btn-default">Save BRM</button>
-				<button type="submit" name="submit" value="send" class="btn btn-primary">Submit BRM to List</button>
+				<button type="submit" name="submit" value="send" class="btn btn-primary">Submit for Approval</button>
+				<?php else: ?>
+				<button type="submit" name="submit" value="send" class="btn btn-primary">Re-submit For Approval</button>
+				<?php endif; ?>
 			</div>
 		</div>
 		<hr />
