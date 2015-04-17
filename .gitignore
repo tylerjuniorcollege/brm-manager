@@ -1,4 +1,5 @@
 vendor/
 public/latest.php
 data/database.db
+data/log/
 public/components/
