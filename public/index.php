@@ -538,15 +538,20 @@
 
 				$out['states'] = \Model::factory('BRM\State')->find_many();
 
+				$app->view->appendJavascriptFile('/components/jquery.hotkeys/jquery.hotkeys.js');
+				$app->view->appendJavascriptFile('/components/bootstrap-wysiwyg-steveathon/js/bootstrap-wysiwyg.min.js');
+
+				$app->view->appendStylesheet('/components/bootstrap-wysiwyg-steveathon/css/style.css');
+
 				$app->view->appendJavascriptFile('/js/viewbrm.js');
 				$app->render('brm/view.php', $out);
 			})->via('GET', 'POST')->name('view-brm');
 		});
 
 		$app->map('/create', function() use($app) {
-			$app->view->appendJavascriptFile('/components/handlebars/handlebars.min.js');
+			//$app->view->appendJavascriptFile('/components/handlebars/handlebars.min.js');
 			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
-			$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
+			//$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
 			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
 			$app->view->appendJavascriptFile('/components/select2/select2.min.js');
 			$app->view->appendStylesheet('/components/select2/select2.css');
