@@ -10,27 +10,52 @@
 	session_cache_limiter(false);
 	session_start();
 
+	defined('APPLICATION_ENV') or define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? 
+                                  							 getenv('APPLICATION_ENV') : 
+                                  							 'production'));
+
 	use \League\Fractal\Manager AS FractalManager;
 	use \League\Fractal\Resource\Collection as FractalCollection;
 	use \BRMManager\Permissions as Permissions;
+	use \Monolog\Logger;
+	use \Monolog\Handler\ChromePHPHandler;
+	use \Monolog\Handler\LogglyHandler;
+	use \Monolog\Formatter\LogglyFormatter;
 
 	$app = new \Slim\Slim(array(
-		'debug' => true,
+		'mode' => APPLICATION_ENV,
 		'view' => new \TJC\View\Layout(),
 		'templates.path' => '../app/templates',
-		'whoops.editor' => 'sublime'
 	));
 
-	\ORM::configure('sqlite:../data/database.db');
-	\ORM::configure('logging', false);
-	\ORM::configure('logger', function($log_string, $query_time) {
-    	var_dump($log_string);
+	$app->container->singleton('logger', function() {
+		return new Logger('Logger');
+	});
+
+	$app->configureMode('development', function() use($app) {
+		$app->config(array(
+			'whoops.editor' => 'sublime',
+			'debug' => true
+		));
+
+		$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
+		
+		$app->logger->pushHandler(new ChromePHPHandler());
+
+		\ORM::configure('sqlite:../data/database.db');
+		\ORM::configure('logging', true);
+		\ORM::configure('logger', function($log_string, $query_time) use($app) {
+    		$app->logger->addInfo($log_string . ' TIME: ' . $query_time);
+		});
+	});
+
+	$app->configureMode('production', function() use($app) {
+		\ORM::configure('sqlite:../data/database.db');
 	});
 
 	\Model::$auto_prefix_models = '\\BRMManager\\Model\\';
 
 	$app->add(new \BRMManager\Middleware\User);
-	$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
 
 	$app->view->setLayout('layout/layout.php');
 
