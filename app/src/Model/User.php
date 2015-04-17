@@ -27,4 +27,9 @@ class User
 	public function comments() {
 		return $this->has_many('BRM\Comment', 'userid');
 	}
+
+	public function editLink() {
+		$app = \Slim\Slim::getInstance();
+		return $app->urlFor('edit-user', array('id' => $this->id));
+	}
 }
