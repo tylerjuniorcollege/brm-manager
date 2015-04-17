@@ -4,6 +4,16 @@ $("#prev_version").change(function() {
 		$("#curr_ver_date").html(data.created);
 
 		$("#contentframe").attr('src', 'data:text/html;charset=utf-8,' + encodeURIComponent(data.content));
-		$("$emailsubject").html(data.subject);
+		$("#emailsubject").html(data.subject);
 	});
+});
+
+var commentEdit = $('#commentEditor');
+
+commentEdit.wysiwyg();
+
+$('#view-brm').submit(function() {
+	var commentHtml = commentEdit.cleanHtml();
+
+	$('#commentContent').val(commentHtml);
 });
