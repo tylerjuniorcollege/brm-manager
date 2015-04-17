@@ -65,6 +65,9 @@
 			  ->appendJavascriptFile('/components/bootstrap/dist/js/bootstrap.min.js')
 			  ->appendJavascriptFile('/components/jasny-bootstrap/dist/js/jasny-bootstrap.min.js')
 			  ->appendJavascriptFile('/components/jquery-ajax-progress/js/jquery.ajax-progress.js')
+			  ->appendJavascriptFile('/components/handlebars/handlebars.min.js')
+			  ->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js')
+			  ->appendJavascriptFile('/components/jqBootstrapValidation/dist/jqBootstrapValidation-1.3.7.min.js')
 			  ->appendJavascriptFile('/js/application.js');
 
 	$app->view->appendStylesheet('/components/bootstrap/dist/css/bootstrap.min.css')
