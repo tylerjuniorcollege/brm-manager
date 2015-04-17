@@ -413,7 +413,7 @@
 					$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('brm-login', array('brmid' => $brm->id, 'hash' => $login->hash));
 					$message = array_merge($message_settings, array(
 						'text' => str_replace(array('%USER%', '%URL%', '%AUTHOR%', '%VERB%', '%TITLE%'), 
-											  array($user->email, $login_url, $app->user->firstname . ' ' . $app->user->lastname, 'created', $brm->name), 
+											  array($user->email, $login_url, $app->user->firstname . ' ' . $app->user->lastname, 'created', $brm->title),
 											  file_get_contents('../app/templates/email/approve.php')),
 						'to' => array(array(
 							'email' => $user->email,
