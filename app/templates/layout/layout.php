@@ -31,20 +31,18 @@
 			  		<a class="navbar-brand" href="/brm">BRM Manager</a>
 			  	</div>
 			  	<?php if(isset($data['user'])): ?>
-			  		<form class="navbar-form navbar-right" role="search" action="/brm/search">
-        				<div class="input-group">
-          					<input type="search" class="form-control" name="s" placeholder="Search for BRM">
-          					<div class="input-group-btn">
-          						<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-          					</div>
-        				</div>
-      				</form>
+			  		<form class="navbar-form navbar-right">
+          				<input type="text" id="layoutSearch" class="form-control" name="s" placeholder="Search for BRM">
+          			</form>
       				<ul class="nav navbar-nav navbar-left">
       					<?php if($data['user']->hasAccess('create')): ?>
       						<li><a href="/brm/create">Create a New BRM</a></li>
       					<?php endif; ?>
       					<?php if($data['user']->hasAccess('admin')): ?>
       						<li><a href="/admin">Admin App</a></li>
+      					<?php endif; ?>
+      					<?php if((int) $data['user']->id === 1): ?>
+      						<li><a href="/latest.php">Adminer</a></li>
       					<?php endif; ?>
       				</ul>
       			<?php endif; ?>

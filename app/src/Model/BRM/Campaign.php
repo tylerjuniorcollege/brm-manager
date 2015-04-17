@@ -96,4 +96,15 @@ class Campaign
 		$this->stateid = $statechange->stateid;
 		$this->save();
 	}
+
+	/** filters **/
+	public static function title($orm, $filter) {
+		return $orm->where_like('title', '%' . $filter . '%');
+	}
+	public static function description($orm, $filter) {
+		return $orm->where_like('description', '%' . $filter . '%');
+	}
+	public static function templateid($orm, $filter) {
+		return $orm->where_like('templateid', '%' . $filter . '%');
+	}
 }
