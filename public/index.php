@@ -198,27 +198,76 @@
 	});
 
 	$app->group('/brm', $checkLogin, function() use($app) {
+		$app->group('/search', function() use($app) {
+
+		});
+
 		$app->get('/', function() use($app) {
 			$view = array();
-			if($_SESSION['user']->hasAccess('create')) {
-				$create_page = $app->request->get('create_page');
-				if(!empty($create_page)) {
-					$offset = ((int) $app->request->get('create_page') * 10);
-				} else {
-					$offset = 0;
-				}
-				// gather all of the BRMs that they have created ....
-				$created = \ORM::for_table('view_brm_list_approve')->where('createdby', $_SESSION['user']->id)->limit(10)->offset($offset)->find_many();
 
-				$view['created'] = $created;
-			}
-
-			if($_SESSION['user']->hasAccess('approve')) {
-
-			}
+			$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
+			$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js');
+			$app->view->appendJavascriptFile('/js/main.js');
+			$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
 
 			$app->render('brm/index.php', $view);
 		});
+
+		$app->map('/list', function() use($app) {
+			// Grabbing post data and logging it.
+			$app->logger->addInfo(var_export($app->request->post(), true));
+
+			$template_columns = array(
+				'id', 'title', 'state', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'view'
+			);
+
+			// Grab the whole list of available table data.
+			$list = \Model::factory('View\BRMList');
+
+			// Create jsonArr with preloaded elements.
+			$jsonArr = array(
+				'draw' => (int) $app->request->post('draw'),
+				'recordsTotal' => $list->count(),
+			);
+
+			// Do ordering here:
+			foreach($app->request->post('order') as $order) {
+				switch($order['dir']) {
+					case 'asc':
+						$list->order_by_asc($template_columns[$order['column']]);
+						break;
+
+					case 'desc':
+						$list->order_by_desc($template_columns[$order['column']]);
+						break;
+				}
+			}
+
+			// Now do recordsFiltered.
+			$jsonArr['recordsFiltered'] = $list->count();
+
+			$list->limit((int) $app->request->post('length'))
+				 ->offset((int) $app->request->post('start'));
+
+			$manager = new FractalManager();
+			$resource = new FractalCollection($list->find_many(), function($li) use($app, $template_columns) {
+				return array(
+					$template_columns[0] => $li->id,
+					$template_columns[1] => $li->title,
+					$template_columns[2] => $li->state,
+					$template_columns[3] => (!is_null($li->launchdate) ? date('F j, Y g:i:s', $li->launchdate) : ''),
+					$template_columns[4] => $li->brm_current_version,
+					$template_columns[5] => $li->approval_needed,
+					$template_columns[6] => $li->approved,
+					$template_columns[7] => $li->denied,
+					$template_columns[8] => '<a href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>'
+				);
+			});
+
+			$jsonArr = array_merge($jsonArr, $manager->createData($resource)->toArray());
+			//$app->logger->addInfo(var_export($jsonArr, true));
+			$app->view->renderJson($jsonArr);
+		})->via('GET', 'POST');
 
 		$app->post('/save(/:id)', function($id = NULL) use($app) {
 			$created = time();
