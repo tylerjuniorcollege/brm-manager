@@ -20,7 +20,9 @@
 		"mandrill/mandrill": "1.0.*",
 		"league/fractal": "0.11.0",
 		"brandonwamboldt/utilphp": "1.1.*",
-		"league/flysystem": "1.0.1"
+		"league/flysystem": "1.0.1",
+		"monolog/monolog": "~1.13",
+		"incoming/incoming": "0.2.*"
 	},
 	"autoload":{
 		"psr-4":{
