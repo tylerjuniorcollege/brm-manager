@@ -58,6 +58,15 @@
 				</div>
 			</div>
 		</div>
+		<div class="form-group">
+			<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
+			<div class="col-sm-10">
+				<div class="input-group date" id="launchdate">
+					<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+				</div>
+			</div>
+		</div>
 		<div class="col-sm-10 col-sm-offset-2 panel-group" id="aOpts" style="padding:0">
 			<div class="panel panel-default" id="requestDetails">
 				<div class="panel-heading" role="tab" id="reqHeading">
@@ -102,21 +111,12 @@
 				<div class="panel-heading" id="launchHeading">
 					<h3 class="panel-title">
 						<a data-toggle="collapse" href="#launchCollapse" aria-expanded="false" aria-controls="launchCollapse">
-							Launch Details
+							Population Details
 						</a>
 					</h3>
 				</div>
 				<div class="panel-collapse collapse" id="launchCollapse" aria-labelledby="launchHeading">
 					<div class="panel-body">
-						<div class="form-group">
-							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
-							<div class="col-sm-10">
-								<div class="input-group date" id="launchdate">
-									<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)">
-									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-								</div>
-							</div>
-						</div>
 						<div class="form-group">
 							<label for="population" class="col-sm-2 control-label">Population</label>
 							<div class="col-sm-10">

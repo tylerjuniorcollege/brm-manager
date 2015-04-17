@@ -59,6 +59,15 @@
 				</div>
 			</div>
 		</div>
+		<div class="form-group">
+			<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
+			<div class="col-sm-10">
+				<div class="input-group date" id="launchdate">
+					<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)" value="<?=(!is_null($brm->launchdate) ? date('m/d/Y g:i A', $brm->launchdate) : ''); ?>">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+				</div>
+			</div>
+		</div>
 		<?php
 			// Expand if data is present.
 			$request_expand = FALSE;
@@ -118,21 +127,12 @@
 				<div class="panel-heading" id="launchHeading">
 					<h3 class="panel-title">
 						<a data-toggle="collapse" href="#launchCollapse" aria-expanded="<?=($launch_expand ? 'true' : 'false'); ?>" aria-controls="launchCollapse">
-							Launch Details
+							Population Details
 						</a>
 					</h3>
 				</div>
 				<div class="panel-collapse collapse<?=($launch_expand ? ' in' : ''); ?>" id="launchCollapse" aria-labelledby="launchHeading">
 					<div class="panel-body">
-						<div class="form-group">
-							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
-							<div class="col-sm-10">
-								<div class="input-group date" id="launchdate">
-									<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)" value="<?=(!is_null($brm->launchdate) ? date('m/d/Y g:i A', $brm->launchdate) : ''); ?>">
-									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-								</div>
-							</div>
-						</div>
 						<div class="form-group">
 							<label for="population" class="col-sm-2 control-label">Population</label>
 							<div class="col-sm-10">

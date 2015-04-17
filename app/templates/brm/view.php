@@ -16,7 +16,7 @@
 		<div class="row">
 			<div class="col-sm-6">
 				<div class="row">
-					<label for="description" class="col-sm-4 control-label">Template Id</label>
+					<label for="templateid" class="col-sm-4 control-label">Template Id</label>
 					<div class="col-sm-8">
 						<p class="form-control-static"><?=(!is_null($data['brm_data']->templateid) ? $data['brm_data']->templateid : '<i>&lt;Not Set&gt;</i>'); ?></p>
 					</div>
@@ -29,6 +29,12 @@
 						<p class="form-control-static"><?=(!is_null($data['brm_data']->campaignid) ? $data['brm_data']->campaign()->name : '<i>No Campaign Set</i>'); ?></p>
 					</div>
 				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
+			<div class="col-sm-10">
+				<p class="form-control-static"><?=(!is_null($data['brm_data']->launchdate) ? date('m/d/Y g:i A', $data['brm_data']->launchdate) : ''); ?></p>
 			</div>
 		</div>
 		<?php
@@ -77,18 +83,12 @@
 				<div class="panel-heading" id="launchHeading">
 					<h3 class="panel-title">
 						<a data-toggle="collapse" href="#launchCollapse" aria-expanded="false" aria-controls="launchCollapse">
-							Launch Details
+							Population Details
 						</a>
 					</h3>
 				</div>
 				<div class="panel-collapse collapse" id="launchCollapse" aria-labelledby="launchHeading">
 					<div class="panel-body">
-						<div class="form-group">
-							<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
-							<div class="col-sm-10">
-								<p class="form-control-static"><?=(!is_null($data['brm_data']->launchdate) ? date('m/d/Y g:i A', $data['brm_data']->launchdate) : ''); ?></p>
-							</div>
-						</div>
 						<div class="form-group">
 							<label for="population" class="col-sm-2 control-label">Population</label>
 							<div class="col-sm-10">
@@ -203,7 +203,32 @@
 		<div class="form-group">
 			<label for="comments" class="col-sm-2 control-label">Comments</label>
 			<div class="col-sm-10">
-				<textarea class="form-control col-sm-12" rows="3" placeholder="Add A Comment ..." name="comment"></textarea>
+				<div class="btn-toolbar" data-role="editor-toolbar" data-target="#commentEditor">
+      				<div class="btn-group">
+      				  <a class="btn btn-default" data-edit="bold" title="Bold (Ctrl/Cmd+B)"><i class="fa fa-bold"></i></a>
+      				  <a class="btn btn-default" data-edit="italic" title="Italic (Ctrl/Cmd+I)"><i class="fa fa-italic"></i></a>
+      				  <a class="btn btn-default" data-edit="strikethrough" title="Strikethrough"><i class="fa fa-strikethrough"></i></a>
+      				  <a class="btn btn-default" data-edit="underline" title="Underline (Ctrl/Cmd+U)"><i class="fa fa-underline"></i></a>
+      				</div>
+      				<div class="btn-group">
+      				  <a class="btn btn-default" data-edit="insertunorderedlist" title="Bullet list"><i class="fa fa-list-ul"></i></a>
+      				  <a class="btn btn-default" data-edit="insertorderedlist" title="Number list"><i class="fa fa-list-ol"></i></a>
+      				  <a class="btn btn-default" data-edit="outdent" title="Reduce indent (Shift+Tab)"><i class="fa fa-indent"></i></a>
+      				  <a class="btn btn-default" data-edit="indent" title="Indent (Tab)"><i class="fa fa-outdent"></i></a>
+      				</div>
+      				<div class="btn-group">
+      				  <a class="btn btn-default" data-edit="justifyleft" title="Align Left (Ctrl/Cmd+L)"><i class="fa fa-align-left"></i></a>
+      				  <a class="btn btn-default" data-edit="justifycenter" title="Center (Ctrl/Cmd+E)"><i class="fa fa-align-center"></i></a>
+      				  <a class="btn btn-default" data-edit="justifyright" title="Align Right (Ctrl/Cmd+R)"><i class="fa fa-align-right"></i></a>
+      				  <a class="btn btn-default" data-edit="justifyfull" title="Justify (Ctrl/Cmd+J)"><i class="fa fa-align-justify"></i></a>
+      				</div>
+      				<div class="btn-group">
+      				  <a class="btn btn-default" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="fa fa-undo"></i></a>
+      				  <a class="btn btn-default" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="fa fa-repeat"></i></a>
+      				</div>
+      			</div>
+				<div class="col-sm-12" id="commentEditor"></div>
+				<input type="hidden" name="comment" id="commentContent">
 				<div class="row">
 					<div class="col-sm-5 col-sm-offset-7" style="padding-top: 5px;">
 						<input type="hidden" name="brmid" value="<?= $data['brm_data']->id; ?>">
@@ -215,6 +240,10 @@
 					<?php endif; ?>
 					</div>
 				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-sm-12">
 				<hr />
 				<div class="row" id="comments">
 				<?php foreach($data['comments'] as $c_row): ?>
