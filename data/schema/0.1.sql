@@ -43,15 +43,16 @@ CREATE TABLE "brm_content_version" (
   "brmid" integer NULL,
   "brmversionid" integer NULL,
   "userid" integer NOT NULL,
-  "content" text NOT NULL,
+  "subject" text NULL,
+  "content" text NULL,
   "created" integer NOT NULL,
-  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION,
-  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+  FOREIGN KEY ("userid") REFERENCES "user" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION,
+  FOREIGN KEY ("brmid") REFERENCES "brm_campaigns" ("id") ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 
 DELIMITER ;;
-CREATE TRIGGER "brm_content_version_ai" AFTER   INSERT ON "brm_content_version"
+CREATE TRIGGER "brm_content_version_ai" AFTER    INSERT ON "brm_content_version"
 BEGIN
   UPDATE "brm_content_version" SET "brmversionid" = (SELECT COUNT(id) FROM "brm_content_version" WHERE "brmid" = NEW.brmid) WHERE "id" = NEW.id;
 END;;
@@ -182,12 +183,6 @@ CREATE TABLE "user" (
   "created" integer NOT NULL
 );
 
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (1,  'Duane',  'Jeffers',  'djef@tjc.edu', 31, 1426797808);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (2,  'Leah', 'Wansley',  'lwan@tjc.edu', 7,  1426797808);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (3,  'Allen',  'Arrick', 'aarr@tjc.edu', 31, 1426797808);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (4,  'Kristy', 'Magnuson', 'kmag@tjc.edu', 7,  1426803034);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (5,  'David',  'Spray',  'dspr2@tjc.edu',  31, 1426803034);
-INSERT INTO "user" ("id", "firstname", "lastname", "email", "permissions", "created") VALUES (6,  'Requests', 'DuaneJeffers.com', 'requests@duanejeffers.com',  7,  1427318197);
 
 DROP VIEW IF EXISTS "view_approved";
 CREATE TABLE "view_approved" ("brmid" integer, "count" );
