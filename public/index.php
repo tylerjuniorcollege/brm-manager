@@ -590,10 +590,25 @@
 	});
 
 	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
-		$app->get('/view/:id', function($id) use($app) {
+		$app->get('/', $checkPermissions('create'), function() use($app) {
+			$users = \Model::factory('User')->find_many();
+			$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
+			$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js');
+			$app->view->appendJavascriptFile('/js/userindex.js');
+			$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
+
+			$app->render('user/index.php', array('users' => $users));
+		});
+
+		$app->get('/edit/:id', $checkPermissions('create'), function($id) use($app) {
+			$app->view->appendJavascriptFile('/js/userform.js');
 			$user = \Model::factory('User')->find_one($id);
-			$brms = $user->brms()->find_many();
-		})->name('view-user');
+			if($app->request->isPost()) {
+
+			}
+			
+			$app->render('user/form.php', array('user_data' => $user));
+		})->name('edit-user');
 
 		$app->get('/search', function() use($app) {
 			$query = '%' . trim($app->request->get('q')) . '%';
@@ -629,7 +644,8 @@
 				if($app->request->isAjax()) {
 					$app->view->renderJson(array('userid' => $newUser->id, 'permissions' => $newUser->permissions));
 				} else {
-					$app->flashNow('success', 'New User Added.');
+					$app->flash('success', 'New User Added.');
+					$app->redirect($app->urlFor('edit-user', array('id' => $newUser->id)));
 				}
 			}
 
@@ -638,8 +654,61 @@
 				$app->redirect('/brm');
 			}
 
-			$app->render('user/form.php', array());
+			$user = \Model::factory('User')->create();
+			$app->view->appendJavascriptFile('/js/userform.js');
+			$app->render('user/form.php', array('user_data' => $user));
 		})->via('GET', 'POST')->name('add-user');
+	});
+
+	$app->group('/search', $checkLogin, function() use($app) {
+		$app->group('/brm', function() use($app) {
+			$app->get('/title', function() use($app) {
+				if(is_null($app->request->get('q'))) {
+					$app->flash('warning', 'No Search Query Entered');
+					$app->redirect('/brm');
+				}
+				$results = \Model::factory('BRM\Campaign')->filter('title', $app->request->get('q'))->find_many();
+
+				//$app->logger->addInfo(var_export($results, true));
+				if($app->request->isAjax()) {
+					$manager = new FractalManager();
+
+					$resource = new FractalCollection($results, function($result) use($app) {
+						return array(
+							'link' => $app->urlFor('view-brm', array('id' => $result->id)),
+							'value' => $result->title,
+						);
+					});
+
+					$jsonArr = $manager->createData($resource)->toArray();
+					$app->view->renderJson($jsonArr['data']);
+				} else {
+					$app->render('search/search.php', array('title' => 'Search By BRM Title', 'results' => $results));
+				}
+			});
+
+			$app->get('/description', function() use($app) {
+
+			});
+
+			$app->get('/templateid', function() use($app) {
+
+			});
+
+			$app->group('/content', function() use($app) {
+				$app->get('/body', function() use($app) {
+
+				});
+
+				$app->get('/title', function() use($app) {
+
+				});
+			});
+		});
+
+		/* $app->get('/campaign', function() use($app) {
+
+		}); */
 	});
 
 	$app->group('/image', function() use($app) {
@@ -648,7 +717,7 @@
 
 	$app->group('/admin', $checkLogin, $checkPermissions('admin'), function() use($app) {
 		$app->get('/', function() use($app) {
-
+			$app->render('admin/index.php', array());
 		});
 
 		$app->get('/cron', function() use($app) { // This is the function that will process the audit log for the application.
