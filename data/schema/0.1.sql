@@ -198,7 +198,7 @@ CREATE TABLE "view_audit_log" ("timestamp" integer, "brmid" , "versionid" , "use
 
 
 DROP VIEW IF EXISTS "view_auth_list";
-CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
+CREATE TABLE "view_auth_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "auth_user" integer, "auth_permission" integer, "auth_approved" integer);
 
 
 DROP VIEW IF EXISTS "view_brm_comments";
@@ -206,11 +206,7 @@ CREATE TABLE "view_brm_comments" ("userid" integer, "brmid" integer, "versionid"
 
 
 DROP VIEW IF EXISTS "view_brm_list";
-CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" );
-
-
-DROP VIEW IF EXISTS "view_brm_list_approve";
-CREATE TABLE "view_brm_list_approve" ("id" integer, "title" text, "description" text, "current_version" integer, "templateid" text, "campaignid" integer, "stateid" integer, "requestid" integer, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "version_count" , "version_created" , "brm_current_version" integer, "approval_needed" , "approved" , "denied" );
+CREATE TABLE "view_brm_list" ("id" integer, "title" text, "description" text, "current_version" integer, "brm_current_version" integer, "templateid" text, "stateid" integer, "state" text, "requestid" integer, "request_userid" integer, "request_user_email" text, "request_timestamp" integer, "request_departmentid" integer, "request_department_name" text, "request_email" text, "launchdate" integer, "population" integer, "listname" text, "createdby" integer, "created" integer, "approval_needed" , "approved" , "denied" );
 
 
 DROP VIEW IF EXISTS "view_common_users";
@@ -302,7 +298,7 @@ DROP TABLE IF EXISTS "view_auth_list";
 CREATE VIEW "view_auth_list" AS
 SELECT "cbrm_list".*, "auth"."userid" AS "auth_user",
 "auth"."permission" AS "auth_permission", "auth"."approved" AS "auth_approved" 
-FROM "view_brm_list" AS "cbrm_list"
+FROM "brm_campaigns" AS "cbrm_list"
 LEFT JOIN "brm_auth_list" AS "auth" ON "cbrm_list"."id" = "auth"."brmid" AND "cbrm_list"."current_version" = "auth"."versionid";
 
 DROP TABLE IF EXISTS "view_brm_comments";
@@ -337,21 +333,38 @@ WHERE "c"."comment" IS NOT NULL;
 
 DROP TABLE IF EXISTS "view_brm_list";
 CREATE VIEW "view_brm_list" AS
-SELECT "brm".*, COUNT("brm_versions"."id") AS "version_count", MAX("brm_versions"."created") AS "version_created" FROM "brm_campaigns" AS "brm"
-LEFT JOIN "brm_content_version" AS "brm_versions" ON "brm"."id" = "brm_versions"."brmid" GROUP BY "brm"."id";
-
-DROP TABLE IF EXISTS "view_brm_list_approve";
-CREATE VIEW "view_brm_list_approve" AS
-SELECT "brm_list". *,
-"brm_cv"."brmversionid" AS "brm_current_version",
-"approval_needed"."count" AS "approval_needed",
-"approved"."count" AS "approved",
-"denied"."count" AS "denied"
-FROM "view_brm_list" AS "brm_list"
-LEFT JOIN "view_need_approval" AS "approval_needed" ON "brm_list"."id" = "approval_needed"."brmid"
-LEFT JOIN "view_approved" AS "approved" ON "brm_list"."id" = "approved"."brmid"
-LEFT JOIN "view_deny_approval" AS "denied" ON "brm_list"."id" = "denied"."brmid"
-LEFT JOIN "brm_content_version" AS "brm_cv" ON "brm_list"."current_version" = "brm_cv"."id";
+SELECT "brm_list"."id" AS "id",
+       "brm_list"."title" AS "title",
+       "brm_list"."description" AS "description",
+       "brm_list"."current_version" AS "current_version",
+       "brm_cv"."brmversionid" AS "brm_current_version",
+       "brm_list"."templateid" AS "templateid",
+       "brm_list"."stateid" AS "stateid",
+       "state"."name" AS "state",
+       "brm_list"."requestid" AS "requestid",
+       "request"."userid" AS "request_userid",
+       "request_user"."email" AS "request_user_email",
+       "request"."timestamp" AS "request_timestamp",
+       "request"."departmentid" AS "request_departmentid",
+       "request_department"."name" AS "request_department_name",
+       "request"."email" AS "request_email",
+       "brm_list"."launchdate" AS "launchdate",
+       "brm_list"."population" AS "population",
+       "brm_list"."listname" AS "listname",
+       "brm_list"."createdby" AS "createdby",
+       "brm_list"."created" AS "created",
+       "approval_needed"."count" AS "approval_needed",
+       "approved"."count" AS "approved",
+       "denied"."count" AS "denied"
+       FROM "brm_campaigns" AS "brm_list"
+       LEFT JOIN "view_need_approval" AS "approval_needed" ON "brm_list"."id" = "approval_needed"."brmid"
+       LEFT JOIN "view_approved" AS "approved" ON "brm_list"."id" = "approved"."brmid"
+       LEFT JOIN "view_deny_approval" AS "denied" ON "brm_list"."id" = "denied"."brmid"
+       LEFT JOIN "brm_content_version" AS "brm_cv" ON "brm_list"."current_version" = "brm_cv"."id"
+       LEFT JOIN "brm_state" AS "state" ON "brm_list"."stateid" = "state"."id"
+       LEFT JOIN "brm_requests" AS "request" ON "brm_list"."requestid" = "request"."id"
+       LEFT JOIN "user" AS "request_user" ON "request"."userid" = "request_user"."id"
+       LEFT JOIN "departments" AS "request_department" ON "request"."departmentid" = "request_department"."id";
 
 DROP TABLE IF EXISTS "view_common_users";
 CREATE VIEW "view_common_users" AS
