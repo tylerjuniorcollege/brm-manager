@@ -31,6 +31,7 @@
     "select2": "select2/select2#~3.5.2",
     "typeahead.js": "~0.10.5",
     "bootstrap-wysiwyg-steveathon": "steveathon/bootstrap-wysiwyg#63e2bf6039bfd681aa41da69685566ea3531eecd",
-    "jqBootstrapValidation":"ReactiveRaven/jqBootstrapValidation"
+    "jqBootstrapValidation": "ReactiveRaven/jqBootstrapValidation",
+    "cheet.js": "~0.3.3"
   }
 }
