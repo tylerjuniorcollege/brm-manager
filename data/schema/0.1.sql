@@ -339,15 +339,17 @@ SELECT "brm_list"."id" AS "id",
        "brm_list"."requestid" AS "requestid",
        "request"."userid" AS "request_userid",
        "request_user"."email" AS "request_user_email",
-       "request"."timestamp" AS "request_timestamp",
+       strftime("%m-%d-%Y %H:%M:%S", "request"."timestamp", "unixepoch") AS "request_timestamp",
        "request"."departmentid" AS "request_departmentid",
        "request_department"."name" AS "request_department_name",
        "request"."email" AS "request_email",
-       "brm_list"."launchdate" AS "launchdate",
+       strftime("%m-%d-%Y %H:%M:%S", "brm_list"."launchdate", "unixepoch") AS "launchdate",
        "brm_list"."population" AS "population",
        "brm_list"."listname" AS "listname",
        "brm_list"."createdby" AS "createdby",
-       "brm_list"."created" AS "created",
+       "creator_user"."email" AS "createdby_email",
+       "creator_user"."firstname" || ' ' || "creator_user"."lastname" AS "createdby_name",
+       strftime("%m-%d-%Y %H:%M:%S", "brm_list"."created", "unixepoch") AS "created",
        "approval_needed"."count" AS "approval_needed",
        "approved"."count" AS "approved",
        "denied"."count" AS "denied"
@@ -358,6 +360,7 @@ SELECT "brm_list"."id" AS "id",
        LEFT JOIN "brm_content_version" AS "brm_cv" ON "brm_list"."current_version" = "brm_cv"."id"
        LEFT JOIN "brm_state" AS "state" ON "brm_list"."stateid" = "state"."id"
        LEFT JOIN "brm_requests" AS "request" ON "brm_list"."requestid" = "request"."id"
+       LEFT JOIN "user" AS "creator_user" ON "brm_list"."createdby" = "creator_user"."id"
        LEFT JOIN "user" AS "request_user" ON "request"."userid" = "request_user"."id"
        LEFT JOIN "departments" AS "request_department" ON "request"."departmentid" = "request_department"."id";
 

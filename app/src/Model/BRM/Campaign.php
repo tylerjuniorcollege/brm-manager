@@ -85,7 +85,7 @@ class Campaign
 	}
 
 	public function state_change() {
-
+		return $this->has_many('BRM\StateChange', 'brmid');
 	}
 
 	public function changeState(StateChange $statechange) {
@@ -106,5 +106,18 @@ class Campaign
 	}
 	public static function templateid($orm, $filter) {
 		return $orm->where_like('templateid', '%' . $filter . '%');
+	}
+
+	// See if I can overload the filter and grab the date, based on the applicationenv
+	public static function formatDate($orm, $filter) {
+		switch($filter) {
+			case 'development':
+				return $orm->select('*')->select_expr('strftime("%m-%d-%Y %H:%M:%S", "created", "unixepoch")', 'created')->select_expr('strftime("%m-%d-%Y %H:%M:%S", "launchdate", "unixepoch")', 'launchdate');
+				break;
+
+			case 'production':
+				return; //$orm->select_expr();
+				break;
+		}
 	}
 }

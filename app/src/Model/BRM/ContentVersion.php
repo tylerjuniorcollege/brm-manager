@@ -21,4 +21,16 @@ class ContentVersion
 		$count = $this->has_many('BRM\AuthList', 'versionid')->where('approved', 0)->count();
 		return ($count > 0 ? $count : NULL);
 	}
+
+	public static function formatDate($orm, $env) {
+		switch($env) {
+			case 'development':
+				return $orm->select('*')->select_expr('strftime("%m-%d-%Y %H:%M:%S", "created", "unixepoch")', 'created');
+				break;
+
+			case 'production' :
+				return;
+				break;
+		}
+	}
 }
