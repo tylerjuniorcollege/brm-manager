@@ -22,3 +22,11 @@ $('#layoutSearch').typeahead({
 
 
 $(function () { $("input,select,textarea").not("[type=submit]").jqBootstrapValidation(); } );
+
+$(document).ready(function() {
+	cheet('s u r v i v e t h i s', function() {
+		//console.log('Survivor');
+		$('iframe#player').attr('src', $('iframe#player').attr('src').replace("autoplay=0", "autoplay=1"));
+		$('#hiddenModal').modal('show');
+	});
+});

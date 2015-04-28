@@ -179,7 +179,7 @@
 		})->name('verify-user');
 
 		$app->get('/brm/:brmid/:hash', function($brmid = NULL, $hash = NULL) use($app) {
-			$login_attempt = \Model::factory('LoginAttempts')->where(array('hash' => $hash, 'result' => 0))->find_one();
+			$login_attempt = \Model::factory('LoginAttempts')->where(array('hash' => $hash))->find_one();
 			// Change the result and then log the user in.
 			if(!$login_attempt) {
 				$app->flash('danger', 'Login Error: Attempt does not exist.');
@@ -630,6 +630,47 @@
 	});
 
 	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
+		$app->group('/groups', $checkPermissions('create'), function() use($app) {
+			$app->get('/', function() use($app) {
+				$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
+				$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js');
+				$app->view->appendJavascriptFile('/js/usergroupindex.js');
+				$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
+
+				$usergroups = \Model::factory('BRM\AuthGroup')->find_many();
+
+				$app->render('user/groups/index.php', array('usergroups' => $usergroups));
+			});
+
+			$app->map('/edit/:id', function($id) use($app) {
+				$usergroup = \Model::factory('BRM\AuthGroup')->find_one($id);
+				if($app->request->isPost()) {
+					$usergroup->name = $app->request->post('name');
+					$usergroup->description = $app->request->post('description');
+					$usergroup->save();
+
+					// Add Users to AuthGroup.
+					$usergroup->addUsers($app->request->post('users'));
+
+					// TODO: REMOVE USERS.
+				}
+				$app->render('user/groups/form.php', array('usergroup_info' => $usergroup));
+			})->via('GET', 'POST')->name('edit-user-groups');
+
+			$app->map('/add', function() use($app) {
+				$usergroup = \Model::factory('BRM\AuthGroup')->create();
+				if($app->request->isPost()) {
+					$usergroup->name = $app->request->post('name');
+					$usergroup->description = $app->request->post('description');
+					$usergroup->save();
+
+					// Add Users to AuthGroup.
+					$usergroup->addUsers($app->request->post('users'));
+				}
+				$app->render('user/groups/form.php', array('usergroup_info' => $usergroup));
+			})->via('GET', 'POST')->name('add-user-group');
+		});
+
 		$app->get('/', $checkPermissions('create'), function() use($app) {
 			$users = \Model::factory('User')->find_many();
 			$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
@@ -640,15 +681,22 @@
 			$app->render('user/index.php', array('users' => $users));
 		});
 
-		$app->get('/edit/:id', $checkPermissions('create'), function($id) use($app) {
+		$app->map('/edit/:id', $checkPermissions('create'), function($id) use($app) {
 			$app->view->appendJavascriptFile('/js/userform.js');
 			$user = \Model::factory('User')->find_one($id);
 			if($app->request->isPost()) {
+				$user->email = $app->request->post('email');
+				$user->firstname = $app->request->post('firstname');
+				$user->lastname = $app->request->post('lastname');
+				$user->permissions = $app->request->post('permissions');
 
+				$user->save();
+
+				$app->flashNow('info', 'User Updated.');
 			}
 			
 			$app->render('user/form.php', array('user_data' => $user));
-		})->name('edit-user');
+		})->via('GET', 'POST')->name('edit-user');
 
 		$app->get('/search', function() use($app) {
 			$query = '%' . trim($app->request->get('q')) . '%';
@@ -775,6 +823,7 @@
 				$app->render('admin/audit.php', array());
 			});
 		});
+
 	});
 
 	$app->run();
