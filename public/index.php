@@ -437,12 +437,12 @@
 
 		$app->group('/view', function() use($app) {
 			$app->get('/version/:id', function($id) use($app) {
-				$data = \ORM::for_table('brm_content_version')->find_one($id);
+				$data = \Model::factory('BRM\ContentVersion')->filter('formatDate', APPLICATION_ENV)->find_one($id);
 				$json = array(
 					'id' => $data->id,
 					'subject' => $data->subject,
 					'content' => $data->content,
-					'created' => date('l, F j, Y g:i:s', $data->created)
+					'created' => $data->created
 				);
 
 				$app->view->renderJson($json);
@@ -462,7 +462,7 @@
 				foreach($out['auth_users'] as $authuser) {
 					if($app->user->id === $authuser->userid) {
 						if(Permissions::hasAccess((int)$authuser->permission, 'view')) {
-							$out['authorized'] = $authuser->user();
+							$out['authorized'] = $authuser;
 							if(Permissions::hasAccess((int)$authuser->permission, 'edit')) {
 								$out['editor'] = TRUE;
 							}
@@ -590,9 +590,7 @@
 		});
 
 		$app->map('/create', function() use($app) {
-			//$app->view->appendJavascriptFile('/components/handlebars/handlebars.min.js');
 			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
-			//$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
 			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
 			$app->view->appendJavascriptFile('/components/select2/select2.min.js');
 			$app->view->appendStylesheet('/components/select2/select2.css');

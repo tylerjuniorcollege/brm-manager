@@ -194,7 +194,7 @@
 						<?php endforeach; ?>
 					</select>
 					<div class="input-group-btn">
-						<button type="submit" name="statechange" value="submit" class="btn btn-primary">Change State</button>
+						<button type="submit" name="statechange" value="statechange" class="btn btn-primary">Change State</button>
 					</div>
 					</div>
 				</div>
@@ -234,7 +234,7 @@
 						<input type="hidden" name="brmid" value="<?= $data['brm_data']->id; ?>">
 						<input type="hidden" name="versionid" value="<?= $data['current_version']->id; ?>">
 						<button type="submit" name="action" value="addcomment" class="btn btn-default pull-right">Add Comment</button>
-					<?php if($data['authorized'] instanceof \BRMManager\Model\User): ?>
+					<?php if($data['authorized'] instanceof \BRMManager\Model\BRM\AuthList && (int)$data['authorized']->approved == 0): ?>
 						<button type="submit" name="action" value="deny-version" class="btn btn-danger pull-right">Deny Version</button>
 						<button type="submit" name="action" value="approve-version" class="btn btn-success pull-right">Approve Version</button>
 					<?php endif; ?>
@@ -243,11 +243,23 @@
 			</div>
 		</div>
 		<div class="form-group">
-			<div class="col-sm-12">
+			<div class="col-sm-10 col-sm-offset-2">
 				<hr />
 				<div class="row" id="comments">
-				<?php foreach($data['comments'] as $c_row): ?>
-					<div class="media">
+				<?php foreach($data['comments'] as $c_row): 
+						$background = null;
+
+						switch((int)$c_row->approved) {
+							case 1:
+								$background = ' bg-success';
+								break;
+
+							case -1;
+								$background = ' bg-danger';
+								break;
+						}
+				?>
+					<div class="media<?=$background; ?>">
 						<div class="media-left">
 							<img src="<?= \BRMManager\Gravatar\genUrl($c_row->useremail); ?>" class="media-object"/>
 						</div>
@@ -261,5 +273,64 @@
 			</div>
 		</div>
 		<hr />
+		<!-- Modals Here -->
+		<div class="modal fade" id="publishedModal" tabindex="-1" role="dialog" aria-labelledby="publishedModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="publishedModalLabel">Send Published Notification</h4>
+					</div>
+					<div class="modal-body">
+						<p>You've set the email to "Published", which means you're ready to have it be sent. Select the BRM EMail administrator to notify.</p>
+						<p>
+							<select id="publishedNotify" name="pubnotify" class="form-control">
+								<option></option>
+								<?php foreach($data['notify_users'] as $n_user) {
+										printf('<option value="%s">%s - %s %s</option>', $n_user->id, $n_user->email, $n_user->firstname, $n_user->lastname);
+									} ?>
+							</select>
+						</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" id="publishedSubmit">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="postmortemModal" tabindex="-1" role="dialog" aria-labelledby="postmortemModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="postmortemModalLabel">Send Postmortem Notification</h4>
+					</div>
+					<div class="modal-body">
+						<!-- this will show the complete list of Authorized Users who have been included on the emails, even after being removed! -->
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" id="postmortemSubmit">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="confirmDeny" tabindex="-1" role="dialog" aria-labelledby="confirmDenyLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="confirmDenyLabel">OOPS!</h4>
+					</div>
+					<div class="modal-body">
+						<p>Denying a BRM Email requires a comment to be entered in the comment box.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</form>
 </div>
