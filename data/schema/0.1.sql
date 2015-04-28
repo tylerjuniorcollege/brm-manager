@@ -1,3 +1,20 @@
+DROP TABLE IF EXISTS "brm_auth_group";
+CREATE TABLE "brm_auth_group" (
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "name" text NOT NULL,
+  "description" text NOT NULL
+);
+
+
+DROP TABLE IF EXISTS "brm_auth_group_members";
+CREATE TABLE "brm_auth_group_members" (
+  "groupid" integer NOT NULL,
+  "userid" integer NOT NULL,
+  FOREIGN KEY ("groupid") REFERENCES "brm_auth_group" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("userid") REFERENCES "user" ("id")
+);
+
+
 DROP TABLE IF EXISTS "brm_auth_list";
 CREATE TABLE "brm_auth_list" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
