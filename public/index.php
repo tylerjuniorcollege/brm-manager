@@ -220,7 +220,7 @@
 			$app->logger->addInfo(var_export($app->request->post(), true));
 
 			$template_columns = array(
-				'id', 'title', 'state', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'view'
+				'id', 'title', 'state', 'createdby_name', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'view'
 			);
 
 			// Grab the whole list of available table data.
@@ -257,12 +257,13 @@
 					$template_columns[0] => $li->id,
 					$template_columns[1] => $li->title,
 					$template_columns[2] => $li->state,
-					$template_columns[3] => (!is_null($li->launchdate) ? date('F j, Y g:i:s', $li->launchdate) : ''),
-					$template_columns[4] => $li->brm_current_version,
-					$template_columns[5] => $li->approval_needed,
-					$template_columns[6] => $li->approved,
-					$template_columns[7] => $li->denied,
-					$template_columns[8] => '<a href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>'
+					$template_columns[3] => $li->createdby_name,
+					$template_columns[4] => $li->launchdate,
+					$template_columns[5] => $li->brm_current_version,
+					$template_columns[6] => $li->approval_needed,
+					$template_columns[7] => $li->approved,
+					$template_columns[8] => $li->denied,
+					$template_columns[9] => '<a href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>'
 				);
 			});
 

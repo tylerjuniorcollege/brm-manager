@@ -10,12 +10,14 @@ $(document).ready(function() {
 			{"data":"id"},
 			{"data":"title"},
 			{"data":"state"},
+			{"data":"createdby_name"},
 			{"data":"launchdate"},
 			{"data":"current_version"},
 			{"data":"approval_needed"},
 			{"data":"approved"},
 			{"data":"denied"},
-			{"data":"view"}
+			{"data":"view",
+			 "orderable":false}
 		],
 		"bFilter": false
 	});
