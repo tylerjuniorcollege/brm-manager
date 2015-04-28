@@ -51,6 +51,19 @@
 
 	$app->configureMode('production', function() use($app) {
 		\ORM::configure('sqlite:../data/database.db');
+		if($app->user->id === 1) {
+			\ORM::configure('logging', false);
+		}
+
+		$loggly = include_once('../app/config/loggly.settings.php');
+
+		$sql_logger = new Logger('brm-sql');
+		$sql_logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-sql'));
+		\ORM::configure('logger', function($log_string, $query_time) use($sql_logger) {
+			$sql_logger->addInfo($log_string . ' TIME: ' . $query_time);
+		});
+
+		$app->logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-manager'));
 	});
 
 	\Model::$auto_prefix_models = '\\BRMManager\\Model\\';
@@ -487,6 +500,7 @@
 				  ((is_object($out['authorized'])) || 
 				   ($out['admin'] === TRUE) ||
 				   ($out['owner'] === TRUE))) {
+				   	$app->logger->addInfo(var_export($app->request->post(), true));
 					// This is adding a comment or approving the current BRM.
 					if($app->request->post('action')) {
 						switch($app->request->post('action')) {
@@ -580,9 +594,16 @@
 
 				$out['states'] = \Model::factory('BRM\State')->find_many();
 
+				$out['notify_users'] = \Model::factory('User')->find_many();
+
+				$app->logger->addInfo('View BRM ID#' . $out['brm_data']->id);
+				$app->logger->addInfo(var_export($out['authorized'], true));
+
 				$app->view->appendJavascriptFile('/components/jquery.hotkeys/jquery.hotkeys.js');
 				$app->view->appendJavascriptFile('/components/bootstrap-wysiwyg-steveathon/js/bootstrap-wysiwyg.min.js');
-
+				$app->view->appendJavascriptFile('/components/select2/select2.min.js');
+				$app->view->appendStylesheet('/components/select2/select2.css');
+				$app->view->appendStylesheet('/components/select2-bootstrap-css/select2-bootstrap.min.css');
 				$app->view->appendStylesheet('/components/bootstrap-wysiwyg-steveathon/css/style.css');
 
 				$app->view->appendJavascriptFile('/js/viewbrm.js');
@@ -824,6 +845,14 @@
 			});
 		});
 
+		$app->get('/brmtest', function() use($app) {
+			$brm = \Model::factory('BRM\Campaign')->filter('formatDate', APPLICATION_ENV)->find_one(4);
+
+			var_dump($brm->created);
+			echo "\n\n\n";
+			var_dump($brm->launchdate);
+			//var_dump($brm->stateid);
+		});
 	});
 
 	$app->run();
