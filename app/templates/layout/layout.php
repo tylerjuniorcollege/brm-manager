@@ -17,7 +17,7 @@
 	  		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 		<![endif]-->
 	</head>
-	<body>
+	<body class="fuelux">
 
 		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 			<div class="container">
@@ -36,14 +36,26 @@
           			</form>
       				<ul class="nav navbar-nav navbar-left">
       					<?php if($data['user']->hasAccess('create')): ?>
-      						<li><a href="/brm/create">Create a New BRM</a></li>
+      						<li class="dropdown">
+      							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">New <span class="caret"></span></a>
+      							<ul class="dropdown-menu" role="menu">
+      								<li><a href="/brm/create">Create a New BRM</a></li>
+      								<li><a href="/image/upload">Upload a New BRM Email Image</a></li>
+      							</ul>
+      						</li>
       					<?php endif; ?>
       					<?php if($data['user']->hasAccess('admin')): ?>
-      						<li><a href="/admin">Admin App</a></li>
+      						<li class="dropdown">
+      							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
+      							<ul class="dropdown-menu" role="menu">
+      								<li><a href="/user">Admin Users</a></li>
+      								<li><a href="/user/groups">Admin User Groups</a></li>
+      								<?php if((int) $data['user']->id === 1): ?>
+      									<li><a href="/latest.php">Adminer</a></li>
+      								<?php endif; ?>
+      							</ul>
       					<?php endif; ?>
-      					<?php if((int) $data['user']->id === 1): ?>
-      						<li><a href="/latest.php">Adminer</a></li>
-      					<?php endif; ?>
+      					<li><a href="/logout">Logout</a></li>
       				</ul>
       			<?php endif; ?>
 		  	</div>
@@ -62,6 +74,21 @@
 					<p>&copy; <?= date("Y"); ?> Tyler Junior College</p>
 				</div>
 		  	</div>
+		</div>
+		<div class="modal fade" id="hiddenModal" tabindex="-1" role="dialog" aria-labelledby="hiddenModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="hiddenModalLabel">ACTION!</h4>
+					</div>
+					<div class="modal-body">
+						<iframe id="player" width="560" height="315" src="https://www.youtube.com/embed/ZTidn2dBYbY?autoplay=0&start=18" frameborder="0" allowfullscreen></iframe>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" style="display: none;" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	<?= implode($data['js']['rendered'], "\n\t"); ?>
 	</body>

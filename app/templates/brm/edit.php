@@ -214,11 +214,11 @@
 				<div class="panel panel-default" id="selectUserPermissions" style="display:none;">
 					<div class="panel-heading"><h3 class="panel-title">Permissions for User: <span id="permUserSelect"></span></h3></div>
 					<div class="panel-body">
-						<label class="checkbox-inline">
+						<label class="checkbox-custom checkbox-inline" data-initialize="checkbox">
 							<input type="checkbox" id="permApprove" class="selectUserPermCheck" value="2">
 							<span id="permLabelApprove" class="label label-primary">Approve</span>
 						</label>
-						<label class="checkbox-inline">
+						<label class="checkbox-custom checkbox-inline" data-initialize="checkbox">
 							<input type="checkbox" id="permEdit" class="selectUserPermCheck" value="4">
 							<span id="permLabelEdit" class="label label-warning">Edit</span>
 						</label>
@@ -243,11 +243,11 @@
 						<div class="form-group">
 							<label for="newPerm">Permissions</label>
 							<div>
-								<label class="checkbox-inline">
+								<label class="checkbox-custom checkbox-inline" data-initialize="checkbox">
 									<input type="checkbox" id="newPermApprove" class="selectUserPermCheck" value="2">
 									<span class="label label-primary">Approve</span>
 								</label>
-								<label class="checkbox-inline">
+								<label class="checkbox-custom checkbox-inline" data-initialize="checkbox">
 									<input type="checkbox" id="newPermEdit" class="selectUserPermCheck" value="4">
 									<span class="label label-warning">Edit</span>
 								</label>

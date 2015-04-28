@@ -64,21 +64,24 @@
  			  ->appendJavascriptFile('/components/moment/min/moment.min.js')
 			  ->appendJavascriptFile('/components/bootstrap/dist/js/bootstrap.min.js')
 			  ->appendJavascriptFile('/components/jasny-bootstrap/dist/js/jasny-bootstrap.min.js')
+			  ->appendJavascriptFile('/components/fuelux/dist/js/fuelux.min.js')
 			  ->appendJavascriptFile('/components/jquery-ajax-progress/js/jquery.ajax-progress.js')
 			  ->appendJavascriptFile('/components/handlebars/handlebars.min.js')
 			  ->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js')
 			  ->appendJavascriptFile('/components/jqBootstrapValidation/dist/jqBootstrapValidation-1.3.7.min.js')
+			  ->appendJavascriptFile('/components/cheet.js/cheet.min.js')
 			  ->appendJavascriptFile('/js/application.js');
 
 	$app->view->appendStylesheet('/components/bootstrap/dist/css/bootstrap.min.css')
 			  ->appendStylesheet('/components/jasny-bootstrap/dist/css/jasny-bootstrap.min.css')
 			  ->appendStylesheet('/components/fontawesome/css/font-awesome.min.css')
+			  ->appendStylesheet('/components/fuelux/dist/css/fuelux.min.css')
 			  ->appendStylesheet('/css/application.css');
 
 	// Injecting Mandrill in to the app.
-	$app->container->singleton('mandrill', function() {
+	$app->container->singleton('email', function() {
 		$api_key = include_once('../app/config/mandrill.settings.php');
-		return new Mandrill($api_key);
+		return new \BRMManager\Email($api_key);
 	});
 
 	$checkLogin = function() use($app) {
@@ -130,18 +133,17 @@
 					$login_attempt->save();
 	
 					$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('verify-user', array('hash' => $login_attempt->hash));
-					$message = include_once('../app/config/loginemail.settings.php');
-					$message += array(
-						'text' => str_replace(array('%USER%', '%URL%'), array($user->email, $login_url), file_get_contents('../app/templates/email/login.php')),
-						'to' => array(array(
-							'email' => $user->email,
-							'name' => $user->firstname . " " . $user->lastname,
-							'type' => 'to'
-						))
-					);
+					$message_details = include_once('../app/config/loginemail.settings.php');
+					$app->email->template = file_get_contents('../app/templates/email/login.php');
+					$app->email->replace(array('%USER%', '%URL%'), array($user->email, $login_url));
+					$app->email->to($user->email, sprintf('%s %s', $user->firstname, $user->lastname));
+					$app->email->from($message_details['from_email'], $message_details['from_name']);
+					$app->email->subject($message_details['subject']);
 	
-					$result = $app->mandrill->messages->send($message);
-	
+					$result = $app->email->send();
+					$app->logger->addInfo('Login Attempted: ' . $user->email);
+					$app->logger->addInfo(var_export($result, true));
+
 					$login_attempt->emailid = $result[0]['_id'];
 					$login_attempt->save();
 	
@@ -368,38 +370,39 @@
 				$brm->removeUsers($rm_users);
 			}
 
-			// Now we need to create a state change if the BRM is Approved and the TemplateID has been set.
-			if($brm->stateid === 2 && !is_null($brm->templateid)) {
-				$statechange = \Model::factory('BRM\StateChange')->create();
-				$statechange->userid = $app->user->id;
-				$statechange->timestamp = $created;
+			$statechange = \Model::factory('BRM\StateChange')->create();
+			$statechange->userid = $app->user->id;
+			$statechange->timestamp = $created;
+			if(is_null($brm->stateid) || ((int) $brm->stateid == 0 && $app->request->post('submit') === 'save')) {
+				$statechange->stateid = 0;
+			} elseif((int)$brm->stateid == 0 && $app->request->post('submit') === 'send') {
+				$statechange->stateid = 1;
+			} elseif((int)$brm->stateid === 2 && !is_null($brm->templateid)) {
 				$statechange->stateid = 3;
+			}
+
+			if($statechange->is_dirty('stateid')) {
 				$brm->changeState($statechange);
 			}
 
 			// Now, we need to see if this is a save or notify action.
 			if($app->request->post('submit') === 'send') {
-				// Initiate a State Change and generate logins.
-				if($brm->stateid == 0) {
-					$statechange = \Model::factory('BRM\StateChange')->create();
-					$statechange->userid = $app->user->id;
-					$statechange->timestamp = $created;
-					$statechange->stateid = 1;
-					$brm->changeState($statechange);
-				}
+				// Generate logins.
+				// Verb Changes.
 
-				if($brm->currentVersion()->brmversionid == 1) {
-					$subject = 'New BRM Campaign: ' . $brm->title;
+				$counter_after = $brm->state_change()->where_gte('stateid', 1)->count();
+
+				if($counter_after == 1) {
+					$subject = 'New BRM Email Created: ' . $brm->title;
+					$verb = 'created';
 				} else {
-					$subject = 'Updated BRM Campaign: ' . $brm->title;
+					$subject = 'Updated BRM Email: ' . $brm->title;
+					$verb = 'updated';
 				}
 
-				$message_settings = array(
-					'from_email' => $app->user->email,
-					'from_name' => $app->user->firstname . ' ' . $app->user->lastname . ' (BRM Manager)',
-					'subject' => $subject,
-					'track_opens' => true
-				);
+				$app->email->subject($subject);
+				$app->email->from($app->user->email, sprintf('%s %s (BRM Manager)', $app->user->firstname, $app->user->lastname));
+				$app->email->template = file_get_contents('../app/templates/email/approve.php');
 
 				// Send E-mails to all the authorized users.
 				foreach($brm->authorizedUsers()->find_many() as $authuser) {
@@ -411,18 +414,16 @@
 					$login->hash = uniqid('user-' . $login->userid . '-');
 					$login->authid = $authuser->id;
 					$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('brm-login', array('brmid' => $brm->id, 'hash' => $login->hash));
-					$message = array_merge($message_settings, array(
-						'text' => str_replace(array('%USER%', '%URL%', '%AUTHOR%', '%VERB%', '%TITLE%'), 
-											  array($user->email, $login_url, $app->user->firstname . ' ' . $app->user->lastname, 'created', $brm->title),
-											  file_get_contents('../app/templates/email/approve.php')),
-						'to' => array(array(
-							'email' => $user->email,
-							'name' => $user->firstname . " " . $user->lastname,
-							'type' => 'to'
-						))
-					));
-					$result = $app->mandrill->messages->send($message);
-
+					$app->email->replace(array('%USER%', '%URL%', '%AUTHOR%', '%VERB%', '%TITLE%'), array($user->email, $login_url, $app->user->firstname . ' ' . $app->user->lastname, $verb, $brm->title));
+					$app->email->to($user->email, sprintf('%s %s', $user->firstname, $user->lastname));
+					
+					$result = $app->email->send();
+					// Logging Email Data:
+					$app->logger->addInfo('Email Sent to: ' . $user->email . ' For Email ID#' . $brm->id);
+					$app->logger->addInfo(var_export($app->email->msg_arr, true));
+					$app->logger->addInfo(var_export($result, true));
+					$app->email->cleanEmail();
+					
 					$login->emailid = $result[0]['_id'];
 					$login->save();
 				}
@@ -496,25 +497,65 @@
 								break;
 	
 							case 'approve-version':
-								$comment = \ORM::for_table('brm_auth_list')->find_one($out['authorized']->id);
+								$comment = $out['authorized'];
 								$comment->approved = 1;
 								break;
 	
 							case 'deny-version':
-								$comment = \ORM::for_table('brm_auth_list')->find_one($out['authorized']->id);
+								$comment = $out['authorized'];
 								$comment->approved = -1;
 								break;
 						}
 						$comment->comment = $app->request->post('comment');
 						$comment->timestamp = time();
 						$comment->save();
+
+						if($comment instanceof \BRMManager\Model\BRM\AuthUser) {
+							$out['authorized'] = $comment;
+						}
 					}
 
 					if($app->request->post('changestate') && (($out['admin'] === TRUE) || ($out['owner'] === TRUE))) {
 						$statechange = \Model::factory('BRM\StateChange')->create();
 						$statechange->userid = $app->user->id;
 						$statechange->timestamp = time();
-						$statechange->stateid = $app->request->post('changestate');
+						// Switch on changestate:
+						switch($app->request->post('changestate')) {
+							case 2:
+								if(!is_null($out['brm_data']->templateid)) {
+									$statechange->stateid = 3;
+								} else {
+									$statechange->stateid = 2;
+								}
+								break;
+
+							case 4:
+								// We need to notify someone.
+								$statechange->stateid = 4;
+								// Load the user to notify:
+								$notify_user = \Model::factory('User')->find_one($app->request->post('pubnotify'));
+
+								// Load the notification email:
+								$app->email->template = file_get_contents('../app/templates/email/published.php');
+								$app->email->replace(array(), array());
+								$app->email->from($app->user->email, sprintf('%s %s (BRM Manager)', $app->user->firstname, $app->user->lastname));
+								$app->email->to($notify_user->email, sprintf('%s %s', $notify_user->firstname, $notify_user->lastname));
+								$app->email->subject('BRM Published Notification: ' . $out['brm_data']->title);
+								// TODO: Track the notification emails being sent out.
+								$app->email->send();
+
+								$app->flashNow('info', 'User Has Been Notified.');
+								break;
+
+							case 5:
+								// We need to notify EVERYONE.
+								$statechange->stateid = 5;
+								break;
+
+							default:
+								$statechange->stateid = $app->request->post('changestate');
+								break;
+						}
 						$out['brm_data']->changeState($statechange);
 					}
 				}

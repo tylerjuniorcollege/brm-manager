@@ -32,6 +32,8 @@
     "typeahead.js": "~0.10.5",
     "bootstrap-wysiwyg-steveathon": "steveathon/bootstrap-wysiwyg#63e2bf6039bfd681aa41da69685566ea3531eecd",
     "jqBootstrapValidation": "ReactiveRaven/jqBootstrapValidation",
-    "cheet.js": "~0.3.3"
+    "cheet.js": "~0.3.3",
+    "timesheet.js": "https://github.com/sbstjn/timesheet.js.git",
+    "fuelux": "~3.7.1"
   }
 }
