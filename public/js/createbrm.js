@@ -10,6 +10,10 @@ var userSearchSource = new Bloodhound({
  	}
 });
 
+$(function () {
+	$('[data-toggle="popover"]').popover();
+});
+
 userSearchSource.initialize();
 $('#requestuser').typeahead({
   hint: true,
@@ -39,7 +43,7 @@ $('#searchUsers').keyup(function() {
 	var query = $(this).val();
 	$.getJSON(userSearch + $(this).val(), function(data) {
 		if(data.length > 0 && query.length > 0) {
-			$("#commonUsers").hide();
+			$("#userGroups").hide();
 			$("#addNewUser").hide();
 			$("#searchUsersResults").show();
 			$.each(data, function() {
@@ -53,13 +57,13 @@ $('#searchUsers').keyup(function() {
 			});
 		} else if(query.length > 0) {
 			// This is a new user ... show new user form and clear the data.
-			$("#commonUsers").hide();
+			$("#userGroups").hide();
 			$("#searchUsersResults").hide();
 			$("#addNewUser").show();
 		} else if(query.length === 0) {
 			$("#addNewUser").hide();
 			$("#searchUsersResults").hide();
-			$("#commonUsers").show();
+			$("#userGroups").show();
 		}
 	});
 });
@@ -68,7 +72,7 @@ $(document).on('click', '#commonUserResults .user_action, #searchResults .user_a
 	var username = $(this).html();
 	var userid = this.id.replace(/user-/g, '');
 	
-	$('#commonUsers').hide();
+	$('#userGroups').hide();
 	$("#searchUsersResults").hide();
 	$('#searchUsers').val('');
 	$('#permUserSelect').html(username);
@@ -113,7 +117,7 @@ $('#userPermissions').on('click', function() {
 	$('.selectUserPermCheck').attr('checked', false);
 	currentUserId = 0;
 	$('#selectUserPermissions').hide();
-	$('#commonUsers').show();
+	$('#userGroups').show();
 });
 
 $('#cancelUserPerm').on('click', function() {
@@ -124,7 +128,7 @@ $('#cancelUserPerm').on('click', function() {
 
 	currentUserId = 0;
 	$('#selectUserPermissions').hide();
-	$('#commonUsers').show();
+	$('#userGroups').show();
 });
 
 $('#cancelAddUser').on('click', function() {
@@ -136,7 +140,7 @@ $('#cancelAddUser').on('click', function() {
 
 	$("#addNewUser").hide();
 	$("#searchUsersResults").hide();
-	$("#commonUsers").show();
+	$("#userGroups").show();
 });
 
 $('#addUserSubmit').on('click', function() {
@@ -178,7 +182,7 @@ $('#addUserSubmit').on('click', function() {
 		$('<li>').attr({
 			id: 'userList-' + userid,
 			class: 'list-group-item'
-		}).html(username + '<span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers'));
+		}).html(username + '<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-' + userid + '"><i class="fa fa-times"></i></button><span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers'));
 
 		$.each(permDisplay, function() {
 			$(this).appendTo('#userPerm-' + userid);
@@ -203,7 +207,7 @@ $('#addUserSubmit').on('click', function() {
 		$('.selectUserPermCheck').attr('checked', false);
 
 		$("#addNewUser").hide();
-		$("#commonUsers").show();
+		$("#userGroups").show();
 	});
 });
 
