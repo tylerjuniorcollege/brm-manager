@@ -612,19 +612,22 @@
 		});
 
 		$app->map('/create', function() use($app) {
+			$data = array();
 			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
 			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
 			$app->view->appendJavascriptFile('/components/select2/select2.min.js');
 			$app->view->appendStylesheet('/components/select2/select2.css');
 			$app->view->appendStylesheet('/components/select2-bootstrap-css/select2-bootstrap.min.css');
 			$app->view->appendStylesheet('/css/brm-form.css');
+			// Removing Common users. Replacing with User Groups.
 			// Grab a list of users who have been used before.
-			$users = \ORM::for_table('view_common_users')->find_many();
-			$campaigns = \ORM::for_table('campaign')->find_many();
-			$departments = \ORM::for_table('departments')->find_many();
+			//$data['users'] = \ORM::for_table('view_common_users')->find_many();
+			$data['user_groups'] = \Model::factory('BRM\AuthGroup')->find_many();
+			$data['campaigns'] = \Model::factory('Campaign')->find_many();
+			$data['departments'] = \Model::factory('Department')->find_many();
 
 			$app->view->appendJavascriptFile('/js/createbrm.js');
-			$app->render('brm/create.php', array('users' => $users, 'campaigns' => $campaigns, 'departments' => $departments));
+			$app->render('brm/create.php', $data);
 		})->via('GET', 'POST')->name('create-brm');
 
 		$app->get('/edit/:id', function($id) use($app) {
@@ -632,7 +635,8 @@
 			$data = array();
 			$data['campaigns'] = \Model::factory('Campaign')->find_many();
 			$data['departments'] = \Model::factory('Department')->find_many();
-			$data['users'] = \ORM::for_table('view_common_users')->find_many();
+			//$data['users'] = \ORM::for_table('view_common_users')->find_many();
+			$data['user_groups'] = \Model::factory('BRM\AuthGroup')->find_many();
 			$data['brm'] = \Model::factory('BRM\Campaign')->find_one($id);
 			$data['save'] = $app->urlFor('save-brm', array('id' => $id));
 

@@ -1,5 +1,6 @@
 var resultUsersId = '#user-';
 var currentUserId = 0;
+var currentGroupId = 0;
 var userSearch = '/user/search?q=';
 
 var userSearchSource = new Bloodhound({
@@ -68,7 +69,7 @@ $('#searchUsers').keyup(function() {
 	});
 });
 
-$(document).on('click', '#commonUserResults .user_action, #searchResults .user_action', function() {
+$(document).on('click', '#searchResults .user_action', function() {
 	var username = $(this).html();
 	var userid = this.id.replace(/user-/g, '');
 	
@@ -93,6 +94,35 @@ $(document).on('click', '#commonUserResults .user_action, #searchResults .user_a
 	}).appendTo('form');
 
 	return false;
+});
+
+$(document).on('click', '#userGroupResults .user_group', function() {
+	var ugid = this.id.replace(/userGroup-/g, '');
+	var ugname = $(this).html();
+
+	$('#userGroups').hide();
+	$("#searchUsersResults").hide();
+	$('#searchUsers').val('');
+	$('#permGroupSelect').html(ugname);
+	$('#selectGroupPermissions').show();
+	currentGroupId = ugid;
+
+	$('.ugMember-' + ugid + '-id').each(function() {
+		var userid = $(this).val();
+		var username = $('#ugMember-' + ugid + '-name-' + userid).val() + ' &lt;' + $('#ugMember-' + ugid + '-email-' + userid).val() + '&gt;';
+		console.log(username);
+		$('<li>').attr({
+			id: 'userList-'  + userid,
+			class: 'list-group-item'
+		}).html(username + '<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-' + userid + '"><i class="fa fa-times"></i></button><span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers')).hide();
+
+		$('<input type="hidden">').attr({
+			name: 'users[]',
+			id: 'input-user-' + userid,
+			value: userid
+		}).appendTo('form');
+	});
+
 });
 
 $('#userPermissions').on('click', function() {
@@ -128,6 +158,19 @@ $('#cancelUserPerm').on('click', function() {
 
 	currentUserId = 0;
 	$('#selectUserPermissions').hide();
+	$('#userGroups').show();
+});
+
+$('#cancelGroupPerm').on('click', function() {
+	$('.selectGroupPermCheck').attr('checked', false);
+
+	// Remove user items from being submitted.
+	$('.ugMember-' + currentGroupId + '-id').each(function() {
+		removeUser($(this).val());
+	})
+
+	currentGroupId = 0;
+	$('#selectGroupPermissions').hide();
 	$('#userGroups').show();
 });
 
