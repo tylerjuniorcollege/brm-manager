@@ -173,7 +173,7 @@
 							$user = $user_a->user();
 							$userPerms = \BRMManager\Permissions::userCan((int) $user_a->permission);
 							printf('<input type="hidden" name="users[]" value="%s" id="input-user-%s">', $user->id, $user->id);
-							printf('<input type="hidden" name="permissions[%s]" value="%s" id="input-user-%s">', $user->id, $user_a->permission, $user->id);
+							printf('<input type="hidden" name="permissions[%s]" value="%s" id="input-perm-user-%s">', $user->id, $user_a->permission, $user->id);
 						?>
 						<li id="userList-<?=$user->id;?>" class="list-group-item" style="display:block;">
 							<?=$user->firstname; ?> <?=$user->lastname; ?> &lt;<?=$user->email; ?>&gt;
@@ -199,11 +199,26 @@
 			<div class="col-sm-5">
 				<input type="text" id="searchUsers" placeholder="Search Or Input Email Address ..." class="form-control" autocomplete="off">
 				<br />
-				<div class="panel panel-default" id="commonUsers">
-					<div class="panel-heading"><h3 class="panel-title" id="searchResHeading">Common users specified before</h3></div>
-					<div id="commonUserResults" class="list-group">
-						<?php foreach($data['users'] as $user) {
-							printf('<a href="#" class="user_action list-group-item" id="user-%s">%s &lt;%s&gt;</a>', $user->userid, $user->firstname . " " . $user->lastname, $user->email);
+				<div class="panel panel-default" id="userGroups">
+					<div class="panel-heading"><h3 class="panel-title" id="searchResHeading">User Groups In The System</h3></div>
+					<div id="userGroupResults" class="list-group">
+						<?php foreach($data['user_groups'] as $ug) {
+							
+							$popover = array();
+							foreach($ug->members()->find_many() as $member) {
+								// The user:
+								$user = $member->user()->find_one();
+								printf('<input type="hidden" class="ugMember-%s-id" value="%s">', $ug->id, $user->id);
+								printf('<input type="hidden" id="ugMember-%s-name-%s" value="%s %s">', $ug->id, $user->id, $user->firstname, $user->lastname);
+								printf('<input type="hidden" id="ugMember-%s-email-%s" value="%s">', $ug->id, $user->id, $user->email);
+								$popover[] = sprintf('%s %s &lt;%s&gt;', $user->firstname, $user->lastname, $user->email);
+							}
+
+							printf('<a id="userGroup-%s" tabindex="0" class="user_group list-group-item" role="button" data-toggle="popover" data-trigger="hover" title="%s" data-content="%s">%s <i class="fa fa-users pull-right"></i></a>', 
+									$ug->id, 
+									$ug->description, // Using the description as the title.
+									implode("\n", $popover),
+									$ug->name);
 						} ?>
 					</div>
 				</div>
@@ -226,6 +241,24 @@
 					<div class="panel-footer">
 						<button type="button" id="cancelUserPerm" class="btn btn-danger pull-left">Cancel</button>
 						<button type="button" id="userPermissions" class="btn btn-default pull-right">Add User to List</button>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+				<div class="panel panel-default" id="selectGroupPermissions" style="display:none;">
+					<div class="panel-heading"><h3 class="panel-title">Permissions for Group: <span id="permGroupSelect"></span></h3></div>
+					<div class="panel-body">
+						<label class="checkbox-custom checkbox-inline" data-initialize="checkbox">
+							<input type="checkbox" id="permGroupApprove" class="selectGroupPermCheck" value="2">
+							<span id="permGroupLabelApprove" class="label label-primary">Approve</span>
+						</label>
+						<label class="checkbox-custom checkbox-inline" data-initialize="checkbox">
+							<input type="checkbox" id="permGroupEdit" class="selectGroupPermCheck" value="4">
+							<span id="permGroupLabelEdit" class="label label-warning">Edit</span>
+						</label>
+					</div>
+					<div class="panel-footer">
+						<button type="button" id="cancelGroupPerm" class="btn btn-danger pull-left">Cancel</button>
+						<button type="button" id="groupPermissions" class="btn btn-default pull-right">Add Group Members to List</button>
 						<div class="clearfix"></div>
 					</div>
 				</div>

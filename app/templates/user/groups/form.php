@@ -4,26 +4,40 @@
 		<div class="form-group">
 			<label class="col-sm-2 control-label" for="id">Id</label>
 			<div class="col-sm-10">
-				<p class="form-control-static"><?=(is_null($data['usergroup_data']->id) ? '&lt;Not Set&gt;' : $data['usergroup_data']->id); ?></p>
+				<p class="form-control-static"><?=(is_null($data['usergroup_info']->id) ? '&lt;Not Set&gt;' : $data['usergroup_info']->id); ?></p>
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="col-sm-2 control-label" for="name">Name</label>
 			<div class="col-sm-10">
-				<input type="text" name="name" class="form-control" placeholder="Name" value="<?=(!is_null($data['usergroup_data']->name) ? $data['usergroup_data']->name : ''); ?>" required>
+				<input type="text" name="name" class="form-control" placeholder="Name" value="<?=(!is_null($data['usergroup_info']->name) ? $data['usergroup_info']->name : ''); ?>" required>
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="col-sm-2 control-label" for="description">Description</label>
 			<div class="col-sm-10">
-				<input type="text" name="description" class="form-control" placeholder="Description" value="<?=(!is_null($data['user_data']->description) ? $data['user_data']->description : ''); ?>" required>
+				<input type="text" name="description" class="form-control" placeholder="Description" value="<?=(!is_null($data['usergroup_info']->description) ? $data['usergroup_info']->description : ''); ?>" required>
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="col-sm-2 control-label" for="permissions">Users</label>
 			<div class="col-sm-10">
-				<select class="form-control" id="userSelect" multiple="multiple">
+				<select class="form-control" id="userSelect" name="users[]" multiple="multiple">
+					<?php foreach($data['users'] as $user) {
+						// See if they are already in the group ...
+						if(!is_null($data['usergroup_info']->id)) {
+							$selected = $data['usergroup_info']->members()->where('userid', $user->id)->find_one();
+						}
 
+						if(!$selected) {
+							$selected = '';
+						} else {
+							$selected = ' selected="selected"';
+						}
+
+						printf('<option value="%s"%s>%s %s &lt;%s&gt;</option>', $user->id, $selected, $user->firstname, $user->lastname, $user->email);
+
+					} ?>
 				</select>
 			</div>
 		</div>

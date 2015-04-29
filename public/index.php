@@ -474,12 +474,10 @@
 				$out['authorized'] = FALSE;
 				$out['editor'] = FALSE;
 				foreach($out['auth_users'] as $authuser) {
-					if($app->user->id === $authuser->userid) {
-						if(Permissions::hasAccess((int)$authuser->permission, 'view')) {
-							$out['authorized'] = $authuser;
-							if(Permissions::hasAccess((int)$authuser->permission, 'edit')) {
-								$out['editor'] = TRUE;
-							}
+					if((int) $app->user->id === (int) $authuser->userid) {
+						$out['authorized'] = $authuser;
+						if(Permissions::hasAccess((int)$authuser->permission, 'edit')) {
+							$out['editor'] = TRUE;
 						}
 					}
 				}
@@ -674,12 +672,30 @@
 					$usergroup->description = $app->request->post('description');
 					$usergroup->save();
 
-					// Add Users to AuthGroup.
-					$usergroup->addUsers($app->request->post('users'));
+					// Grab Users already in the system.
+					$members = $usergroup->members()->select('userid')->find_array();
+					$members = array_map(function($val) {
+						return $val['userid'];
+					}, $members);
 
-					// TODO: REMOVE USERS.
+					$sub_users = $app->request->post('users');
+					$rm_members = array_diff($members, $sub_users);
+					$new_members = array_diff($sub_users, $members);
+
+					// Add Users to AuthGroup.
+					$usergroup->addMembers($new_members);
+
+					$usergroup->deleteMembers($rm_members);
 				}
-				$app->render('user/groups/form.php', array('usergroup_info' => $usergroup));
+
+				// Grabbing current user list.
+				$users = \Model::factory('User')->find_many();
+
+				$app->view->appendJavascriptFile('/components/select2/select2.min.js');
+				$app->view->appendStylesheet('/components/select2/select2.css');
+				$app->view->appendStylesheet('/components/select2-bootstrap-css/select2-bootstrap.min.css');
+				$app->view->appendJavascript('$("#userSelect").select2();');
+				$app->render('user/groups/form.php', array('usergroup_info' => $usergroup, 'users' => $users));
 			})->via('GET', 'POST')->name('edit-user-groups');
 
 			$app->map('/add', function() use($app) {
@@ -690,9 +706,17 @@
 					$usergroup->save();
 
 					// Add Users to AuthGroup.
-					$usergroup->addUsers($app->request->post('users'));
+					$usergroup->addMembers($app->request->post('users'));
 				}
-				$app->render('user/groups/form.php', array('usergroup_info' => $usergroup));
+
+				// Grabbing current user list.
+				$users = \Model::factory('User')->find_many();
+
+				$app->view->appendJavascriptFile('/components/select2/select2.min.js');
+				$app->view->appendStylesheet('/components/select2/select2.css');
+				$app->view->appendStylesheet('/components/select2-bootstrap-css/select2-bootstrap.min.css');
+				$app->view->appendJavascript('$("#userSelect").select2();');
+				$app->render('user/groups/form.php', array('usergroup_info' => $usergroup, 'users' => $users));
 			})->via('GET', 'POST')->name('add-user-group');
 		});
 

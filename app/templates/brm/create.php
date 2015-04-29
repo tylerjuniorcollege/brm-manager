@@ -179,7 +179,7 @@
 								$popover[] = sprintf('%s %s &lt;%s&gt;', $user->firstname, $user->lastname, $user->email);
 							}
 
-							printf('<a id="userGroup-%s" tabindex="0" class="user_group list-group-item" role="button" data-toggle="popover" data-trigger="hover" title="%s" data-content="%s">%s</a>', 
+							printf('<a id="userGroup-%s" tabindex="0" class="user_group list-group-item" role="button" data-toggle="popover" data-trigger="hover" title="%s" data-content="%s">%s <i class="fa fa-users pull-right"></i></a>', 
 									$ug->id, 
 									$ug->description, // Using the description as the title.
 									implode("\n", $popover),

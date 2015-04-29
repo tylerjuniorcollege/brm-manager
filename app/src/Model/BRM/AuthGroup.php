@@ -34,4 +34,9 @@ class AuthGroup
 			$member->delete();
 		}		
 	}
+
+	public function editLink() {
+		$app = \Slim\Slim::getInstance();
+		return $app->urlFor('edit-user-groups', array('id' => $this->id));
+	}
 }

@@ -110,17 +110,19 @@ $(document).on('click', '#userGroupResults .user_group', function() {
 	$('.ugMember-' + ugid + '-id').each(function() {
 		var userid = $(this).val();
 		var username = $('#ugMember-' + ugid + '-name-' + userid).val() + ' &lt;' + $('#ugMember-' + ugid + '-email-' + userid).val() + '&gt;';
-		console.log(username);
-		$('<li>').attr({
-			id: 'userList-'  + userid,
-			class: 'list-group-item'
-		}).html(username + '<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-' + userid + '"><i class="fa fa-times"></i></button><span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers')).hide();
 
-		$('<input type="hidden">').attr({
-			name: 'users[]',
-			id: 'input-user-' + userid,
-			value: userid
-		}).appendTo('form');
+		if($('#userList-' + userid).length == 0) {
+			$('<li>').attr({
+				id: 'userList-'  + userid,
+				class: 'list-group-item'
+			}).html(username + '<button type="button" class="btn btn-danger btn-xs pull-right remove-user" id="removeUser-' + userid + '"><i class="fa fa-times"></i></button><span class="pull-right" id="userPerm-' + userid + '"></span>').appendTo($('#currentUsers')).hide();
+	
+			$('<input type="hidden">').attr({
+				name: 'users[]',
+				id: 'input-user-' + userid,
+				value: userid
+			}).appendTo('form');
+		}
 	});
 
 });
@@ -147,6 +149,35 @@ $('#userPermissions').on('click', function() {
 	$('.selectUserPermCheck').attr('checked', false);
 	currentUserId = 0;
 	$('#selectUserPermissions').hide();
+	$('#userGroups').show();
+});
+
+$('#groupPermissions').on('click', function() {
+	$('.ugMember-' + currentGroupId + '-id').each(function() {
+		var permInt = 0;
+		var userid = $(this).val();
+
+		if($('#input-perm-user-' + userid).length == 0) {
+			$('.selectGroupPermCheck:checked').each(function() {
+				var permSpan = this.id.replace(/permGroup/g, '#permGroupLabel');
+				permInt = permInt + parseInt($(this).val());
+				$(permSpan).clone().removeAttr('id').appendTo($('#userPerm-' + userid));
+			});
+
+			var permname = 'permissions[' + userid + ']';
+			$('<input type="hidden">').attr({
+				id: 'input-perm-user-' + userid,
+				name: permname,
+				value: permInt
+			}).appendTo('form');
+
+			$('#userList-' + userid).show();
+		}
+	});
+
+	$('.selectGroupPermCheck').attr('checked', false);
+	currentGroupId = 0;
+	$('#selectGroupPermissions').hide();
 	$('#userGroups').show();
 });
 
