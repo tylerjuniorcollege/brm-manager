@@ -47,9 +47,6 @@
 
 		$app->logger->pushHandler($stream);
 
-		\ORM::configure('mysql:host=localhost;dbname=brm-manager');
-		\ORM::configure('username', 'root');
-		\ORM::configure('password', 'root1');
 		\ORM::configure('logging', true);
 		\ORM::configure('logger', function($log_string, $query_time) use($app) {
     		$app->logger->addInfo('Query: ', array('query' => $log_string, 'time' => $query_time));
@@ -78,24 +75,33 @@
 
 	$app->configureMode('production', function() use($app) {
 		
-		/* if($app->user->id === 1) {
-			\ORM::configure('logging', false);
-		}
+		$app->view->appendJavascriptFile('/components/jquery/dist/jquery.min.js')
+ 				  ->appendJavascriptFile('/components/moment/min/moment.min.js')
+				  ->appendJavascriptFile('/components/bootstrap/dist/js/bootstrap.min.js')
+				  ->appendJavascriptFile('/components/jasny-bootstrap/dist/js/jasny-bootstrap.min.js')
+				  ->appendJavascriptFile('/components/fuelux/dist/js/fuelux.min.js')
+				  ->appendJavascriptFile('/components/jquery-ajax-progress/js/jquery.ajax-progress.js')
+				  ->appendJavascriptFile('/components/handlebars/handlebars.min.js')
+				  ->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js')
+				  ->appendJavascriptFile('/components/jqBootstrapValidation/dist/jqBootstrapValidation-1.3.7.min.js')
+				  ->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.js')
+				  ->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js')
+				  ->appendJavascriptFile('/components/cheet.js/cheet.min.js');
 
-		$loggly = include_once('../app/config/loggly.settings.php');
-
-		$sql_logger = new Logger('brm-sql');
-		$sql_logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-sql')); */
-		\ORM::configure('logger', function($log_string, $query_time) use($sql_logger) {
-			$sql_logger->addInfo($log_string . ' TIME: ' . $query_time);
-		});
-
-		//$app->logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-manager'));
-
-		$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js')
-				  ->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
+		$app->view->appendStylesheet('/components/bootstrap/dist/css/bootstrap.min.css')
+			 	  ->appendStylesheet('/components/jasny-bootstrap/dist/css/jasny-bootstrap.min.css')
+			 	  ->appendStylesheet('/components/fontawesome/css/font-awesome.min.css')
+			 	  ->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css')
+			 	  ->appendStylesheet('/components/fuelux/dist/css/fuelux.min.css');
 
 	});
+
+	$db_settings = include('../app/config/database.settings.php');
+	$app->config('db_settings', $db_settings);
+
+	\ORM::configure(sprintf('mysql:host=%s;dbname=%s', $db_settings['server'], $db_settings['dbname']));
+	\ORM::configure('username', $db_settings['username']);
+	\ORM::configure('password', $db_settings['password']);
 
 	\Model::$auto_prefix_models = '\\BRMManager\\Model\\';
 
@@ -719,6 +725,8 @@
 
 					// Add Users to AuthGroup.
 					$usergroup->addMembers($app->request->post('users'));
+
+					$app->redirect($app->urlFor('edit-user-groups', array('id' => $usergroup->id)));
 				}
 
 				// Grabbing current user list.
