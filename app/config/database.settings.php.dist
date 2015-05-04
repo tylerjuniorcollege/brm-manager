@@ -1,2 +1,7 @@
 <?php
-	\ORM::configure();
+	return array(
+		'server' => '',
+		'dbname' => '',
+		'username' => '',
+		'password' => ''
+	);
