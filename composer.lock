@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3c8a7ccee9dd54f406ff8ed5f4e0be24",
+    "hash": "b47a5400cf66b469976e888643d31381",
     "packages": [
         {
             "name": "brandonwamboldt/utilphp",
@@ -58,12 +58,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/duanejeffers/cli.class.php.git",
-                "reference": "4475fa1aa0300ff01afd95ed0b520f7f23e1ca50"
+                "reference": "c16661d61f527a484f256f282e5cd1b72e6a261d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/duanejeffers/cli.class.php/zipball/4475fa1aa0300ff01afd95ed0b520f7f23e1ca50",
-                "reference": "4475fa1aa0300ff01afd95ed0b520f7f23e1ca50",
+                "url": "https://api.github.com/repos/duanejeffers/cli.class.php/zipball/c16661d61f527a484f256f282e5cd1b72e6a261d",
+                "reference": "c16661d61f527a484f256f282e5cd1b72e6a261d",
                 "shasum": ""
             },
             "type": "library",
@@ -85,7 +85,7 @@
                 }
             ],
             "description": "Simple object for creating CLI programs in PHP",
-            "time": "2013-12-02 22:30:19"
+            "time": "2015-04-25 13:08:52"
         },
         {
             "name": "filp/whoops",

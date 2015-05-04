@@ -33,10 +33,14 @@
 	},
 	"scripts":{
 		"post-update-cmd":[
-			"bower update"
+			"bower update",
+			"cd bin && { rm adminer.php; curl -o adminer.php -L http://adminer.org/latest-en.php; cd -; }",
+			"cd public && { rm adminer.css; curl -o adminer.css -L https://raw.github.com/vrana/adminer/master/designs/pepa-linha/adminer.css; cd -; }"
 		],
 		"post-install-cmd":[
-			"bower install"
+			"bower install",
+			"cd bin && { rm adminer.php; curl -o adminer.php -L http://adminer.org/latest-en.php; cd -; }",
+			"cd public && { rm adminer.css; curl -o adminer.css -L https://raw.github.com/vrana/adminer/master/designs/pepa-linha/adminer.css; cd -; }"
 		]
 	}
 }
