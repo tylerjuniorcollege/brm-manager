@@ -704,6 +704,8 @@
 					$usergroup->addMembers($new_members);
 
 					$usergroup->deleteMembers($rm_members);
+
+					$app->flashNow('success', 'User Group Saved.');
 				}
 
 				// Grabbing current user list.
@@ -726,6 +728,7 @@
 					// Add Users to AuthGroup.
 					$usergroup->addMembers($app->request->post('users'));
 
+					$app->flash('success', sprintf('User Group <strong>%s</strong> created.', $usergroup->name));
 					$app->redirect($app->urlFor('edit-user-groups', array('id' => $usergroup->id)));
 				}
 

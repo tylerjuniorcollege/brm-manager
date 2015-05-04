@@ -14,7 +14,6 @@ CREATE TABLE `brm_auth_group` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_auth_group`;
 
 DELIMITER ;;
 
@@ -36,7 +35,6 @@ CREATE TABLE `brm_auth_group_members` (
   CONSTRAINT `brm_auth_group_members_ibfk_5` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_auth_group_members`;
 
 DELIMITER ;;
 
@@ -66,7 +64,6 @@ CREATE TABLE `brm_auth_list` (
   CONSTRAINT `brm_auth_list_ibfk_3` FOREIGN KEY (`versionid`) REFERENCES `brm_content_version` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_auth_list`;
 
 DELIMITER ;;
 
@@ -110,7 +107,6 @@ CREATE TABLE `brm_campaigns` (
   CONSTRAINT `brm_campaigns_ibfk_5` FOREIGN KEY (`current_version`) REFERENCES `brm_content_version` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_campaigns`;
 
 DELIMITER ;;
 
@@ -135,7 +131,6 @@ CREATE TABLE `brm_content_version` (
   CONSTRAINT `brm_content_version_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_content_version`;
 
 DELIMITER ;;
 
@@ -162,7 +157,6 @@ CREATE TABLE `brm_requests` (
   CONSTRAINT `brm_requests_ibfk_2` FOREIGN KEY (`departmentid`) REFERENCES `departments` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_requests`;
 
 DELIMITER ;;
 
@@ -181,14 +175,14 @@ CREATE TABLE `brm_state` (
 
 TRUNCATE `brm_state`;
 INSERT INTO `brm_state` (`id`, `name`, `description`) VALUES
-(-1,	'Hidden',	'BRM Email is saved in system but hidden.'),
-(0,	'Saved',	'BRM Email is Saved'),
-(1,	'Sent For Approval',	'BRM Email was sent to auth list for approval'),
-(2,	'Approved',	'BRM Email has met approval standards and is ready to insert in to BRM.'),
-(3,	'Approved and Template Created',	'BRM Email Template was created and is waiting the sent date.'),
-(4,	'Sent',	'BRM Email has been sent to the list.'),
-(5,	'Ended',	'BRM Email Campaign has ended.'),
-(6,	'Denied',	'This BRM has been Denied');
+(-1,  'Hidden', 'BRM Email is saved in system but hidden.'),
+(0, 'Saved',  'BRM Email is Saved'),
+(1, 'Sent For Approval',  'BRM Email was sent to auth list for approval'),
+(2, 'Approved', 'BRM Email has met approval standards and is ready to insert in to BRM.'),
+(3, 'Approved and Template Created',  'BRM Email Template was created and is waiting the sent date.'),
+(4, 'Sent', 'BRM Email has been sent to the list.'),
+(5, 'Ended',  'BRM Email Campaign has ended.'),
+(6, 'Denied', 'This BRM has been Denied');
 
 DROP TABLE IF EXISTS `brm_state_change`;
 CREATE TABLE `brm_state_change` (
@@ -209,7 +203,6 @@ CREATE TABLE `brm_state_change` (
   CONSTRAINT `brm_state_change_ibfk_4` FOREIGN KEY (`stateid`) REFERENCES `brm_state` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `brm_state_change`;
 
 DELIMITER ;;
 
@@ -233,7 +226,6 @@ CREATE TABLE `campaign` (
   CONSTRAINT `campaign_ibfk_1` FOREIGN KEY (`createdby`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `campaign`;
 
 DELIMITER ;;
 
@@ -259,7 +251,6 @@ CREATE TABLE `comments` (
   CONSTRAINT `comments_ibfk_3` FOREIGN KEY (`versionid`) REFERENCES `brm_content_version` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `comments`;
 
 DELIMITER ;;
 
@@ -277,14 +268,14 @@ CREATE TABLE `departments` (
 
 TRUNCATE `departments`;
 INSERT INTO `departments` (`id`, `name`) VALUES
-(1,	'IT (Information Technology)'),
-(2,	'Student Success'),
-(3,	'Recruitment'),
-(4,	'Advising'),
-(5,	'Housing'),
-(6,	'Registrar'),
-(7,	'Business Services'),
-(8,	'Scholarships');
+(1, 'IT (Information Technology)'),
+(2, 'Student Success'),
+(3, 'Recruitment'),
+(4, 'Advising'),
+(5, 'Housing'),
+(6, 'Registrar'),
+(7, 'Business Services'),
+(8, 'Scholarships');
 
 DROP TABLE IF EXISTS `login_attempts`;
 CREATE TABLE `login_attempts` (
@@ -302,7 +293,6 @@ CREATE TABLE `login_attempts` (
   CONSTRAINT `login_attempts_ibfk_2` FOREIGN KEY (`authid`) REFERENCES `brm_auth_list` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-TRUNCATE `login_attempts`;
 
 DELIMITER ;;
 
@@ -310,6 +300,22 @@ CREATE TRIGGER `login_attempts_bi` BEFORE INSERT ON `login_attempts` FOR EACH RO
 SET NEW.timestamp = NOW();;
 
 DELIMITER ;
+
+DROP TABLE IF EXISTS `notifytemplates`;
+CREATE TABLE `notifytemplates` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(160) COLLATE utf8_unicode_ci NOT NULL,
+  `description` varchar(160) COLLATE utf8_unicode_ci NOT NULL,
+  `content` text COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+TRUNCATE `notifytemplates`;
+INSERT INTO `notifytemplates` (`id`, `name`, `description`, `content`) VALUES
+(1, 'login',  'Login Email Template', 'Hello %USER%,\r\n\r\nAn attempt has been made to login to your BRM Manager account. \r\n\r\nTo Login In, please use the following web address to verify that this was a legitimate request:\r\n%URL%\r\n\r\nIf this is not you, please report this e-mail to webmaster@tjc.edu.\r\n\r\nThank you!'),
+(2, 'approverlogin',  'Approver Login Email Template',  'Hello %USER%,\r\n\r\n%AUTHOR% has %VERB% the BRM for %TITLE% and is needing your approval.\r\n\r\nTo Login In and approve or comment on the BRM Email, please use the following web address to login:\r\n\r\n%URL%\r\n\r\nThank you!'),
+(3, 'published',  'Published Email Template', 'Hello %USER%,\r\n\r\n%AUTHOR% has published the BRM Email %TITLE% \r\nand the Email Campaign %CAMPAIGNID% is ready to be sent.\r\n\r\nThanks!'),
+(4, 'postmortem', 'Postmortem Email Template',  'Campaign Launch Date: %CAMPAIGNTIMESTAMP%\r\nPopulation List: %POPULATIONLIST%\r\nCampaign Content:\r\n\r\n%CONTENT%');
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
@@ -343,7 +349,7 @@ CREATE TABLE `view_brm_comments` (`userid` int(11) unsigned, `brmid` bigint(20) 
 
 
 DROP VIEW IF EXISTS `view_brm_list`;
-CREATE TABLE `view_brm_list` (`id` bigint(20) unsigned, `title` varchar(250), `description` tinytext, `current_version` bigint(20) unsigned, `brm_current_version` int(10) unsigned, `templateid` varchar(250), `stateid` int(11), `state` varchar(250), `requestid` int(10) unsigned, `request_userid` int(10) unsigned, `request_user_email` varchar(250), `request_timestamp` varchar(86), `request_departmentid` int(10) unsigned, `request_department_name` varchar(250), `request_email` varchar(250), `launchdate` varchar(86), `population` int(11), `listname` varchar(250), `createdby` int(10) unsigned, `createdby_email` varchar(250), `createdby_name` varchar(321), `created` varchar(86), `approval_needed` bigint(21), `approved` bigint(21), `denied` bigint(21));
+CREATE TABLE `view_brm_list` (`id` bigint(20) unsigned, `title` varchar(250), `description` tinytext, `current_version` bigint(20) unsigned, `brm_current_version` int(10) unsigned, `templateid` varchar(250), `stateid` int(11), `state` varchar(250), `requestid` int(10) unsigned, `request_userid` int(10) unsigned, `request_user_email` varchar(250), `request_timestamp` varchar(86), `request_departmentid` int(10) unsigned, `request_department_name` varchar(250), `request_email` varchar(250), `launchdate` varchar(22), `population` int(11), `listname` varchar(250), `createdby` int(10) unsigned, `createdby_email` varchar(250), `createdby_name` varchar(321), `created` varchar(22), `approval_needed` bigint(21), `approved` bigint(21), `denied` bigint(21));
 
 
 DROP VIEW IF EXISTS `view_brm_version_count`;
@@ -356,6 +362,10 @@ CREATE TABLE `view_deny_approval` (`brmid` bigint(20) unsigned, `count` bigint(2
 
 DROP VIEW IF EXISTS `view_need_approval`;
 CREATE TABLE `view_need_approval` (`brmid` bigint(20) unsigned, `count` bigint(21));
+
+
+DROP VIEW IF EXISTS `view_quick_logins`;
+CREATE TABLE `view_quick_logins` (`id` bigint(20) unsigned, `userid` int(10) unsigned, `authid` bigint(20) unsigned, `hash` varchar(160), `login` varchar(192));
 
 
 DROP TABLE IF EXISTS `view_approved`;
@@ -379,4 +389,7 @@ CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `view_deny_approval` AS sel
 DROP TABLE IF EXISTS `view_need_approval`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `view_need_approval` AS select `auth_list`.`id` AS `brmid`,count(`auth_list`.`auth_approved`) AS `count` from `view_auth_list` `auth_list` where (`auth_list`.`auth_approved` = 0) group by `auth_list`.`id`;
 
--- 2015-05-04 04:43:37
+DROP TABLE IF EXISTS `view_quick_logins`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `view_quick_logins` AS select `login_attempts`.`id` AS `id`,`login_attempts`.`userid` AS `userid`,`login_attempts`.`authid` AS `authid`,`login_attempts`.`hash` AS `hash`,concat('http://brm-man.dev/login/verify/',`login_attempts`.`hash`) AS `login` from `login_attempts` where (`login_attempts`.`result` = 0) order by `login_attempts`.`id` desc;
+
+-- 2015-05-04 23:27:46

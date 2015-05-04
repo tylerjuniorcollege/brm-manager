@@ -28,6 +28,6 @@ class LoginAttempts
 	}
 
 	public function newLogin($userid) {
-		
+		$this->userid = $userid;
 	}
 }
