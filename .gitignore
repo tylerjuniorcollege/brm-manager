@@ -4,3 +4,7 @@ data/database.db
 data/log/
 bower_components/
 components
+composer.lock
+bin/adminer.php
+logs/
+public/adminer.css
