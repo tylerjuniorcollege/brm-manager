@@ -1,3 +1,11 @@
+DROP TABLE IF EXISTS "changelog";
+CREATE TABLE "changelog" (
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "version" text NOT NULL,
+  "changes" text NOT NULL,
+  "timestamp" integer NOT NULL
+);
+
 DROP TABLE IF EXISTS "brm_auth_group";
 CREATE TABLE "brm_auth_group" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
