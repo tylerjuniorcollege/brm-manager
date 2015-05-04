@@ -20,7 +20,14 @@ class LoginAttempts
 
 	public function hash() {
 		if(is_null($this->hash)) {
-			
+			$this->hash = uniqid('user-' . $this->userid . '-');
+			$this->save();
 		}
+
+		return $this->hash;
+	}
+
+	public function newLogin($userid) {
+		
 	}
 }
