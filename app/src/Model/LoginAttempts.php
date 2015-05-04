@@ -17,4 +17,10 @@ class LoginAttempts
 	public function user() {
 		return $this->has_one('User', 'id', 'userid')->find_one();
 	}
+
+	public function hash() {
+		if(is_null($this->hash)) {
+			
+		}
+	}
 }

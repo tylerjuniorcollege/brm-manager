@@ -33,16 +33,16 @@
 				} else {
 					$perm_arr = array();
 				} ?>
-				<label class="checkbox-inline">
+				<label class="checkbox-inline checkbox-custom" data-initialize="checkbox">
 					<input type="checkbox" class="userPermission" value="16"<?=(in_array('admin', $perm_arr) ? ' checked' : ''); ?>><span class="label label-danger">Admin</span>
 				</label>
-				<label class="checkbox-inline">
+				<label class="checkbox-inline checkbox-custom" data-initialize="checkbox">
 					<input type="checkbox" class="userPermission" value="8"<?=(in_array('create', $perm_arr) ? ' checked' : ''); ?>><span class="label label-info">Create</span>
 				</label>
-				<label class="checkbox-inline">
+				<label class="checkbox-inline checkbox-custom" data-initialize="checkbox">
 					<input type="checkbox" class="userPermission" value="4"<?=(in_array('edit', $perm_arr) ? ' checked' : ''); ?>><span class="label label-warning">Edit</span>
 				</label>
-				<label class="checkbox-inline">
+				<label class="checkbox-inline checkbox-custom" data-initialize="checkbox">
 					<input type="checkbox" class="userPermission" value="2"<?=(in_array('approve', $perm_arr) ? ' checked' : ''); ?>><span class="label label-primary">Approve</span>
 				</label>
 				<input type="hidden" name="permissions" id="userPermissions">

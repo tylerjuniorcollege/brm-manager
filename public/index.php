@@ -19,6 +19,8 @@
 	use \BRMManager\Permissions as Permissions;
 	use \Monolog\Logger;
 	use \Monolog\Handler\ChromePHPHandler;
+	use \Monolog\Handler\StreamHandler;
+	use \Monolog\Formatter\LineFormatter;
 	use \Monolog\Handler\LogglyHandler;
 	use \Monolog\Formatter\LogglyFormatter;
 
@@ -39,31 +41,60 @@
 		));
 
 		$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
-		
-		$app->logger->pushHandler(new ChromePHPHandler());
 
-		\ORM::configure('sqlite:../data/database.db');
+		$stream = new StreamHandler('../logs/logger.log');
+		$stream->setFormatter(new LineFormatter(null, null, true));
+
+		$app->logger->pushHandler($stream);
+
+		\ORM::configure('mysql:host=localhost;dbname=brm-manager');
+		\ORM::configure('username', 'root');
+		\ORM::configure('password', 'root1');
 		\ORM::configure('logging', true);
 		\ORM::configure('logger', function($log_string, $query_time) use($app) {
-    		$app->logger->addInfo($log_string . ' TIME: ' . $query_time);
+    		$app->logger->addInfo('Query: ', array('query' => $log_string, 'time' => $query_time));
 		});
+
+		$app->view->appendJavascriptFile('/components/jquery/dist/jquery.min.js')
+ 				  ->appendJavascriptFile('/components/moment/min/moment.min.js')
+				  ->appendJavascriptFile('/components/bootstrap/dist/js/bootstrap.min.js')
+				  ->appendJavascriptFile('/components/jasny-bootstrap/dist/js/jasny-bootstrap.min.js')
+				  ->appendJavascriptFile('/components/fuelux/dist/js/fuelux.min.js')
+				  ->appendJavascriptFile('/components/jquery-ajax-progress/js/jquery.ajax-progress.js')
+				  ->appendJavascriptFile('/components/handlebars/handlebars.min.js')
+				  ->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js')
+				  ->appendJavascriptFile('/components/jqBootstrapValidation/dist/jqBootstrapValidation-1.3.7.min.js')
+				  ->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.js')
+				  ->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js')
+				  ->appendJavascriptFile('/components/cheet.js/cheet.min.js');
+
+		$app->view->appendStylesheet('/components/bootstrap/dist/css/bootstrap.min.css')
+			 	  ->appendStylesheet('/components/jasny-bootstrap/dist/css/jasny-bootstrap.min.css')
+			 	  ->appendStylesheet('/components/fontawesome/css/font-awesome.min.css')
+			 	  ->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css')
+			 	  ->appendStylesheet('/components/fuelux/dist/css/fuelux.min.css');
+
 	});
 
 	$app->configureMode('production', function() use($app) {
-		\ORM::configure('sqlite:../data/database.db');
-		if($app->user->id === 1) {
+		
+		/* if($app->user->id === 1) {
 			\ORM::configure('logging', false);
 		}
 
 		$loggly = include_once('../app/config/loggly.settings.php');
 
 		$sql_logger = new Logger('brm-sql');
-		$sql_logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-sql'));
+		$sql_logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-sql')); */
 		\ORM::configure('logger', function($log_string, $query_time) use($sql_logger) {
 			$sql_logger->addInfo($log_string . ' TIME: ' . $query_time);
 		});
 
-		$app->logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-manager'));
+		//$app->logger->pushHandler(new LogglyHandler($loggly . '/tag/brm-manager'));
+
+		$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js')
+				  ->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
+
 	});
 
 	\Model::$auto_prefix_models = '\\BRMManager\\Model\\';
@@ -73,22 +104,8 @@
 	$app->view->setLayout('layout/layout.php');
 
 	// This is the default layout files.
- 	$app->view->appendJavascriptFile('/components/jquery/dist/jquery.min.js')
- 			  ->appendJavascriptFile('/components/moment/min/moment.min.js')
-			  ->appendJavascriptFile('/components/bootstrap/dist/js/bootstrap.min.js')
-			  ->appendJavascriptFile('/components/jasny-bootstrap/dist/js/jasny-bootstrap.min.js')
-			  ->appendJavascriptFile('/components/fuelux/dist/js/fuelux.min.js')
-			  ->appendJavascriptFile('/components/jquery-ajax-progress/js/jquery.ajax-progress.js')
-			  ->appendJavascriptFile('/components/handlebars/handlebars.min.js')
-			  ->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js')
-			  ->appendJavascriptFile('/components/jqBootstrapValidation/dist/jqBootstrapValidation-1.3.7.min.js')
-			  ->appendJavascriptFile('/components/cheet.js/cheet.min.js')
-			  ->appendJavascriptFile('/js/application.js');
 
-	$app->view->appendStylesheet('/components/bootstrap/dist/css/bootstrap.min.css')
-			  ->appendStylesheet('/components/jasny-bootstrap/dist/css/jasny-bootstrap.min.css')
-			  ->appendStylesheet('/components/fontawesome/css/font-awesome.min.css')
-			  ->appendStylesheet('/components/fuelux/dist/css/fuelux.min.css')
+	$app->view->appendJavascriptFile('/js/application.js')
 			  ->appendStylesheet('/css/application.css');
 
 	// Injecting Mandrill in to the app.
@@ -140,7 +157,7 @@
 					// Create login attempt
 					$login_attempt = \ORM::for_table('login_attempts')->create();
 					$login_attempt->userid = $user->id;
-					$login_attempt->timestamp = time();
+					$login_attempt->set_expr('timestamp', 'NOW()');
 	
 					$login_attempt->hash = uniqid('user-' . $user->id . '-');
 					$login_attempt->save();
@@ -177,7 +194,7 @@
 			// Create a new class to handle login attempts creation/selection.
 			// Class should also handle login requests from users following an update link.
 	
-			$result = \ORM::for_table('login_attempts')->where('hash', $hash)->where_gt('timestamp', $range_time)->where_lt('timestamp', $curr_time)->find_one();
+			$result = \ORM::for_table('login_attempts')->where('hash', $hash)->where_raw('UNIX_TIMESTAMP(`timestamp`) > ?', $range_time)->where_raw('UNIX_TIMESTAMP(`timestamp`) < ?', $curr_time)->find_one();
 	
 			if(!$result) {
 				$app->flash('danger', 'Login Error, Please try again');
@@ -186,6 +203,9 @@
 				$user = \ORM::for_table('user')->find_one($result->userid);
 	
 				$_SESSION['user'] = new \BRMManager\User\Session($user);
+
+				$result->result = 1;
+				$result->save();
 	
 				$app->redirect('/brm');
 			}
@@ -201,7 +221,7 @@
 				$login_attempt->result = 1;
 				$user = $login_attempt->user();
 				$auth = $login_attempt->auth();
-				$auth->viewedtime = time();
+				$auth->set_expr('viewedtime', 'NOW()');
 				$auth->save();
 				$login_attempt->save();
 
@@ -213,18 +233,16 @@
 	});
 
 	$app->group('/brm', $checkLogin, function() use($app) {
-		$app->group('/search', function() use($app) {
-
-		});
-
 		$app->get('/', function() use($app) {
 			$view = array();
 
-			$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
-			$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js');
-			$app->view->appendJavascriptFile('/js/main.js');
-			$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
-
+			if($app->user->hasAccess('admin')) {
+				$app->view->appendJavascriptFile('/js/main-admin.js');
+				$view['admin'] = TRUE;
+			} else {
+				$app->view->appendJavascriptFile('/js/main.js');
+				$view['admin'] = FALSE;
+			}
 			$app->render('brm/index.php', $view);
 		});
 
@@ -267,31 +285,30 @@
 			$manager = new FractalManager();
 			$resource = new FractalCollection($list->find_many(), function($li) use($app, $template_columns) {
 				return array(
-					$template_columns[0] => $li->id,
-					$template_columns[1] => $li->title,
-					$template_columns[2] => $li->state,
-					$template_columns[3] => $li->createdby_name,
-					$template_columns[4] => $li->launchdate,
-					$template_columns[5] => $li->brm_current_version,
-					$template_columns[6] => $li->approval_needed,
-					$template_columns[7] => $li->approved,
-					$template_columns[8] => $li->denied,
-					$template_columns[9] => '<a href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>'
+					$template_columns[0]  => $li->id,
+					$template_columns[1]  => $li->title,
+					$template_columns[2]  => $li->state,
+					$template_columns[3]  => $li->createdby_name,
+					$template_columns[4]  => $li->launchdate,
+					$template_columns[5]  => $li->brm_current_version,
+					$template_columns[6]  => $li->approval_needed,
+					$template_columns[7]  => $li->approved,
+					$template_columns[8]  => $li->denied,
+					$template_columns[9]  => '<a class="btn btn-default pull-right" href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>',
 				);
 			});
 
 			$jsonArr = array_merge($jsonArr, $manager->createData($resource)->toArray());
 			//$app->logger->addInfo(var_export($jsonArr, true));
+			$app->logger->addInfo(json_encode($jsonArr));
 			$app->view->renderJson($jsonArr);
 		})->via('GET', 'POST');
 
 		$app->post('/save(/:id)', function($id = NULL) use($app) {
-			$created = time();
 			if(is_null($id)) {
 				// Create a new Request.
 				$brm = \Model::factory('BRM\Campaign')->create();
 				$brm->createdby = $app->user->id;
-				$brm->created = $created;
 			} else {
 				$brm = \Model::factory('BRM\Campaign')->find_one($id);
 			}
@@ -304,7 +321,7 @@
 			$brm->listname = (($app->request->post('emaillistname') != '') ? $app->request->post('emaillistname') : NULL);
 				
 			if(($app->request->post('launchdate') != '')) {
-				$brm->launchdate = strtotime($app->request->post('launchdate'));	
+				$brm->set_expr('launchdate', sprintf('FROM_UNIXTIME(%s)', strtotime($app->request->post('launchdate'))));	
 			}
 
 			$brm->save();
@@ -315,7 +332,6 @@
 				$campaign = \Model::factory('Campaign')->create();
 				$campaign->name = $app->request->post('campaign-name');
 				$campaign->description = $app->request->post('campaign-description');
-				$campaign->created = $created;
 				$campaign->createdby = $app->user->id;
 				$campaign->save();
 			} elseif(is_numeric($app->request->post('campaigns'))) {
@@ -334,7 +350,7 @@
 				$request = \Model::factory('BRM\Request')->create();
 
 				if(($app->request->post('requestdate') != '')) {
-					$request->timestamp = strtotime($app->request->post('requestdate'));
+					$request->set_expr('timestamp', sprintf('FROM_UNIXTIME(%s)', strtotime($app->request->post('requestdate'))));
 				}
 
 				if(($app->request->post('requestuser') != '')) {
@@ -365,7 +381,6 @@
 				$version = \Model::factory('BRM\ContentVersion')->create();
 				$version->content = $app->request->post('content');
 				$version->subject = $app->request->post('contentsubject');
-				$version->created = $created;
 				$version->userid = $app->user->id;
 				$brm->addVersion($version);
 				$brm->addUsers((array) $app->request->post('users'), $app->request->post('permissions'));
@@ -386,7 +401,6 @@
 
 			$statechange = \Model::factory('BRM\StateChange')->create();
 			$statechange->userid = $app->user->id;
-			$statechange->timestamp = $created;
 			if(is_null($brm->stateid) || ((int) $brm->stateid == 0 && $app->request->post('submit') === 'save')) {
 				$statechange->stateid = 0;
 			} elseif((int)$brm->stateid == 0 && $app->request->post('submit') === 'send') {
@@ -424,7 +438,6 @@
 					$login = \ORM::for_table('login_attempts')->create();
 					$user = $authuser->user();
 					$login->userid = $user->id;
-					$login->timestamp = $created;
 					$login->hash = uniqid('user-' . $login->userid . '-');
 					$login->authid = $authuser->id;
 					$login_url = 'http://' . $_SERVER['HTTP_HOST'] . $app->urlFor('brm-login', array('brmid' => $brm->id, 'hash' => $login->hash));
@@ -451,7 +464,7 @@
 
 		$app->group('/view', function() use($app) {
 			$app->get('/version/:id', function($id) use($app) {
-				$data = \Model::factory('BRM\ContentVersion')->filter('formatDate', APPLICATION_ENV)->find_one($id);
+				$data = \Model::factory('BRM\ContentVersion')->filter('formatDate')->find_one($id);
 				$json = array(
 					'id' => $data->id,
 					'subject' => $data->subject,
@@ -476,6 +489,13 @@
 				foreach($out['auth_users'] as $authuser) {
 					if((int) $app->user->id === (int) $authuser->userid) {
 						$out['authorized'] = $authuser;
+
+						if(is_null($out['authorized']->viewedtime)) {
+							// Since this is being viewed now, lets get that viewed now.
+							$out['authorized']->set_expr('viewedtime', 'NOW()');
+							$out['authorized']->save();
+						}
+
 						if(Permissions::hasAccess((int)$authuser->permission, 'edit')) {
 							$out['editor'] = TRUE;
 						}
@@ -520,7 +540,6 @@
 								break;
 						}
 						$comment->comment = $app->request->post('comment');
-						$comment->timestamp = time();
 						$comment->save();
 
 						if($comment instanceof \BRMManager\Model\BRM\AuthUser) {
@@ -531,7 +550,6 @@
 					if($app->request->post('changestate') && (($out['admin'] === TRUE) || ($out['owner'] === TRUE))) {
 						$statechange = \Model::factory('BRM\StateChange')->create();
 						$statechange->userid = $app->user->id;
-						$statechange->timestamp = time();
 						// Switch on changestate:
 						switch($app->request->post('changestate')) {
 							case 2:
@@ -619,7 +637,6 @@
 			$app->view->appendStylesheet('/css/brm-form.css');
 			// Removing Common users. Replacing with User Groups.
 			// Grab a list of users who have been used before.
-			//$data['users'] = \ORM::for_table('view_common_users')->find_many();
 			$data['user_groups'] = \Model::factory('BRM\AuthGroup')->find_many();
 			$data['campaigns'] = \Model::factory('Campaign')->find_many();
 			$data['departments'] = \Model::factory('Department')->find_many();
@@ -638,9 +655,7 @@
 			$data['brm'] = \Model::factory('BRM\Campaign')->find_one($id);
 			$data['save'] = $app->urlFor('save-brm', array('id' => $id));
 
-			$app->view->appendJavascriptFile('/components/handlebars/handlebars.min.js');
 			$app->view->appendJavascriptFile('/components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js');
-			$app->view->appendJavascriptFile('/components/typeahead.js/dist/typeahead.bundle.min.js');
 			$app->view->appendStylesheet('/components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css');
 			$app->view->appendJavascriptFile('/components/select2/select2.min.js');
 			$app->view->appendStylesheet('/components/select2/select2.css');
@@ -655,10 +670,7 @@
 	$app->group('/user', $checkLogin, function() use($app, $checkPermissions) {
 		$app->group('/groups', $checkPermissions('create'), function() use($app) {
 			$app->get('/', function() use($app) {
-				$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
-				$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js');
 				$app->view->appendJavascriptFile('/js/usergroupindex.js');
-				$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
 
 				$usergroups = \Model::factory('BRM\AuthGroup')->find_many();
 
@@ -721,11 +733,8 @@
 		});
 
 		$app->get('/', $checkPermissions('create'), function() use($app) {
-			$users = \Model::factory('User')->find_many();
-			$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
-			$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js');
+			$users = \Model::factory('User')->select('*')->select_expr("DATE_FORMAT(`created`, '%b %d, %Y %l:%i:%s %p')", 'created')->find_many();
 			$app->view->appendJavascriptFile('/js/userindex.js');
-			$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css');
 
 			$app->render('user/index.php', array('users' => $users));
 		});
@@ -750,7 +759,7 @@
 		$app->get('/search', function() use($app) {
 			$query = '%' . trim($app->request->get('q')) . '%';
 
-			$results = \ORM::for_table('user')->select(array('id', 'firstname', 'lastname', 'email'))
+			$results = \Model::factory('User')->select(array('id', 'firstname', 'lastname', 'email'))
 											  ->where_any_is(array(
 											  	array('firstname' => $query),
 											  	array('lastname' => $query),
@@ -853,6 +862,21 @@
 	});
 
 	$app->group('/admin', $checkLogin, $checkPermissions('admin'), function() use($app) {
+		$app->group('/brm', function() use($app) {
+			$app->post('/delete', function() use($app) {
+				if($app->request->isPost()) {
+					var_dump($app->request->post());
+				}
+			})->name('delete-brm');
+		});
+		$app->map('/er', function() use($app) {
+			//$_GET['db'] = 'brm-manager';
+			//$_GET['username'] = 'root';
+
+			$app->view->disableLayout();
+			include('../bin/adminer.php');
+		})->via('GET', 'POST');
+
 		$app->get('/', function() use($app) {
 			$app->render('admin/index.php', array());
 		});
@@ -866,20 +890,8 @@
 
 			})->name('audit-json');
 			$app->get('/', function() use($app) {
-				$app->view->appendJavascriptFile('/components/datatables/media/js/jquery.dataTables.min.js');
-				$app->view->appendJavascriptFile('//cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js');
-				$app->view->appendStylesheet('//cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.css');
 				$app->render('admin/audit.php', array());
 			});
-		});
-
-		$app->get('/brmtest', function() use($app) {
-			$brm = \Model::factory('BRM\Campaign')->filter('formatDate', APPLICATION_ENV)->find_one(4);
-
-			var_dump($brm->created);
-			echo "\n\n\n";
-			var_dump($brm->launchdate);
-			//var_dump($brm->stateid);
 		});
 	});
 

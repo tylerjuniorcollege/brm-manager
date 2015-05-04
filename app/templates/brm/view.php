@@ -1,5 +1,5 @@
 <div class="row page-header">
-	<h3>Viewing <?=$data['brm_data']->title; ?> <small>Version Created on <span id="curr_ver_date"><?=date('l, F j, Y g:i:s', $data['current_version']->created); ?></span></small>
+	<h3>Viewing <?=$data['brm_data']->title; ?> <small>Version Created on <span id="curr_ver_date"><?=date('l, F j, Y g:i:s', strtotime($data['current_version']->created)); ?></span></small>
 	<?php if(($data['admin'] === TRUE) || ($data['owner'] === TRUE) || (\BRMManager\Permissions::hasAccess((int) $data['authorized']->permission, 'edit'))): ?>
 		<small class="pull-right"><a href="<?=$data['edit_url'];?>" class="btn btn-success">Edit</a></small>
 	<?php endif; ?>
@@ -34,7 +34,7 @@
 		<div class="form-group">
 			<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
 			<div class="col-sm-10">
-				<p class="form-control-static"><?=(!is_null($data['brm_data']->launchdate) ? date('m/d/Y g:i A', $data['brm_data']->launchdate) : ''); ?></p>
+				<p class="form-control-static"><?=(!is_null($data['brm_data']->launchdate) ? date('m/d/Y g:i A', strtotime($data['brm_data']->launchdate)) : ''); ?></p>
 			</div>
 		</div>
 		<?php
@@ -61,7 +61,7 @@
 						<div class="form-group">
 							<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
 							<div class="col-sm-10">
-								<p class="form-control-static"><?=(!is_null($request->timestamp) ? date('m/d/Y g:i A', $request->timestamp) : ''); ?></p>
+								<p class="form-control-static"><?=(!is_null($request->timestamp) ? date('m/d/Y g:i A', strtotime($request->timestamp)) : ''); ?></p>
 							</div>
 						</div>
 						<div class="form-group">
@@ -123,7 +123,7 @@
 						<select class="form-control" id="prev_version">
 							<option value="<?=$data['brm_data']->current_version; ?>">Current Version</option>
 						<?php foreach($data['previous_versions'] as $row) {
-							printf('<option value="%s">%s</option>', $row['id'], $row['brmversionid'] . " - " . date('l, F j, Y g:i:s', (int)$row['created']));
+							printf('<option value="%s">%s</option>', $row['id'], $row['brmversionid'] . " - " . date('l, F j, Y g:i:s', strtotime($row['created'])));
 							} ?>
 						</select>
 					</div>
@@ -265,7 +265,7 @@
 						</div>
 						<div class="media-body">
 							<?= $c_row->comment; ?> 
-							<h4 class="media-heading"><?= $c_row->userfirstname; ?> <?=$c_row->userlastname; ?> - Posted on <?=date('l, F j, Y g:i:s', $c_row->timestamp); ?> For Version #<?=$c_row->brmversionid; ?></h4>
+							<h4 class="media-heading"><?= $c_row->userfirstname; ?> <?=$c_row->userlastname; ?> - Posted on <?=date('l, F j, Y g:i:s', strtotime($c_row->timestamp)); ?> For Version #<?=$c_row->brmversionid; ?></h4>
 						</div>
 					</div>
 				<?php endforeach; ?>

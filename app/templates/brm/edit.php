@@ -63,7 +63,7 @@
 			<label for="launchdate" class="col-sm-2 control-label">Launch Date</label>
 			<div class="col-sm-10">
 				<div class="input-group date" id="launchdate">
-					<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)" value="<?=(!is_null($brm->launchdate) ? date('m/d/Y g:i A', $brm->launchdate) : ''); ?>">
+					<input type="text" class="form-control" name="launchdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)" value="<?=(!is_null($brm->launchdate) ? date('m/d/Y g:i A', strtotime($brm->launchdate)) : ''); ?>">
 					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 				</div>
 			</div>
@@ -98,7 +98,7 @@
 							<label for="requestdate" class="col-sm-2 control-label">Requested Date</label>
 							<div class="col-sm-10">
 								<div class="input-group date" id="requesteddate">
-									<input type="text" class="form-control" name="requestdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)" value="<?=(!is_null($request->timestamp) ? date('m/d/Y g:i A', $request->timestamp) : ''); ?>">
+									<input type="text" class="form-control" name="requestdate" placeholder="Date String (e.g. <?=date('m/d/Y g:i A'); ?>)" value="<?=(!is_null($request->timestamp) ? date('m/d/Y g:i A', strtotime($request->timestamp)) : ''); ?>">
 									<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 								</div>
 							</div>

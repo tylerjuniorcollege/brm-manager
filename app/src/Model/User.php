@@ -12,8 +12,8 @@ class User
 		$newUser->firstname = $post_arr['firstname'];
 		$newUser->lastname = $post_arr['lastname'];
 		$newUser->email = strtolower($post_arr['email']);
-		$newUser->permissions = $post_arr['permissions'] + 1; // Auto Assign 'View' Permission.
-		$newUser->created = time();
+		$newUser->permissions = $post_arr['permissions'];
+		$newUser->set_expr('created', 'NOW()');
 		$newUser->save();
 
 		return $newUser;

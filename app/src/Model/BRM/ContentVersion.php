@@ -22,15 +22,7 @@ class ContentVersion
 		return ($count > 0 ? $count : NULL);
 	}
 
-	public static function formatDate($orm, $env) {
-		switch($env) {
-			case 'development':
-				return $orm->select('*')->select_expr('strftime("%m-%d-%Y %H:%M:%S", "created", "unixepoch")', 'created');
-				break;
-
-			case 'production' :
-				return;
-				break;
-		}
+	public static function formatDate($orm) {
+		return $orm->select('*')->select_expr("DATE_FORMAT(`created`, '%M %e, %Y %h:%i:%S')", 'created');
 	}
 }

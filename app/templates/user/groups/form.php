@@ -27,6 +27,8 @@
 						// See if they are already in the group ...
 						if(!is_null($data['usergroup_info']->id)) {
 							$selected = $data['usergroup_info']->members()->where('userid', $user->id)->find_one();
+						} else {
+							$selected = FALSE;
 						}
 
 						if(!$selected) {
