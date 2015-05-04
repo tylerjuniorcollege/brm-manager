@@ -51,6 +51,22 @@ div[data-role="editor-toolbar"] {
   cursor: pointer;
 }
 
+#list-table_wrapper div.bottom {
+  height: 40px;
+  line-height: 40px;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  margin-bottom: 10px;
+}
+
+#list-table_info {
+  padding-top: 0;
+}
+
+#list-table th.sorting_disabled {
+  text-align: right;
+}
+
 /* #layoutSearch {
   width: 350px;
   background-color: #fff !important;

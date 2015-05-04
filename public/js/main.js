@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$('#list-table').dataTable({
+	$('#list-table').DataTable({
 		"processing": true,
 		"serverSide": true,
 		"ajax":{
@@ -17,7 +17,9 @@ $(document).ready(function() {
 			{"data":"approved"},
 			{"data":"denied"},
 			{"data":"view",
-			 "orderable":false}
+			 "orderable":false},
+			{"data":null,
+			 "visible":false}
 		],
 		"bFilter": false
 	});

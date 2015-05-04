@@ -11,10 +11,6 @@ var userSearchSource = new Bloodhound({
  	}
 });
 
-$(function () {
-	$('[data-toggle="popover"]').popover();
-});
-
 userSearchSource.initialize();
 $('#requestuser').typeahead({
   hint: true,

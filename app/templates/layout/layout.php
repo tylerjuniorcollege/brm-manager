@@ -50,9 +50,8 @@
       							<ul class="dropdown-menu" role="menu">
       								<li><a href="/user">Admin Users</a></li>
       								<li><a href="/user/groups">Admin User Groups</a></li>
-      								<?php if((int) $data['user']->id === 1): ?>
-      									<li><a href="/latest.php">Adminer</a></li>
-      								<?php endif; ?>
+      								<li class="divider"></li>
+      								<li><a href="/admin/er">Adminer</a></li>
       							</ul>
       					<?php endif; ?>
       					<li><a href="/logout">Logout</a></li>

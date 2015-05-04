@@ -29,4 +29,8 @@ $(document).ready(function() {
 		$('iframe#player').attr('src', $('iframe#player').attr('src').replace("autoplay=0", "autoplay=1"));
 		$('#hiddenModal').modal('show');
 	});
+
+	$(function () {
+		$('[data-toggle="popover"]').popover();
+	});
 });
