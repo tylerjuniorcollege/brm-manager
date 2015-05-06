@@ -881,8 +881,9 @@
 			})->name('delete-brm');
 		});
 		$app->map('/er', function() use($app) {
-			//$_GET['db'] = 'brm-manager';
-			//$_GET['username'] = 'root';
+			$db_settings = $app->config('db_settings');
+			$_GET['db'] = $db_settings['dbname'];
+			$_GET['username'] = $db_settings['username'];
 
 			$app->view->disableLayout();
 			include('../bin/adminer.php');

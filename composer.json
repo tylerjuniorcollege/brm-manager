@@ -29,7 +29,7 @@
 		"psr-4":{
 			"BRMManager\\":"app/src/"
 		},
-		"files":["app/src/Gravatar.php"]
+		"files":["app/src/Gravatar.php", "app/src/Functions.php"]
 	},
 	"scripts":{
 		"post-update-cmd":[
