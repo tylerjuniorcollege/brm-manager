@@ -136,8 +136,12 @@ DELIMITER ;;
 
 CREATE TRIGGER `brm_content_version_bi` BEFORE INSERT ON `brm_content_version` FOR EACH ROW
 BEGIN
-SET NEW.created = NOW(); 
-SET NEW.brmversionid = (SELECT (`curr_ver` + 1) FROM `view_brm_version_count` WHERE `brmid` = NEW.brmid);
+SET NEW.created = NOW();
+IF (SELECT `curr_ver` FROM `view_brm_version_count` WHERE `brmid` = NEW.brmid) IS NULL THEN
+  SET NEW.brmversionid = 1;
+ELSE
+  SET NEW.brmversionid = (SELECT (`curr_ver` + 1) FROM `view_brm_version_count` WHERE `brmid` = NEW.brmid);
+END IF;
 END;;
 
 DELIMITER ;
@@ -180,9 +184,10 @@ INSERT INTO `brm_state` (`id`, `name`, `description`) VALUES
 (1, 'Sent For Approval',  'BRM Email was sent to auth list for approval'),
 (2, 'Approved', 'BRM Email has met approval standards and is ready to insert in to BRM.'),
 (3, 'Approved and Template Created',  'BRM Email Template was created and is waiting the sent date.'),
-(4, 'Sent', 'BRM Email has been sent to the list.'),
-(5, 'Ended',  'BRM Email Campaign has ended.'),
-(6, 'Denied', 'This BRM has been Denied');
+(4, 'Published',  'BRM Email has been Published.'),
+(5, 'Launched', 'BRM Email Campaign has launched.'),
+(6, 'Ended / Frozen', 'BRM Email has ended.'),
+(7, 'Denied', 'BRM Email has been denied.');
 
 DROP TABLE IF EXISTS `brm_state_change`;
 CREATE TABLE `brm_state_change` (
@@ -218,7 +223,7 @@ CREATE TABLE `campaign` (
   `description` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `startdate` datetime DEFAULT NULL,
   `enddate` datetime DEFAULT NULL,
-  `freezedate` datetime NOT NULL,
+  `freezedate` datetime DEFAULT NULL,
   `createdby` int(10) unsigned NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
