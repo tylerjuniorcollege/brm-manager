@@ -257,11 +257,13 @@
 			$app->logger->addInfo(var_export($app->request->post(), true));
 
 			$template_columns = array(
-				'id', 'title', 'state', 'createdby_name', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'view'
+				'id', 'title', 'state', 'createdby_name', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'view', 'stateid'
 			);
 
 			// Grab the whole list of available table data.
 			$list = \Model::factory('View\BRMList');
+
+			$list->where_gte('stateid', '0');
 
 			// Create jsonArr with preloaded elements.
 			$jsonArr = array(
@@ -301,6 +303,7 @@
 					$template_columns[7]  => $li->approved,
 					$template_columns[8]  => $li->denied,
 					$template_columns[9]  => '<a class="btn btn-default pull-right" href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>',
+					$template_columns[10] => $li->stateid,
 				);
 			});
 
@@ -876,7 +879,32 @@
 		$app->group('/brm', function() use($app) {
 			$app->post('/delete', function() use($app) {
 				if($app->request->isPost()) {
-					var_dump($app->request->post());
+					//var_dump($app->request->post());
+					if(!is_null($app->request->post('deleteId'))) {
+						switch($app->request->post('deleteoption')) {
+							case 'delete':
+								// Grab BRM to delete.
+								$brm = \Model::factory('BRM\Campaign')->find_one($app->request->post('deleteId'));
+								$brm->delete();
+
+								$app->flash('success', 'BRM has been deleted');
+								break;
+
+							case 'changestate':
+								$brm = \Model::factory('BRM\Campaign')->find_one($app->request->post('deleteId'));
+								$statechange = \Model::factory('BRM\StateChange')->create();
+								$statechange->userid = $app->user->id;
+								$statechange->stateid = -1;
+								$brm->changeState($statechange);
+
+								$app->flash('success', 'BRM has been hidden.');
+								break;
+						}
+					} else {
+						$app->flash('warning', 'No BRM action was taken because BRMID was not set.');
+					}
+
+					$app->redirect('/brm');
 				}
 			})->name('delete-brm');
 		});
