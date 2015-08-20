@@ -228,7 +228,8 @@
 				$app->flash('danger', 'Login Error, Please try again');
 				$app->redirect('/');
 			} else {
-				$user = \ORM::for_table('user')->find_one($result->userid);
+				//$user = \ORM::for_table('user')->find_one($result->userid);
+				$user = \Model::factory('User')->find_one($result->userid);
 	
 				$_SESSION['user'] = new \BRMManager\User\Session($user);
 
@@ -354,14 +355,13 @@
 					$template_columns[6]  => $li->approval_needed,
 					$template_columns[7]  => $li->approved,
 					$template_columns[8]  => $li->denied,
-					$template_columns[9]  => '<a class="btn btn-default pull-right" href="' . $app->urlFor('view-brm', array('id' => $li->id)) . '">View</a>',
-					$template_columns[10] => $li->stateid,
+					$template_columns[9]  => $li->stateid,
+					'classes'			  => implode(' ', $classes)
 				);
 			});
 
 			$jsonArr = array_merge($jsonArr, $manager->createData($resource)->toArray());
-			//$app->logger->addInfo(var_export($jsonArr, true));
-			$app->logger->addInfo(json_encode($jsonArr));
+			$app->logger->addInfo(var_export($jsonArr, true));
 			$app->view->renderJson($jsonArr);
 		})->via('GET', 'POST');
 

@@ -76,8 +76,10 @@ class Campaign
 	}
 
 	public function addRequest(Request $request) {
-		$this->requestid = $request->id;
-		$this->save();
+		if(is_null($this->requestid)) {
+			$this->requestid = $request->id;
+			$this->save();
+		}
 	}
 
 	public function state() {
