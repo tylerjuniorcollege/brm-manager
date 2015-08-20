@@ -403,37 +403,6 @@
 				$brm->addCampaign($campaign);
 			}
 
-			// Request information.
-			if(($app->request->post('requestdate') != '') ||
-			   ($app->request->post('requestuser') != '') ||
-			   ($app->request->post('department') != '')) {
-			   	// Create a new Request Object.
-				$request = \Model::factory('BRM\Request')->create();
-
-				if(($app->request->post('requestdate') != '')) {
-					$request->set_expr('timestamp', sprintf('FROM_UNIXTIME(%s)', strtotime($app->request->post('requestdate'))));
-				}
-
-				if(($app->request->post('requestuser') != '')) {
-					$req_user = \Model::factory('User')->where('email', $app->request->post('requestuser'))->find_one();
-					if($req_user !== FALSE) {
-						$request->addUser($req_user);
-					} elseif($app->request->post('requestuser') !== '') {
-						$request->email = $app->request->post('requestuser');
-					}
-				}
-
-				if(($app->request->post('department') != '')) {
-					$dept = \Model::factory('Department')->find_one($app->request->post('department'));
-					if($dept !== FALSE) {
-						$request->addDepartment($dept);
-					}
-				}
-
-				$request->save();
-				$brm->addRequest($request);
-			}
-
 			// Since the BRM has been saved, NOW, we need to create the new version in the database.
 			// This needs to only happen if there is a change in the content.
 			if(!isset($brm->current_version) ||
@@ -458,6 +427,43 @@
 				$brm->addUsers($add_users, $app->request->post('permissions'));
 
 				$brm->removeUsers($rm_users);
+			}
+
+			// Request information.
+			if(($app->request->post('requestdate') != '') ||
+			   ($app->request->post('requestuser') != '') ||
+			   ($app->request->post('department') != '')) {
+
+			   	if(is_null($brm->requestid) ||
+			   	   $brm->current_version != $brm->request()->versionid) {
+			   		// Create a new Request Object.
+					$request = \Model::factory('BRM\Request')->create();
+				} else {
+					$request = $brm->request();
+				}
+
+				if(($app->request->post('requestdate') != '')) {
+					$request->set_expr('timestamp', sprintf('FROM_UNIXTIME(%s)', strtotime($app->request->post('requestdate'))));
+				}
+
+				if(($app->request->post('requestuser') != '')) {
+					$req_user = \Model::factory('User')->where('email', $app->request->post('requestuser'))->find_one();
+					if($req_user !== FALSE) {
+						$request->addUser($req_user);
+					} elseif($app->request->post('requestuser') !== '') {
+						$request->email = $app->request->post('requestuser');
+					}
+				}
+
+				if(($app->request->post('department') != '')) {
+					$dept = \Model::factory('Department')->find_one($app->request->post('department'));
+					if($dept !== FALSE) {
+						$request->addDepartment($dept);
+					}
+				}
+
+				$request->save();
+				$brm->addRequest($request);
 			}
 
 			$statechange = \Model::factory('BRM\StateChange')->create();
