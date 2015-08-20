@@ -233,7 +233,7 @@
 					<div class="col-sm-5 col-sm-offset-7" style="padding-top: 5px;">
 						<input type="hidden" name="brmid" value="<?= $data['brm_data']->id; ?>">
 						<input type="hidden" name="versionid" value="<?= $data['current_version']->id; ?>">
-						<button type="submit" name="action" value="addcomment" class="btn btn-default pull-right">Add Comment</button>
+						<button type="submit" name="action" value="addcomment" class="btn btn-primary pull-right">Add Comment</button>
 					<?php if($data['authorized'] instanceof \BRMManager\Model\BRM\AuthList && (int)$data['authorized']->approved == 0): ?>
 						<button type="submit" name="action" value="deny-version" class="btn btn-danger pull-right">Deny Version</button>
 						<button type="submit" name="action" value="approve-version" class="btn btn-success pull-right">Approve Version</button>
@@ -246,29 +246,7 @@
 			<div class="col-sm-10 col-sm-offset-2">
 				<hr />
 				<div class="row" id="comments">
-				<?php foreach($data['comments'] as $c_row): 
-						$background = null;
-
-						switch((int)$c_row->approved) {
-							case 1:
-								$background = ' bg-success';
-								break;
-
-							case -1;
-								$background = ' bg-danger';
-								break;
-						}
-				?>
-					<div class="media<?=$background; ?>">
-						<div class="media-left">
-							<img src="<?= \BRMManager\Gravatar\genUrl($c_row->useremail); ?>" class="media-object"/>
-						</div>
-						<div class="media-body">
-							<?= $c_row->comment; ?> 
-							<h4 class="media-heading"><?= $c_row->userfirstname; ?> <?=$c_row->userlastname; ?> - Posted on <?=date('l, F j, Y g:i:s', strtotime($c_row->timestamp)); ?> For Version #<?=$c_row->brmversionid; ?></h4>
-						</div>
-					</div>
-				<?php endforeach; ?>
+				<?= outputComments($data['comments']); ?>
 				</div>
 			</div>
 		</div>
