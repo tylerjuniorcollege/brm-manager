@@ -1,0 +1,46 @@
+{
+	"name":"tylerjuniorcollege/brm-manager",
+	"description":"Simple Application for BRM Approval Workflow",
+	"license":"MIT",
+	"authors":[
+		{
+			"name":"Duane Jeffers",
+			"role":"developer",
+			"email":"djef@tjc.edu"
+		}
+	],
+	"require":{
+		"slim/slim": "2.*",
+		"j4mie/idiorm": "1.5.1",
+		"j4mie/paris": "1.5.4",
+		"tylerjuniorcollege/slim-layout":"dev-master",
+		"duanejeffers/cli.class.php": "dev-master",
+		"filp/whoops": "1.*",
+		"zeuxisoo/slim-whoops": "0.2.0",
+		"mandrill/mandrill": "1.0.*",
+		"league/fractal": "0.11.0",
+		"brandonwamboldt/utilphp": "1.1.*",
+		"league/flysystem": "1.0.1",
+		"monolog/monolog": "~1.13",
+		"incoming/incoming": "0.2.*",
+		"kriswallsmith/assetic":"*"
+	},
+	"autoload":{
+		"psr-4":{
+			"BRMManager\\":"app/src/"
+		},
+		"files":["app/src/Gravatar.php", "app/src/Functions.php"]
+	},
+	"scripts":{
+		"post-update-cmd":[
+			"bower update",
+			"cd bin && { rm adminer.php; curl -o adminer.php -L http://adminer.org/latest-en.php; cd -; }",
+			"cd public && { rm adminer.css; curl -o adminer.css -L https://raw.github.com/vrana/adminer/master/designs/pepa-linha/adminer.css; cd -; }"
+		],
+		"post-install-cmd":[
+			"bower install",
+			"cd bin && { rm adminer.php; curl -o adminer.php -L http://adminer.org/latest-en.php; cd -; }",
+			"cd public && { rm adminer.css; curl -o adminer.css -L https://raw.github.com/vrana/adminer/master/designs/pepa-linha/adminer.css; cd -; }"
+		]
+	}
+}

@@ -1,0 +1,18 @@
+
+#create-brm .row .form-group {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+#create-brm .row .form-group label {
+  width: 32.333333%;
+}
+
+#create-brm .row .form-group div {
+  padding-right: 0;
+  width: 67.666667%;
+}
+
+#campaign-select .select2-container.form-control {
+	width: 100% !important;
+}
