@@ -23,6 +23,8 @@
 	use \Monolog\Formatter\LineFormatter;
 	use \Monolog\Handler\LogglyHandler;
 	use \Monolog\Formatter\LogglyFormatter;
+	use League\Flysystem\Filesystem;
+	use League\Flysystem\Adapter\Local AS LocalFS;
 
 	$app = new \Slim\Slim(array(
 		'mode' => APPLICATION_ENV,
@@ -916,6 +918,46 @@
 			$app->view->disableLayout();
 			include('../bin/adminer.php');
 		})->via('GET', 'POST');
+
+		$app->get('/migrations', function() use($app) { // This is a simple migration system.
+			$adapter = new LocalFS(__DIR__ . '/db');
+			$filesystem = new Filesystem($adapter);
+
+			$data = array('table' => array());
+
+			foreach($filesystem->listContents() as $contents) {
+				// Check to see if we have run this migration before.
+				$count = \ORM::for_table('migrations')->where('name', $contents['filename'])->count();
+				if($app->request->get('run') == $contents['filename']) {
+					if($count != false) {
+						// This has been run before.
+						$app->flash('danger', '<strong>Migration has been run before on this database.</strong>');
+						$app->redirect('/admin/migrations');
+					}
+
+					// We run this migration and die.
+					include_once(__DIR__ . '/db/' . $contents['path']);
+
+					// Save Migration:
+					$migration = \ORM::for_table('migrations')->create();
+
+					$migration->name = $contents['filename'];
+					$migration->set_expr('timestamp', 'NOW()');
+					$migration->save();
+
+					echo "\n\n" . '<p><a href="/admin/migrations">Go Back</a></p>';
+					die(); 
+				}
+
+				$data['table'][] = array(
+					'name' => $contents['filename'],
+					'link' => sprintf('<a href="/admin/migrations?run=%s">Run Migration</a>', $contents['filename']),
+					'count' => $count
+				);
+			}
+
+			$app->render('admin/migrations.php', $data);
+		});
 
 		$app->get('/', function() use($app) {
 			$app->render('admin/index.php', array());
