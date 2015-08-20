@@ -46,10 +46,10 @@
 
 		$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
 
-		$stream = new StreamHandler('../logs/logger.log');
-		$stream->setFormatter(new LineFormatter(null, null, true));
+		/* $stream = new StreamHandler('../logs/logger.log');
+		$stream->setFormatter(new LineFormatter(null, null, true)); */
 
-		$app->logger->pushHandler($stream);
+		//$app->logger->pushHandler($stream);
 		$app->logger->pushHandler(new ChromePHPHandler());
 
 		\ORM::configure('logging', true);
@@ -138,18 +138,23 @@
 			// Pass the User information on in to the system.
 			$app->view->setLayoutData('user', $app->user);
 
-			// Get User's Unread Child Comments.
-			$comments = \ORM::for_table('comments')->table_alias('p')
-												   ->select_many(array(
-												 		'id' => 'c.id',
-												 		'brmid' => 'c.brmid',
-												 		'userid' => 'c.userid',
-												 		'timestamp' => 'c.timestamp'))
-												 ->join('comments', array('c.parentid', '=', 'p.id'), 'c')
-												 ->where_gte('c.timestamp', $app->user->last_login)
-												 ->where('p.userid', $app->user->id)->find_many();
+			try {
+				// Get User's Unread Child Comments.
+				$comments = \ORM::for_table('comments')->table_alias('p')
+													   ->select_many(array(
+													 		'id' => 'c.id',
+													 		'brmid' => 'c.brmid',
+													 		'userid' => 'c.userid',
+													 		'timestamp' => 'c.timestamp'))
+													 ->join('comments', array('c.parentid', '=', 'p.id'), 'c')
+													 ->where_gte('c.timestamp', $app->user->last_login)
+													 ->where('p.userid', $app->user->id)->find_many();
 
-			$app->view->setLayoutData('unread_comments', $comments);
+				$app->view->setLayoutData('unread_comments', $comments);
+			} catch(Exception $e) {
+				// ignoring this.
+				$app->view->setLayoutData('unread_comments', new stdClass());
+			}
 		}
 	};
 
@@ -983,7 +988,7 @@
 		})->via('GET', 'POST');
 
 		$app->get('/migrations', function() use($app) { // This is a simple migration system.
-			$adapter = new LocalFS(__DIR__ . '/db');
+			$adapter = new LocalFS(__DIR__ . '/../data/migrations');
 			$filesystem = new Filesystem($adapter);
 
 			$data = array('table' => array());
@@ -999,7 +1004,7 @@
 					}
 
 					// We run this migration and die.
-					include_once(__DIR__ . '/db/' . $contents['path']);
+					include_once(__DIR__ . '/../data/migrations/' . $contents['path']);
 
 					// Save Migration:
 					$migration = \ORM::for_table('migrations')->create();
