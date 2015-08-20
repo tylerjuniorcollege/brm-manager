@@ -279,7 +279,7 @@
 			$app->logger->addInfo(var_export($app->request->post(), true));
 
 			$template_columns = array(
-				'id', 'title', 'state', 'createdby_name', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'view', 'stateid'
+				'id', 'title', 'state', 'createdby_name', 'launchdate', 'current_version', 'approval_needed', 'approved', 'denied', 'stateid'
 			);
 
 			// Grab the whole list of available table data.
@@ -312,11 +312,41 @@
 			$list->limit((int) $app->request->post('length'))
 				 ->offset((int) $app->request->post('start'));
 
+			//$app->logger->addInfo('List Dump:' . var_export($list, true));
+
+			$list_items = $list->find_many();
+
 			$manager = new FractalManager();
-			$resource = new FractalCollection($list->find_many(), function($li) use($app, $template_columns) {
+			$resource = new FractalCollection($list_items, function($li) use($app, $template_columns) {
+				// See if stateid is greater than/equal to 5 (Launched)
+				$classes = array();
+				if($li->stateid >= 5) {
+					switch($li->stateid) {
+						case 5:
+							$classes[] = 'success';
+							break;
+
+						case 6:
+							$classes[] = 'info';
+							break;
+					}
+				} elseif($li->stateid >= 2) {
+					$launchdate = strtotime($li->launchdate);
+					$curr_time = mktime(00, 00, 00); // Midnight today
+
+					// Here is the timeframe for the Warning highlight.
+					$danger_zone = $curr_time + (((60*60)*24)*7);
+
+					if($launchdate > $curr_time) {
+						$classes[] = 'danger';
+					} elseif($launchdate < $danger_zone) {
+						$classes[] = 'warning';
+					} 
+				}
+
 				return array(
 					$template_columns[0]  => $li->id,
-					$template_columns[1]  => $li->title,
+					$template_columns[1]  => sprintf('<a href="%s">%s</a>', $app->urlFor('view-brm', array('id' => $li->id)), $li->title),
 					$template_columns[2]  => $li->state,
 					$template_columns[3]  => $li->createdby_name,
 					$template_columns[4]  => $li->launchdate,

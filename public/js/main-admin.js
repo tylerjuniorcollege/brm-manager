@@ -4,7 +4,10 @@ $(document).ready(function() {
 		"serverSide": true,
 		"ajax":{
 			"url":"/brm/list",
-			"type":"POST"
+			"type":"POST",
+			"data": function(d) {
+				d.test = 'TRUE';
+			}
 		},
 		"columns": [
 			{"data":"id"},
@@ -16,14 +19,17 @@ $(document).ready(function() {
 			{"data":"approval_needed"},
 			{"data":"approved"},
 			{"data":"denied"},
-			{"data":"view",
-			 "orderable":false},
 			{"data":null,
 			 "defaultContent":'<button class="btn btn-danger del-btn">Delete</button>',
 			 "orderable":false}
 		],
 		"bFilter": false,
-		"dom": 'rt<"bottom col-sm-12"<"row"<"col-sm-2"l><"col-sm-2"i><"col-sm-8 pull-right"p>>><"clear">'
+		"dom": 'rt<"bottom col-sm-12"<"row"<"col-sm-2"l><"col-sm-2"i><"col-sm-8 pull-right"p>>><"clear">',
+		"fnCreatedRow": function(nRow, aData, iDataIndex) {
+			if(aData.classes.length > 0) {
+				$(nRow).attr('class', aData.classes);
+			}
+		}
 	});
 
 	$('#list-table tbody').on('click', 'button.del-btn', function() {

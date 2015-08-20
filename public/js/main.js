@@ -16,8 +16,6 @@ $(document).ready(function() {
 			{"data":"approval_needed"},
 			{"data":"approved"},
 			{"data":"denied"},
-			{"data":"view",
-			 "orderable":false},
 			{"data":null,
 			 "visible":false}
 		],

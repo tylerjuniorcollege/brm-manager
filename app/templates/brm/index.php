@@ -1,12 +1,27 @@
 <div class="page-header">
-	<h3>BRM Emails</h3>
+	<h3>BRM Emails 	<small class="pull-right"><button type="button" class="btn btn-default" data-toggle="collapse" data-target="#filters" aria-expanded="false" aria-controls="filters"><i class="fa fa-gear"></i></button></small></h3>
+</div>
+<div class="row collapse" id="filters">
+	<div class="col-sm-12">
+		<h4>Filters</h4>
+	</div>
+	<div class="col-sm-12 well">
+		<div class="row">
+			<div class="col-sm-3">
+				<label class="checkbox checkbox-custom checkbox-inline"><input type="checkbox" id="filterHidden" class="filter" value="1">Hidden BRMs</label><br />
+				<label class="checkbox checkbox-custom checkbox-inline"><input type="checkbox" id="filterUser" class="filter" value="1">Show My Created BRMs</label>
+			</div>
+			<div class="col-sm-9">
+				
+			</div>
+		</div>
+	</div>
 </div>
 <div class="row">
 	<table class="table table-striped table-hover" id="list-table" style="width: 100%">
 		<colgroup>
 			<col class="col-md-1">
-			<col class="col-md-2">
-			<col class="col-md-1">
+			<col class="col-md-3">
 			<col class="col-md-1">
 			<col class="col-md-1">
 			<col class="col-md-1">
@@ -25,7 +40,6 @@
 				<th rowspan="2">Launch Date</th>
 				<th rowspan="2">Current Version</th>
 				<th colspan="3">Approval Stats</th>
-				<th rowspan="2">View</th>
 				<th rowspan="2">Delete</th>
 			</tr>
 			<tr>
