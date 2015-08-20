@@ -42,16 +42,23 @@
 			'debug' => true
 		));
 
+		\ORM::configure('error_mode', PDO::ERRMODE_EXCEPTION);
+
 		$app->add(new \Zeuxisoo\Whoops\Provider\Slim\WhoopsMiddleware);
 
 		$stream = new StreamHandler('../logs/logger.log');
 		$stream->setFormatter(new LineFormatter(null, null, true));
 
 		$app->logger->pushHandler($stream);
+		$app->logger->pushHandler(new ChromePHPHandler());
 
 		\ORM::configure('logging', true);
 		\ORM::configure('logger', function($log_string, $query_time) use($app) {
-    		$app->logger->addInfo('Query: ', array('query' => $log_string, 'time' => $query_time));
+    		$app->logger->addInfo(sprintf('[%s] Query: %s', $query_time, $log_string));
+		});
+
+		$app->error(function(\Exception $e) use ($app) {
+			$app->logger->addInfo('Error: ' . $e->getMessage() . ' Code: ' . $e->getCode());
 		});
 
 		$app->view->appendJavascriptFile('/components/jquery/dist/jquery.min.js')
@@ -140,7 +147,6 @@
 												 		'timestamp' => 'c.timestamp'))
 												 ->join('comments', array('c.parentid', '=', 'p.id'), 'c')
 												 ->where_gte('c.timestamp', $app->user->last_login)
-												 //->where_raw('`c`.`timestamp` >= DATE_SUB(NOW(), INTERVAL 24 HOUR)')
 												 ->where('p.userid', $app->user->id)->find_many();
 
 			$app->view->setLayoutData('unread_comments', $comments);
