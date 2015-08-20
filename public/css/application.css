@@ -27,8 +27,8 @@ table.dataTable thead .sorting::after, table.dataTable thead .sorting_asc::after
   top: auto !important;
 }
 
-#commentEditor {
-  overflow:scroll; 
+#commentEditor, .comment-reply-editor {
+  /* overflow:scroll; */ 
   max-height:300px;
   height: 150px;
   background-color: white;
@@ -51,7 +51,7 @@ div[data-role="editor-toolbar"] {
   user-select: none;
 }
 
-.dropdown-menu a {
+.dropdown-menu a, a.comment-reply {
   cursor: pointer;
 }
 
@@ -69,6 +69,14 @@ div[data-role="editor-toolbar"] {
 
 #list-table th.sorting_disabled {
   text-align: right;
+}
+
+.media {
+  padding: 5px;
+  border-radius: 5px;
+}
+.media .media-body .media-comment {
+  min-height: 64px;
 }
 
 /* #layoutSearch {

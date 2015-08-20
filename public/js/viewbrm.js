@@ -13,11 +13,19 @@ var commentEdit = $('#commentEditor');
 commentEdit.wysiwyg();
 
 $('#view-brm').submit(function(e) {
-	var commentHtml = commentEdit.cleanHtml();
+	var submitbtn = $(this).find("button[type=submit]:focus");
+	var commentHtml = '';
+
+	if(submitbtn.val() == 'addcommentreply') {
+		// We get the comment html.
+		var commentReplyEditor = "#comment-" + $('input[name="parentid"]').val() + "-editor";
+		commentHtml = $(commentReplyEditor).cleanHtml();
+	} else if(submitbtn.val() == 'addcomment') {
+		commentHtml = commentEdit.cleanHtml();
+	}
 
 	$('#commentContent').val(commentHtml);
 
-	var submitbtn = $(this).find("button[type=submit]:focus");
 	//console.log(submitbtn);
 	//e.preventDefault();
 	if(submitbtn.val() == 'deny-version' && $.trim(commentHtml).length < 4) {
@@ -47,4 +55,23 @@ $('#publishedNotify').select2();
 
 $('#publishedSubmit').click(function() {
 	$('#view-brm').submit();
+});
+
+$('.comment-reply').click(function(e) {
+	e.preventDefault();
+	var commentId = "#" + $(this).attr("id");
+	$(commentId + '-editor').wysiwyg();
+	$(commentId + '-reply').collapse("toggle");
+
+	//$(this).toggleClass("comment-reply comment-reply-cancel");
+
+	// We need to append the parentid in a hidden input.
+	$('<input type="hidden" name="parentid">').val($(this).attr("id").replace("comment-", "")).appendTo("#view-brm");
+});
+
+$('.comment-reply-cancel').click(function(e) {
+	var commentId = "#" + $(this).attr("id").replace("-cancel", "");
+
+	$(commentId + '-reply').collapse("hide");
+	$('input[name="parentid"]').remove();
 });

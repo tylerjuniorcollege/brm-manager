@@ -11,6 +11,7 @@ class Session {
 	public $lastname;
 	public $permissions;
 	public $session_timeout;
+	public $last_login;
 
 	// This is created at user login time.
 	public function __construct($user_obj, $timeout = "+30 minutes") {
@@ -19,6 +20,7 @@ class Session {
 		$this->firstname = $user_obj->firstname;
 		$this->lastname = $user_obj->lastname;
 		$this->permissions = $user_obj->permissions;
+		$this->last_login = $user_obj->lastLogin();
 
 		$this->session_timeout = strtotime($timeout); // Only allow a 30 minute login.
 	}
@@ -28,7 +30,7 @@ class Session {
 		// If the user has about 5 mins left before the system logs them off, we need to up it by another 5 minutes.
 		$time = time();
 
-		if($this->permissions >= 16) { // Admins can bypass the session timeout.
+		if(Permissions::hasAccess((int) $this->permissions, 'admin')) { // Admins can bypass the session timeout.
 			return TRUE; // for dev
 		}
 

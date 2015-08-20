@@ -31,9 +31,14 @@
 			  		<a class="navbar-brand" href="/brm">BRM Manager</a>
 			  	</div>
 			  	<?php if(isset($data['user'])): ?>
-			  		<form class="navbar-form navbar-right">
-          				<input type="text" id="layoutSearch" class="form-control" name="s" placeholder="Search for BRM">
-          			</form>
+			  		<ul class="nav navbar-nav navbar-right">
+          				<li class="dropdown">
+          					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-comments fa-lg fa-fw"></i><span class="badge" id="unreadCommentCount"><?= (count($data['unread_comments']) > 0 ? count($data['unread_comments']) : '' ); ?></span> <span class="caret"></span></a>
+          					<ul class="dropdown-menu" role="menu">
+
+          					</ul>
+          				</li>
+          			</ul>
       				<ul class="nav navbar-nav navbar-left">
       					<?php if($data['user']->hasAccess('create')): ?>
       						<li class="dropdown">

@@ -32,4 +32,9 @@ class User
 		$app = \Slim\Slim::getInstance();
 		return $app->urlFor('edit-user', array('id' => $this->id));
 	}
+
+	public function lastLogin() {
+		$last_login = $this->has_many('LoginAttempts', 'userid')->where('result', 1)->order_by_desc('timestamp')->find_one();
+		return $last_login->timestamp;
+	}
 }

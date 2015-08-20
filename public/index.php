@@ -130,6 +130,20 @@
 		} else {
 			// Pass the User information on in to the system.
 			$app->view->setLayoutData('user', $app->user);
+
+			// Get User's Unread Child Comments.
+			$comments = \ORM::for_table('comments')->table_alias('p')
+												   ->select_many(array(
+												 		'id' => 'c.id',
+												 		'brmid' => 'c.brmid',
+												 		'userid' => 'c.userid',
+												 		'timestamp' => 'c.timestamp'))
+												 ->join('comments', array('c.parentid', '=', 'p.id'), 'c')
+												 ->where_gte('c.timestamp', $app->user->last_login)
+												 //->where_raw('`c`.`timestamp` >= DATE_SUB(NOW(), INTERVAL 24 HOUR)')
+												 ->where('p.userid', $app->user->id)->find_many();
+
+			$app->view->setLayoutData('unread_comments', $comments);
 		}
 	};
 
@@ -529,32 +543,38 @@
 				  ((is_object($out['authorized'])) || 
 				   ($out['admin'] === TRUE) ||
 				   ($out['owner'] === TRUE))) {
-				   	$app->logger->addInfo(var_export($app->request->post(), true));
+				   	//$app->logger->addInfo(var_export($app->request->post(), true));
 					// This is adding a comment or approving the current BRM.
 					if($app->request->post('action')) {
+						$comment = \ORM::for_table('comments')->create();
 						switch($app->request->post('action')) {
-							case 'addcomment':
-								$comment = \ORM::for_table('comments')->create();
-								$comment->userid = $app->user->id;
-								$comment->brmid = $app->request->post('brmid');
-								$comment->versionid = $app->request->post('versionid');
-								break;
-	
 							case 'approve-version':
-								$comment = $out['authorized'];
-								$comment->approved = 1;
+								$out['authorized']->approved = 1;
 								break;
 	
 							case 'deny-version':
-								$comment = $out['authorized'];
-								$comment->approved = -1;
+								$out['authorized']->approved = -1;
 								break;
 						}
+
+						// Need to have parent id in case it is a reply.
+						if(!is_null($app->request->post('parentid'))) {
+							$comment->parentid = $app->request->post('parentid');
+						}
+
+						// Also send out notification for comments.
+						
+
+						$comment->userid = $app->user->id;
+						$comment->brmid = $app->request->post('brmid');
+						$comment->versionid = $app->request->post('versionid');
 						$comment->comment = $app->request->post('comment');
 						$comment->save();
 
-						if($comment instanceof \BRMManager\Model\BRM\AuthUser) {
-							$out['authorized'] = $comment;
+						if($app->request->post('action') != 'addcomment' &&
+						   $app->request->post('action') != 'addcommentreply') {
+							$out['authorized']->commentid = $comment->id;
+							$out['authorized']->save();
 						}
 					}
 
@@ -615,9 +635,10 @@
 
 				$out['previous_versions'] = $out['brm_data']->versions()->where_not_equal('id', $out['current_version']->id)->find_array();
 
-				$out['comments'] = \ORM::for_table('view_brm_comments')->where('brmid', $out['brm_data']->id)
-																  	   ->order_by_desc('timestamp', 'versionid')
-																  	   ->find_many();
+				$out['comments'] = \Model::factory('BRM\Comment')->where('brmid', $out['brm_data']->id)
+																 ->where_null('parentid')
+																 ->order_by_desc('timestamp', 'versionid')
+																 ->find_many();
 
 				$out['states'] = \Model::factory('BRM\State')->find_many();
 
